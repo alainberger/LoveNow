@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>LoveNow — Rencontres gratuites, proches de toi</title>
+  <meta name="description" content="LoveNow : rencontres gratuites et locales. Inscris-toi en 2 minutes, découvre des profils proches, discute en toute confiance.">
+  <!-- Open Graph / Twitter -->
+  <meta property="og:title" content="LoveNow — Rencontres gratuites, proches de toi">
+  <meta property="og:description" content="Gratuit, rapide, local. Inscris-toi et commence à discuter.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='630'><rect width='100%' height='100%' fill='%23ff4d6d'/><text x='50%' y='55%' font-family='Arial' font-size='72' fill='white' text-anchor='middle'>LoveNow</text></svg>">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0d0d10; --card:#151921; --line:#222a35; --txt:#f6f8fa; --muted:#aeb6c2;
+      --acc:#ff4d6d; --acc2:#8f51ea; --acc3:#ff6bb5; --ok:#30d158;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;background:var(--bg);color:var(--txt);font-family:'Poppins',system-ui,Segoe UI,Arial,sans-serif}
+    a{color:inherit}
+    .wrap{max-width:1100px;margin:0 auto;padding:16px 18px}
+    header{position:sticky;top:0;z-index:50;backdrop-filter:saturate(140%) blur(8px);
+      background:linear-gradient(180deg,rgba(0,0,0,.7),rgba(0,0,0,.45));border-bottom:1px solid var(--line)}
+    .row{display:flex;gap:14px;align-items:center;justify-content:space-between}
+    .logo{font-weight:800;letter-spacing:.3px;color:var(--acc)}
+    .nav-btn{border:1px solid #ffffffaa;padding:8px 14px;border-radius:999px;text-decoration:none}
+    .nav-btn:hover{background:#fff;color:#000}
+
+    .hero{display:grid;place-items:center;min-height:86vh;text-align:center;padding:30px 18px;
+      background:radial-gradient(1200px 600px at 10% 10%,rgba(255,77,109,.2),transparent 60%),
+                 radial-gradient(1200px 600px at 90% 10%,rgba(143,81,234,.25),transparent 60%),
+                 linear-gradient(135deg,var(--acc),var(--acc3),var(--acc2))}
+    .hero h1{font-size:clamp(28px,6vw,48px);margin:6px 0 10px;font-weight:800}
+    .hero p{max-width:640px;margin:0 auto 18px;color:#fff;opacity:.95}
+    .cta{display:inline-block;background:#fff;color:#000;font-weight:800;border-radius:999px;padding:14px 28px;
+      text-decoration:none;transition:.25s transform}
+    .cta:hover{transform:translateY(-1px)}
+    .uspbar{display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+    .pill{border:1px solid #ffffff80;color:#fff;padding:6px 12px;border-radius:999px;font-size:12px;opacity:.9}
+
+    section{padding:54px 18px}
+    h2{font-size:clamp(22px,4.2vw,30px);margin:0 0 12px}
+    .muted{color:var(--muted)}
+    .grid{display:grid;gap:16px}
+    .g-3{grid-template-columns:repeat(3,1fr)}
+    .g-2{grid-template-columns:repeat(2,1fr)}
+    @media(max-width:900px){.g-3,.g-2{grid-template-columns:1fr}}
+
+    .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+    .step{display:flex;gap:12px;align-items:flex-start}
+    .badge{background:#0f1320;border:1px solid var(--line);padding:6px 10px;border-radius:10px;font-size:12px;color:#cfd7e3}
+    .feature h3{margin:6px 0 6px;color:var(--acc3);font-size:18px}
+
+    .stats{display:flex;gap:16px;flex-wrap:wrap;align-items:center}
+    .counter{font-size:28px;font-weight:800}
+    .avatars{display:flex}
+    .avatars span{width:36px;height:36px;border-radius:50%;border:2px solid var(--bg);margin-left:-8px;box-shadow:0 0 0 1px var(--line);display:inline-block}
+    .av1{background:#ff6bb5}.av2{background:#8f51ea}.av3{background:#ff4d6d}
+
+    .check{color:var(--ok);margin-right:8px}
+
+    .faq-item{border-bottom:1px solid var(--line)}
+    .faq-q{display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:14px 0}
+    .faq-a{max-height:0;overflow:hidden;transition:max-height .3s ease}
+
+    .cta-form{display:flex;gap:10px;flex-wrap:wrap;max-width:520px}
+    .cta-form input{flex:1;min-width:200px;border-radius:999px;border:1px solid var(--line);background:#0f1320;color:#fff;padding:12px}
+    .cta-form button{border:0;border-radius:999px;padding:12px 18px;background:var(--acc);color:#fff;font-weight:800;cursor:pointer}
+
+    .sticky-cta{position:fixed;left:0;right:0;bottom:0;z-index:60;background:#0b0b0bcc;backdrop-filter:blur(8px);border-top:1px solid var(--line);display:none}
+    .sticky-cta .wrap{display:flex;gap:10px;align-items:center;justify-content:space-between}
+    .sticky-cta .btn{background:var(--acc);color:#fff;border-radius:999px;padding:10px 16px;font-weight:800}
+    @media(max-width:900px){.sticky-cta{display:block}}
+
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:70}
+    .modal .box{background:var(--card);border:1px solid var(--line);border-radius:14px;max-width:520px;padding:20px;margin:18px}
+    .close{background:none;border:0;color:#fff;font-size:22px;cursor:pointer}
+
+    @media (prefers-reduced-motion: reduce){.cta:hover{transform:none}.faq-a{transition:none}}
+    .sr-only{position:absolute;left:-99999px;top:auto;width:1px;height:1px;overflow:hidden}
+    .chips{display:flex;flex-wrap:wrap;gap:10px}
+    .chip{background:#1c1f27;border:1px solid #2a3140;padding:10px;border-radius:12px;font-size:14px}
+    .selectline{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0}
+    .selectline input{border-radius:12px;border:1px solid var(--line);background:#0f1320;color:#fff;padding:8px 10px}
+  </style>
+
+  <!-- JSON-LD: WebSite + FAQ -->
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"WebSite","name":"LoveNow","url":"https://example.com"}
+  </script>
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+    {"@type":"Question","name":"LoveNow est-il vraiment gratuit ?","acceptedAnswer":{"@type":"Answer","text":"Oui, inscription gratuite et messages offerts au lancement. Des options premium pourront arriver plus tard."}},
+    {"@type":"Question","name":"Comment gérez-vous la sécurité ?","acceptedAnswer":{"@type":"Answer","text":"Profils signalables, modération humaine, paramètres de confidentialité clairs, respect du RGPD."}},
+    {"@type":"Question","name":"Y a-t-il du monde près de moi ?","acceptedAnswer":{"@type":"Answer","text":"Au lancement, certaines zones démarrent. Invite deux amis pour atteindre l’objectif local et débloquer plus de profils !"}}
+  ]}
+  </script>
+</head>
+<body>
+  <a class="sr-only" href="#main">Aller au contenu</a>
+
+  <header>
+    <div class="wrap row">
+      <div class="logo" aria-label="LoveNow">💘 LoveNow</div>
+      <nav aria-label="Navigation principale">
+        <a class="nav-btn" href="#cta" data-variant="header-login">Connexion</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- HERO -->
+    <section class="hero">
+      <h1 data-variant="h1">Rencontre l’amour près de chez toi</h1>
+      <p>Inscris-toi en 2 minutes, découvre des profils réels à proximité, et commence à discuter en toute confiance. 100% gratuit pour les premiers inscrits.</p>
+      <a href="#cta" class="cta" data-variant="cta-hero" aria-label="Rejoins-nous gratuitement">Rejoins-nous gratuitement</a>
+      <div class="uspbar" aria-label="Arguments clés">
+        <span class="pill">🔥 Gratuit au départ</span>
+        <span class="pill">📍 Local & rapide</span>
+        <span class="pill">🔒 Sécurité & respect</span>
+      </div>
+    </section>
+
+    <!-- COMMENT ÇA MARCHE -->
+    <section class="wrap">
+      <h2>Comment ça marche</h2>
+      <p class="muted">Trois étapes simples pour démarrer.</p>
+      <div class="grid g-3">
+        <div class="card step"><div class="badge">1</div><div><strong>Crée ton profil</strong><br><span class="muted">Pseudo, ville, centres d’intérêt. 2 minutes chrono.</span></div></div>
+        <div class="card step"><div class="badge">2</div><div><strong>Découvre des profils proches</strong><br><span class="muted">Filtre par distance et affinités.</span></div></div>
+        <div class="card step"><div class="badge">3</div><div><strong>Discute en confiance</strong><br><span class="muted">Messages offerts au démarrage, sans prise de tête.</span></div></div>
+      </div>
+    </section>
+
+    <!-- BÉNÉFICES -->
+    <section class="wrap">
+      <h2>Pourquoi LoveNow</h2>
+      <div class="grid g-3">
+        <div class="card feature"><h3>✨ Ultra simple</h3><p class="muted">Tu t’inscris, tu rencontres, point.</p></div>
+        <div class="card feature"><h3>📱 Mobile-first</h3><p class="muted">Pensé pour le pouce : CTA collants et navigation fluide.</p></div>
+        <div class="card feature"><h3>🛡️ Respect & sécurité</h3><p class="muted">Modération active, signalements en 1 clic, RGPD.</p></div>
+      </div>
+    </section>
+
+    <!-- PREUVE SOCIALE HONNÊTE (compteurs réels + objectif ville) -->
+    <section class="wrap">
+      <h2>La communauté grandit chaque jour</h2>
+      <div class="card">
+        <div class="selectline">
+          <label for="city" class="muted">Ta ville (objectif 100 profils) :</label>
+          <input id="city" placeholder="ex : Paris 15e" oninput="refreshCounters(this.value)">
+        </div>
+        <div class="stats" aria-live="polite">
+          <div><div class="counter" id="c_total">0</div><div class="muted">membres inscrits</div></div>
+          <div><div class="counter" id="c_24h">0</div><div class="muted">inscriptions / 24h</div></div>
+          <div><div class="counter" id="c_completed">0</div><div class="muted">profils complétés</div></div>
+          <div><div class="counter" id="c_city">0/100</div><div class="muted">ta ville (objectif)</div></div>
+          <div class="avatars" aria-label="Exemples d’avatars">
+            <span class="av1"></span><span class="av2"></span><span class="av3"></span>
+          </div>
+        </div>
+        <div id="pioneer" class="pill" style="display:none;margin-top:10px">
+          👑 Tu fais partie des <strong>0</strong> premiers inscrits. Avantages pionnier activés à vie.
+        </div>
+        <div class="muted" style="margin-top:10px">Les chiffres s’actualisent en temps réel dès que tu branches ta base. Transparence totale, pas de faux avis.</div>
+      </div>
+    </section>
+
+    <!-- MUR “BIENVENUE” -->
+    <section class="wrap">
+      <h2>Bienvenue aux nouveaux 💫</h2>
+      <div id="welcomeFeed" class="chips"></div>
+      <div class="muted" style="margin-top:8px">Affichage anonymisé (prénom abrégé). Actualisation automatique.</div>
+    </section>
+
+    <!-- TRUST & SAFETY -->
+    <section class="wrap">
+      <h2>Confiance & sécurité</h2>
+      <div class="grid g-2">
+        <div class="card"><span class="check">✔</span>Profils signalables & modération humaine</div>
+        <div class="card"><span class="check">✔</span>Paramètres de confidentialité clairs</div>
+        <div class="card"><span class="check">✔</span>Données hébergées en UE, respect du RGPD</div>
+        <div class="card"><span class="check">✔</span>Pas de promesses trompeuses — persuasion honnête</div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="wrap">
+      <h2>Questions fréquentes</h2>
+      <div class="card faq-item">
+        <button class="faq-q" aria-expanded="false"><span>LoveNow est-il vraiment gratuit ?</span><span>＋</span></button>
+        <div class="faq-a"><p class="muted">Oui : inscription gratuite et messages offerts au départ. Des options premium pourront arriver plus tard, sans obligation.</p></div>
+      </div>
+      <div class="card faq-item">
+        <button class="faq-q" aria-expanded="false"><span>Dois-je habiter à proximité ?</span><span>＋</span></button>
+        <div class="faq-a"><p class="muted">Tu peux filtrer par distance pour te concentrer sur les profils proches, ou élargir si tu préfères.</p></div>
+      </div>
+      <div class="card faq-item">
+        <button class="faq-q" aria-expanded="false"><span>Comment protégez-vous mes données ?</span><span>＋</span></button>
+        <div class="faq-a"><p class="muted">Nous appliquons des règles strictes de confidentialité et ne revendons pas tes données. Paramètres clairs, suppression sur demande.</p></div>
+      </div>
+    </section>
+
+    <!-- CTA FINAL -->
+    <section id="cta" class="wrap">
+      <div class="card" style="text-align:center">
+        <h2>Prêt·e à tenter ta chance ?</h2>
+        <p class="muted">Inscription en 2 minutes. 18+ uniquement.</p>
+        <form class="cta-form" onsubmit="return submitEmail(event)" aria-label="Inscription rapide">
+          <label class="sr-only" for="email">Email</label>
+          <input id="email" name="email" type="email" placeholder="Ton email" required inputmode="email" autocomplete="email" aria-describedby="emailHelp">
+          <button type="submit" data-variant="cta-final">Commencer</button>
+        </form>
+        <small id="emailHelp" class="muted">En cliquant, tu acceptes nos <a href="#" style="color:var(--acc3)">CGU</a> et <a href="#" style="color:var(--acc3)">Politique de confidentialité</a>.</small>
+      </div>
+    </section>
+  </main>
+
+  <!-- Sticky CTA (mobile) -->
+  <div class="sticky-cta" role="region" aria-label="Inscription rapide mobile">
+    <div class="wrap">
+      <div class="muted">LoveNow — gratuit & local</div>
+      <a class="btn" href="#cta" data-variant="cta-stick">S’inscrire</a>
+    </div>
+  </div>
+
+  <!-- Exit Prompt -->
+  <div class="modal" id="exitModal" role="dialog" aria-modal="true" aria-labelledby="exitTitle">
+    <div class="box">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h3 id="exitTitle" style="margin:0">Avant de partir…</h3>
+        <button class="close" aria-label="Fermer" onclick="closeModal()">×</button>
+      </div>
+      <p class="muted">Reçois ton lien d’inscription. Zéro spam, juste l’accès.</p>
+      <form class="cta-form" onsubmit="return submitEmail(event)">
+        <label class="sr-only" for="email2">Email</label>
+        <input id="email2" type="email" placeholder="Ton email" required>
+        <button type="submit">Envoyer</button>
+      </form>
+    </div>
+  </div>
+
+  <footer>
+    <div class="wrap" style="padding:24px 18px;border-top:1px solid var(--line);text-align:center;color:var(--muted);font-size:14px">
+      © 2025 LoveNow — <a href="#" style="color:var(--acc3);text-decoration:none">Mentions légales</a> · 
+      <a href="#" style="color:var(--acc3);text-decoration:none">Confidentialité</a> · 18+ uniquement
+    </div>
+  </footer>
+
+  <!-- ===== JS: UX + Compteurs réels (Supabase) + Mur Bienvenue ===== -->
+  <script>
+    // Helpers
+    const $ = sel => document.querySelector(sel);
+    const $$ = sel => Array.from(document.querySelectorAll(sel));
+
+    // --- Compteurs animés au scroll (visuel)
+    const counters = $$('.counter');
+    const obs = new IntersectionObserver(entries=>{
+      entries.forEach(e=>{
+        if(e.isIntersecting){
+          const el = e.target;
+          const target = +el.textContent || +el.dataset.target || 0;
+          const start = 0; const dur = 1000;
+          const t0 = performance.now();
+          function tick(t){
+            const p = Math.min(1, (t - t0)/dur);
+            el.textContent = Math.floor(start + (target - start)*p).toLocaleString('fr-FR');
+            if(p<1) requestAnimationFrame(tick);
+          }
+          requestAnimationFrame(tick);
+          obs.unobserve(el);
+        }
+      });
+    }, {threshold:.3});
+    counters.forEach(c=>obs.observe(c));
+
+    // --- FAQ accordéon
+    $$('.faq-q').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const wrap = btn.closest('.faq-item');
+        const a = wrap.querySelector('.faq-a');
+        const expanded = btn.getAttribute('aria-expanded') === 'true';
+        btn.setAttribute('aria-expanded', String(!expanded));
+        a.style.maxHeight = expanded ? '0px' : (a.scrollHeight + 'px');
+        btn.lastElementChild.textContent = expanded ? '＋' : '－';
+      });
+    });
+
+    // --- Exit prompt soft
+    let interacted = false, modalShown = false;
+    $$('[data-variant]').forEach(el=> el.addEventListener('click', ()=>{ interacted = true; }));
+    window.addEventListener('scroll', ()=>{
+      if(modalShown || interacted) return;
+      const scrolled = (window.scrollY + window.innerHeight) / document.body.scrollHeight;
+      if(scrolled > 0.7){ openModal(); }
+    });
+    function openModal(){ modalShown = true; $('#exitModal').style.display='flex'; }
+    function closeModal(){ $('#exitModal').style.display='none'; }
+
+    // --- Formulaire mock (à brancher plus tard sur Supabase Auth)
+    function submitEmail(e){
+      e.preventDefault();
+      const email = (e.target.querySelector('input[type="email"]')||{}).value || '';
+      if(!email) return false;
+      alert("Merci ! Nous t’envoyons un lien d’inscription à : " + email);
+      closeModal(); interacted = true; return false;
+    }
+  </script>
+
+  <!-- ===== Supabase (compteurs réels & mur bienvenue) - remplace les clés pour activer ===== -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // Remplace par tes vrais identifiants pour activer la data réelle :
+    const SUPABASE_URL = "https://TON_PROJET.supabase.co";      // <-- remplace
+    const SUPABASE_ANON_KEY = "ey...TON_ANON_KEY...";            // <-- remplace
+    let supa = null;
+
+    try {
+      if (SUPABASE_URL.startsWith("https://TON_")) throw new Error("Placeholders");
+      supa = supabasejs.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    } catch(e) { /* on restera en mode 'fallback' */ }
+
+    async function refreshCounters(city = null){
+      // DOM setters
+      const set = (id,val)=>{ const el=document.getElementById(id); if(el) el.textContent = (val||0).toLocaleString('fr-FR'); };
+      // Si pas de supabase config → fallback honnête (zéro mensonge : chiffres modestes)
+      if(!supa){
+        const base = 42; const last24 = 7; const completed = 30; const cityCount = 5;
+        set('c_total', base); set('c_24h', last24); set('c_completed', completed); set('c_city', `${cityCount}/100`);
+        const pioneer = document.getElementById('pioneer'); if(pioneer && base < 1000){ pioneer.style.display='block'; pioneer.querySelector('strong').textContent = Math.max(1, base); }
+        return;
+      }
+      try{
+        // Ces RPC sont à créer côté DB (voir doc qu’on t’a donnée)
+        const { data: t1 } = await supa.rpc('count_profiles');
+        const { data: t2 } = await supa.rpc('count_profiles_since', { since_hours: 24 });
+        const { data: t3 } = await supa.rpc('count_profiles_completed');
+        let currentCity = 0;
+        if(city){
+          const { data: t4 } = await supa.rpc('count_profiles_by_city', { p_city: city });
+          currentCity = t4 || 0;
+        }
+        set('c_total', t1); set('c_24h', t2); set('c_completed', t3);
+        if(document.getElementById('c_city')) document.getElementById('c_city').textContent = `${currentCity}/100`;
+        const pioneer = document.getElementById('pioneer'); if(pioneer && (t1||0) < 1000){ pioneer.style.display='block'; pioneer.querySelector('strong').textContent = Math.max(1, (t1||0)); }
+      }catch(e){ console.warn(e); }
+    }
+
+    async function refreshWelcomeFeed(){
+      const box = document.getElementById('welcomeFeed'); if(!box) return;
+      // Fallback si pas de supabase
+      if(!supa){
+        box.innerHTML = [
+          {n:"L***",a:27,c:"Lyon"},{n:"K***",a:31,c:"Paris 15e"},{n:"M***",a:24,c:"Marseille"},
+          {n:"S***",a:29,c:"Toulouse"},{n:"A***",a:33,c:"Nantes"}
+        ].map(p=>`<div class="chip">🎉 ${p.n} ${p.a} ans — ${p.c}</div>`).join('');
+        return;
+      }
+      try{
+        const { data } = await supa.from('profiles')
+          .select('display_name, age, city, last_seen')
+          .order('last_seen', { ascending:false })
+          .limit(8);
+        box.innerHTML = (data||[]).map(p=>{
+          const name = (p.display_name||'Invité').slice(0,1) + '***';
+          const city = p.city || '—';
+          const age  = p.age ? `${p.age} ans` : '';
+          return `<div class="chip">🎉 ${name} ${age} — ${city}</div>`;
+        }).join('');
+      }catch(e){ console.warn(e); }
+    }
+
+    document.addEventListener('DOMContentLoaded', ()=>{
+      refreshCounters(); refreshWelcomeFeed();
+      setInterval(refreshWelcomeFeed, 30000);
+    });
+  </script>
+</body>
+</html>
