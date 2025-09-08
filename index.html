@@ -1,243 +1,275 @@
 <!doctype html>
-<html lang="fr">
+<html lang="fr" data-theme="dark">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>LoveNow — Rencontres près de chez toi</title>
-  <meta name="description" content="Inscris-toi, découvre des profils à proximité et commence à discuter." />
+  <meta name="description" content="Inscris-toi en 2 minutes, découvre des profils réels à proximité et commence à discuter sur LoveNow." />
+  <meta name="theme-color" content="#14151a" />
+  <meta property="og:title" content="LoveNow — Rencontres près de chez toi">
+  <meta property="og:description" content="Profils réels, sécurité & respect, local & rapide.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="/og-image.png">
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" as="style" onload="this.rel='stylesheet'">
   <style>
-    :root{--ln-bg:#0c0f14;--ln-panel:#111622;--ln-ink:#fff;--ln-soft:#a9b1c3;--ln-accent:#ff3b81;}
-    body{margin:0;background:var(--ln-bg);color:var(--ln-ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial}
-    .container{max-width:1100px;margin:auto;padding:16px}
-    .hero{padding:64px 16px;background:linear-gradient(135deg,#ff3b81 0%,#7a5cf0 100%);color:#fff;text-align:center;border-bottom:1px solid #0003}
-    .hero h1{margin:0 0 8px;font-size:clamp(28px,5vw,44px)}
-    .ln-btn{border:1px solid #ffffff40;background:#ffffff12;color:#fff;padding:10px 14px;border-radius:10px;cursor:pointer}
-    .ln-btn.primary{background:var(--ln-accent);border-color:transparent}
-    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
-    .card{background:var(--ln-panel);border:1px solid #ffffff14;border-radius:14px;overflow:hidden}
-    .card img{width:100%;height:180px;object-fit:cover;background:#0b0f18}
-    .card .p{padding:12px}
-    .meta{display:flex;gap:8px;align-items:center;color:var(--ln-soft);font-size:14px}
-    .actions{display:flex;gap:8px;margin-top:10px}
-    .pill{display:inline-flex;gap:8px;align-items:center;padding:4px 10px;border-radius:999px;background:#ffffff10;border:1px solid #ffffff14}
-    .notice{display:flex;gap:12px;align-items:center;justify-content:center;background:#2a2f3d;color:#fff;padding:10px;border-bottom:1px solid #0006}
-    .btn-nav{position:fixed;top:10px;left:12px;z-index:10001;background:#ffffff18;border:1px solid #ffffff30;color:#fff;border-radius:8px;padding:8px 10px}
-    .offcanvas{position:fixed;top:0;right:0;height:100dvh;width:320px;transform:translateX(100%);background:#0c0f14;color:#fff;transition:transform .25s ease;z-index:10000;outline:0;box-shadow:-4px 0 24px rgba(0,0,0,.3)}
-    .offcanvas[data-open="true"]{transform:translateX(0)}
-    .offcanvas__close{position:absolute;top:.4rem;right:.6rem;font-size:2rem;line-height:1;background:transparent;color:#fff;border:0;cursor:pointer}
-    .offcanvas__nav{display:flex;flex-direction:column;gap:.5rem;padding:3.2rem 1rem 1rem}
-    .offcanvas__nav a{display:block;padding:.8rem 1rem;border-radius:8px;border:1px solid #ffffff14;background:#ffffff0c;color:#fff;text-decoration:none}
-    .field{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:14px 0}
-    .field input,.field select{background:#12192a;border:1px solid #2a3245;color:#fff;border-radius:10px;padding:8px 10px}
-    .empty{padding:24px;text-align:center;color:#9aa3b6}
+    :root{--bg:#0f1115;--card:#171922;--muted:#aab1c3;--text:#e9edf6;--brand:#ff2d55;--brand-2:#7a5cf0}
+    *{box-sizing:border-box}html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:Inter,system-ui}
+    a{color:inherit;text-decoration:none}
+    .wrap{max-width:1100px;margin:0 auto;padding:16px}
+    header{position:sticky;top:0;z-index:5;background:rgba(15,17,21,.7);backdrop-filter:saturate(140%) blur(8px);border-bottom:1px solid #202334}
+    nav{display:flex;align-items:center;gap:14px;padding:12px 0}
+    .brand{font-weight:700}
+    .spacer{flex:1}
+    .btn{display:inline-flex;align-items:center;justify-content:center;padding:.6rem .9rem;border-radius:.6rem;background:#232739;border:1px solid #2b2f44;cursor:pointer}
+    .btn-primary{background:linear-gradient(135deg,var(--brand),var(--brand-2));border:none}
+    .btn[disabled]{opacity:.6;cursor:not-allowed}
+    .banner{display:flex;gap:8px;align-items:center;justify-content:space-between;background:#1a1e2b;border:1px solid #27314a;border-radius:.8rem;padding:.6rem .8rem;margin:.6rem 0}
+    .hero{background:linear-gradient(135deg,#2b1742 0%,#0f3b5b 60%,#0f1115 100%);padding:64px 0;border-bottom:1px solid #202334}
+    h1{font-size:clamp(28px,4vw,44px);margin:.2rem 0 1rem}
+    .pills{display:flex;gap:8px;flex-wrap:wrap}
+    .pill{display:inline-flex;gap:6px;align-items:center;background:#202334;border:1px solid #2b3550;color:#cbd3e6;padding:.4rem .6rem;border-radius:999px;font-size:.9rem}
+    .grid{display:grid;grid-template-columns:1fr;gap:16px}
+    @media(min-width:800px){.grid{grid-template-columns:280px 1fr}}
+    .card{background:var(--card);border:1px solid #202334;border-radius:.9rem}
+    .card section{padding:14px}
+    .filters{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    @media(min-width:700px){.filters{grid-template-columns:140px 140px 1fr 130px 130px}}
+    label{display:block;margin-bottom:4px;color:var(--muted);font-size:.9rem}
+    input,select{width:100%;padding:.6rem;border-radius:.6rem;background:#0f1115;border:1px solid #2b2f44;color:var(--text)}
+    .results{display:grid;grid-template-columns:1fr;gap:12px;padding:12px}
+    @media(min-width:680px){.results{grid-template-columns:repeat(2,1fr)}}
+    .profile{background:#141824;border:1px solid #23283d;border-radius:.8rem;overflow:hidden;display:flex;flex-direction:column}
+    .profile img{width:100%;height:180px;object-fit:cover;background:#0c0e12}
+    .profile .meta{padding:10px 12px;color:#cfd6ea;display:flex;flex-direction:column;gap:6px}
+    .profile .actions{display:flex;gap:8px;padding:10px 12px;border-top:1px solid #23283d}
+    .foot{opacity:.7;font-size:.9rem;margin-top:12px}
+    .toast{position:fixed;right:16px;bottom:16px;background:#111522;border:1px solid #22304a;padding:.7rem 1rem;border-radius:.7rem;transform:translateY(20px);opacity:0;transition:.25s}
+    .toast.show{transform:translateY(0);opacity:1}
   </style>
+
+  <!-- Config + clés -->
+  <script src="config.js"></script>
+
+  <!-- Firebase + App Check + Analytics -->
+  <script type="module">
+    const cfg = window.APP_CONFIG?.firebase;
+
+    if(cfg?.apiKey && cfg?.authDomain){
+      const { initializeApp } = await import("https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js");
+      const { getAuth, onAuthStateChanged, sendEmailVerification } = await import("https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js");
+      const app = initializeApp(cfg);
+
+      // App Check reCAPTCHA v3 (client-side, site key uniquement)
+      const siteKey = window.APP_CONFIG?.appCheck?.recaptchaV3SiteKey;
+      if(siteKey){
+        const { initializeAppCheck, ReCaptchaV3Provider } = await import("https://www.gstatic.com/firebasejs/9.23.0/firebase-app-check.js");
+        initializeAppCheck(app, { provider: new ReCaptchaV3Provider(siteKey), isTokenAutoRefreshEnabled: true });
+      }
+
+      // Analytics (désactivé par défaut)
+      if(window.APP_CONFIG?.analyticsEnabled && cfg.measurementId){
+        try{
+          const { getAnalytics } = await import("https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics.js");
+          getAnalytics(app);
+        }catch(e){ console.warn("Analytics non initialisé:", e); }
+      }
+
+      const auth = getAuth(app);
+      window.__AUTH__ = { auth, onAuthStateChanged, sendEmailVerification };
+      document.documentElement.dataset.firebase="on";
+      document.dispatchEvent(new CustomEvent("firebase-ready"));
+    }
+  </script>
 </head>
 <body>
-  <!-- Menu -->
-  <button id="navToggle" class="btn-nav" aria-controls="sideNav" aria-expanded="false" aria-label="Ouvrir le menu">☰</button>
-  <aside id="sideNav" class="offcanvas" aria-hidden="true">
-    <button id="navClose" class="offcanvas__close" aria-label="Fermer le menu">×</button>
-    <nav class="offcanvas__nav">
-      <a href="/">Accueil</a>
-      <a href="#discover">Découvrir</a>
-      <a href="/conversations.html">Conversations</a>
-      <a href="/profile.html">Mon profil</a>
-      <a href="/login.html" id="logoutLink">Se déconnecter</a>
-      <a href="/privacy.html">Confidentialité</a>
-      <a href="/cgu.html">CGU</a>
+<header>
+  <div class="wrap">
+    <nav aria-label="Navigation principale">
+      <strong class="brand" aria-label="LoveNow">LoveNow</strong>
+      <a class="btn" href="/" aria-current="page">Accueil</a>
+      <a class="btn" href="#discover">Découvrir</a>
+      <a class="btn" href="login.html">Conversations</a>
+      <a class="btn" href="login.html">Mon profil</a>
+      <span class="spacer"></span>
+      <a class="btn" href="privacy.html">Confidentialité</a>
+      <a class="btn" href="cgu.html">CGU</a>
+      <a class="btn btn-primary" href="login.html" aria-label="Rejoins-nous gratuitement">Rejoins-nous gratuitement</a>
     </nav>
-  </aside>
-
-  <!-- Bandeau e-mail non vérifié -->
-  <div id="emailBanner" class="notice" hidden>
-    <span>Ton e-mail n’est pas vérifié.</span>
-    <button id="sendVerify" class="ln-btn">Envoyer le lien</button>
-    <button id="refreshAuth" class="ln-btn">Rafraîchir</button>
+    <div id="verifyBanner" class="banner" role="status" aria-live="polite" hidden>
+      <div><strong>Bannière :</strong> Ton e-mail n’est pas vérifié.</div>
+      <div style="display:flex;gap:8px">
+        <button id="btnResend" class="btn">Envoyer le lien</button>
+        <button id="btnRefresh" class="btn">Rafraîchir</button>
+      </div>
+    </div>
   </div>
+</header>
 
-  <!-- Hero -->
-  <header class="hero">
-    <div class="container">
+<main>
+  <section class="hero">
+    <div class="wrap">
       <h1>Rencontre l’amour près de chez toi</h1>
       <p>Inscris-toi en 2 minutes, découvre des profils réels à proximité et commence à discuter.</p>
-      <div style="margin-top:14px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+      <div class="pills" aria-label="Promesses">
         <span class="pill">🔥 Gratuit au départ</span>
         <span class="pill">📍 Local & rapide</span>
         <span class="pill">🔒 Sécurité & respect</span>
       </div>
-      <div style="margin-top:18px">
-        <a class="ln-btn primary" href="/login.html">Rejoins-nous gratuitement</a>
+      <div style="margin-top:16px">
+        <a class="btn btn-primary" href="login.html">Rejoins-nous gratuitement</a>
       </div>
     </div>
-  </header>
+  </section>
 
-  <!-- Découvrir -->
-  <main id="discover" class="container" style="padding:24px 16px 60px">
-    <h2>Découvrir des profils</h2>
-
-    <div class="field" id="filters">
-      <label>Genre</label>
-      <select id="fGender">
-        <option value="">Tous</option>
-        <option value="F">Femmes</option>
-        <option value="M">Hommes</option>
-        <option value="O">Autres</option>
-      </select>
-      <label>Âge</label>
-      <input id="fAgeMin" type="number" min="18" max="99" value="18" style="width:72px" />
-      <span>–</span>
-      <input id="fAgeMax" type="number" min="18" max="99" value="99" style="width:72px" />
-      <label>Ville</label>
-      <input id="fCity" type="text" placeholder="ex. Paris" />
-      <button id="btnSearch" class="ln-btn">Rechercher</button>
-      <button id="btnReset" class="ln-btn">Réinitialiser</button>
-    </div>
-
-    <section id="cards" class="grid" aria-live="polite"></section>
-    <div id="empty" class="empty" hidden>Aucun profil ne correspond à ces critères.</div>
-  </main>
-
-  <!-- Firebase config -->
-  <script>
-    window.firebaseConfig = {
-      apiKey: "AIzaSyB_-cNA8bxqYCYUp3rUZs-VpiP4DX2wn3M",
-      authDomain: "lovenow-officiel.firebaseapp.com",
-      projectId: "lovenow-officiel",
-      storageBucket: "lovenow-officiel.firebasestorage.app", /* si souci d'upload, mets lovenow-officiel.appspot.com */
-      messagingSenderId: "896585801571",
-      appId: "1:896585801571:web:cdde87293291dc1900bd56",
-      measurementId: "G-QGM25ND7LF"
-    };
-  </script>
-
-  <!-- App -->
-  <script type="module">
-    // Menu off-canvas
-    const sideNav = document.getElementById('sideNav');
-    const navToggle = document.getElementById('navToggle');
-    const navClose  = document.getElementById('navClose');
-    function setNav(open){
-      sideNav.setAttribute('data-open', open ? 'true' : 'false');
-      sideNav.setAttribute('aria-hidden', open ? 'false' : 'true');
-      navToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-      if(open) sideNav.querySelector('a')?.focus();
-    }
-    navToggle?.addEventListener('click', ()=>setNav(true));
-    navClose?.addEventListener('click',  ()=>setNav(false));
-    document.addEventListener('click', (e)=>{
-      if(sideNav.getAttribute('data-open')==='true' && !sideNav.contains(e.target) && e.target!==navToggle){
-        setNav(false);
-      }
-    });
-
-    // Firebase
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-analytics.js";
-    import { getAuth, onAuthStateChanged, signOut, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
-    import { getFirestore, collection, query, where, orderBy, limit, getDocs, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
-
-    const app  = initializeApp(window.firebaseConfig);
-    try { getAnalytics(app); } catch(e) {}
-    const auth = getAuth(app);
-    const db   = getFirestore(app);
-
-    const emailBanner = document.getElementById('emailBanner');
-    const sendVerify  = document.getElementById('sendVerify');
-    const refreshAuth = document.getElementById('refreshAuth');
-    const logoutLink  = document.getElementById('logoutLink');
-
-    logoutLink?.addEventListener('click', async (e)=>{
-      e.preventDefault();
-      try { await signOut(auth); location.href = '/login.html'; } catch(e){ alert(e.message); }
-    });
-
-    onAuthStateChanged(auth, (user)=>{
-      const need = !!user && !user.emailVerified;
-      emailBanner.hidden = !need;
-      sendVerify.onclick = async ()=>{
-        if(!auth.currentUser) return;
-        await sendEmailVerification(auth.currentUser);
-        alert("E-mail de vérification envoyé.");
-      };
-      refreshAuth.onclick = ()=> location.reload();
-    });
-
-    // Découvrir
-    const cardsEl = document.getElementById('cards');
-    const emptyEl = document.getElementById('empty');
-    const fGender = document.getElementById('fGender');
-    const fAgeMin = document.getElementById('fAgeMin');
-    const fAgeMax = document.getElementById('fAgeMax');
-    const fCity   = document.getElementById('fCity');
-
-    function cardTpl(p){
-      const photo = p.photoUrl || 'https://images.unsplash.com/photo-1527980965255-d3b416303d12?q=80&w=1200&auto=format&fit=crop';
-      return `
-        <article class="card" data-uid="${p.uid}">
-          <img src="${photo}" alt="Photo de ${p.name ?? 'profil'}" loading="lazy" />
-          <div class="p">
-            <div class="meta"><strong>${p.name ?? '—'}</strong> · <span>${p.age ?? '—'} ans</span></div>
-            <div class="meta">${p.city ?? ''} ${p.gender ? '· '+p.gender : ''}</div>
-            <div class="actions">
-              <button class="ln-btn view">Voir le profil</button>
-              <button class="ln-btn primary chat">Message</button>
+  <section id="discover" class="wrap" aria-labelledby="discoverTitle">
+    <h2 id="discoverTitle" style="margin:18px 0">Découvrir des profils</h2>
+    <div class="grid">
+      <div class="card" aria-labelledby="filtersTitle">
+        <section>
+          <h3 id="filtersTitle" style="margin:0 0 10px">Filtres</h3>
+          <div class="filters" role="group" aria-label="Filtres de recherche">
+            <div>
+              <label for="fGender">Genre</label>
+              <select id="fGender">
+                <option value="all">Tous</option>
+                <option value="F">Femmes</option>
+                <option value="M">Hommes</option>
+                <option value="O">Autre</option>
+              </select>
+            </div>
+            <div>
+              <label for="fAgeMin">Âge min</label>
+              <input id="fAgeMin" type="number" inputmode="numeric" min="18" max="99" value="18" aria-describedby="ageHelp">
+            </div>
+            <div>
+              <label for="fAgeMax">Âge max</label>
+              <input id="fAgeMax" type="number" inputmode="numeric" min="18" max="99" value="99">
+            </div>
+            <div>
+              <label for="fCity">Ville</label>
+              <input id="fCity" type="text" placeholder="ex. Paris" autocomplete="address-level2">
+            </div>
+            <div style="display:flex;gap:8px;align-items:end">
+              <button id="btnSearch" class="btn" aria-label="Rechercher">Rechercher</button>
+              <button id="btnReset" class="btn" aria-label="Réinitialiser les filtres">Réinitialiser</button>
             </div>
           </div>
-        </article>
-      `;
-    }
+        </section>
+      </div>
+      <div class="card">
+        <section>
+          <div id="emptyState" class="foot" hidden>Aucun profil ne correspond à tes filtres. Essaie d’élargir la plage d’âge ou vide la ville.</div>
+          <div id="results" class="results" aria-live="polite"></div>
+        </section>
+      </div>
+    </div>
+  </section>
+</main>
 
-    async function loadProfiles(){
-      let qRef = collection(db, 'profiles');
-      const filters = [];
-      if(fGender.value) filters.push(where('gender','==', fGender.value));
-      if(fCity.value.trim()) filters.push(where('city','==', fCity.value.trim()));
-      // NB: l'âge min/max n'est pas utilisé ici → si tu l'ajoutes, on complètera les index
-      const q = query(qRef, ...filters, orderBy('lastActive','desc'), limit(24));
-      const snap = await getDocs(q);
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
 
-      cardsEl.innerHTML = '';
-      if(snap.empty){ emptyEl.hidden = false; return; }
-      emptyEl.hidden = true;
-      snap.forEach(d=>{
-        const p = d.data(); p.uid = d.id;
-        cardsEl.insertAdjacentHTML('beforeend', cardTpl(p));
-      });
+<footer class="wrap foot">
+  © <span id="year"></span> LoveNow — <a href="privacy.html">Confidentialité</a> · <a href="cgu.html">CGU</a>
+</footer>
 
-      cardsEl.querySelectorAll('.card').forEach(card=>{
-        const uid = card.getAttribute('data-uid');
-        card.querySelector('.view')?.addEventListener('click', ()=>{
-          location.href = `/profile.html?uid=${encodeURIComponent(uid)}`;
-        });
-        // Création/ouverture de conversation directe depuis la carte
-        card.querySelector('.chat')?.addEventListener('click', async ()=>{
-          const user = auth.currentUser;
-          if(!user){ location.href = '/login.html'; return; }
-          if(!user.emailVerified){ alert("Valide ton e-mail avant d’envoyer des messages."); return; }
-          if(uid === user.uid){ location.href = `/profile.html?uid=${encodeURIComponent(uid)}`; return; }
+<script>
+  const $ = s => document.querySelector(s);
+  const toast = (msg) => { const t=$("#toast"); t.textContent=msg; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"), 2400); };
 
-          const cid = [user.uid, uid].sort().join('_');
-          const cRef = doc(db,'conversations', cid);
-          const snap = await getDoc(cRef);
-          if(!snap.exists()){
-            await setDoc(cRef, {
-              members:[user.uid, uid],
-              createdAt: serverTimestamp(),
-              lastMessage: null,
-              lastMessageAt: serverTimestamp()
-            });
-          }
-          location.href = `/conversations.html?cid=${cid}`;
-        });
-      });
-    }
+  // Démo dataset (remplace par ton backend plus tard)
+  const DEMO = [
+    { id:"u2", name:"Test2", age:26, city:"Paris", gender:"F", img:"https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=1200&auto=format&fit=crop"},
+    { id:"u1", name:"Test1", age:25, city:"Paris", gender:"M", img:"https://images.unsplash.com/photo-1531123897727-8f129e1688ce?q=80&w=1200&auto=format&fit=crop"}
+  ];
 
-    document.getElementById('btnSearch')?.addEventListener('click', loadProfiles);
-    document.getElementById('btnReset')?.addEventListener('click', ()=>{
-      fGender.value=''; fAgeMin.value=18; fAgeMax.value=99; fCity.value=''; loadProfiles();
+  function renderProfiles(list){
+    const wrap = $("#results"); wrap.innerHTML = "";
+    list.forEach(p=>{
+      const el = document.createElement("article");
+      el.className = "profile";
+      el.dataset.age = String(p.age);
+      el.dataset.gender = p.gender;
+      el.dataset.city = (p.city||"").toLowerCase();
+      el.innerHTML = `
+        <img src="${p.img}" alt="Photo de ${p.name}">
+        <div class="meta">
+          <div><strong>${p.name}</strong> · ${p.age} ans</div>
+          <div>${p.city} · ${p.gender}</div>
+        </div>
+        <div class="actions">
+          <a class="btn" href="login.html">Voir le profil</a>
+          <button class="btn btn-primary" data-act="msg" data-user="${p.id}">Message</button>
+        </div>`;
+      wrap.appendChild(el);
+    });
+    $("#emptyState").hidden = list.length !== 0;
+  }
+
+  function applyFilters(){
+    const g = $("#fGender").value; // all, F, M, O
+    const min = Math.max(18, Number($("#fAgeMin").value||18));
+    const max = Math.min(99, Number($("#fAgeMax").value||99));
+    const city = ($("#fCity").value||"").trim().toLowerCase();
+    const filtered = DEMO.filter(p=>{
+      const okGender = (g==="all" || p.gender===g);
+      const okAge = (p.age>=min && p.age<=max);
+      const okCity = (!city || (p.city||"").toLowerCase().includes(city));
+      return okGender && okAge && okCity;
+    });
+    renderProfiles(filtered);
+  }
+
+  $("#btnSearch").addEventListener("click", applyFilters);
+  $("#btnReset").addEventListener("click", ()=>{ $("#fGender").value="all"; $("#fAgeMin").value=18; $("#fAgeMax").value=99; $("#fCity").value=""; applyFilters(); });
+
+  // Message : exige e-mail vérifié
+  $("#results").addEventListener("click", (e)=>{
+    const b = e.target.closest("button[data-act='msg']");
+    if(!b) return;
+    const ok = document.documentElement.dataset.verified === "true";
+    if(!ok){ alert("Valide ton e-mail avant d’envoyer des messages."); return; }
+    location.href = "login.html#conversations";
+  });
+
+  // Bannière vérif e-mail
+  const banner = $("#verifyBanner");
+  const btnResend = $("#btnResend");
+  const btnRefresh = $("#btnRefresh");
+  let cooldown = 0, timer;
+
+  function setCooldown(sec){
+    cooldown = sec;
+    clearInterval(timer);
+    const baseText = "Envoyer le lien";
+    btnResend.disabled = true;
+    btnResend.textContent = `${baseText} (${cooldown})`;
+    timer = setInterval(()=>{
+      cooldown--;
+      if(cooldown<=0){ clearInterval(timer); btnResend.disabled = false; btnResend.textContent = baseText; }
+      else { btnResend.textContent = `${baseText} (${cooldown})`; }
+    }, 1000);
+  }
+
+  document.addEventListener("firebase-ready", ()=>{
+    const {auth, onAuthStateChanged, sendEmailVerification} = window.__AUTH__;
+    onAuthStateChanged(auth, (user)=>{
+      const verified = !!user?.emailVerified;
+      document.documentElement.dataset.verified = verified ? "true" : "false";
+      banner.hidden = verified || !user;
     });
 
-    loadProfiles();
-  </script>
+    btnResend.addEventListener("click", async ()=>{
+      const {auth, sendEmailVerification} = window.__AUTH__;
+      if(!auth.currentUser){ location.href="login.html"; return; }
+      try{ await sendEmailVerification(auth.currentUser); setCooldown(window.APP_CONFIG?.resendCooldown ?? 30); toast("Lien de vérification envoyé ✅"); }
+      catch(e){ console.error(e); toast("Impossible d’envoyer le lien"); }
+    });
+
+    btnRefresh.addEventListener("click", ()=> location.reload());
+  });
+
+  renderProfiles(DEMO);
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
 </body>
 </html>
