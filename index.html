@@ -7,7 +7,81 @@
   <meta name="description" content="LoveNow : rencontres gratuites et locales. Inscris-toi en 2 minutes, découvre des profils proches, discute en toute confiance.">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+
+  <!-- ========== CSS INTÉGRÉ ========== -->
+  <style>
+    :root{
+      --bg:#0d0d10; --card:#151921; --line:#222a35; --txt:#f6f8fa; --muted:#aeb6c2;
+      --acc:#ff4d6d; --acc2:#8f51ea; --acc3:#ff6bb5; --ok:#30d158; --danger:#ff6464;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;background:var(--bg);color:var(--txt);font-family:'Poppins',system-ui,Segoe UI,Arial,sans-serif}
+    a{color:var(--acc3);text-decoration:none}
+    .wrap{max-width:1100px;margin:0 auto;padding:16px 18px}
+    header{position:sticky;top:0;z-index:50;backdrop-filter:saturate(140%) blur(8px);
+      background:linear-gradient(180deg,rgba(0,0,0,.7),rgba(0,0,0,.45));border-bottom:1px solid var(--line)}
+    .row{display:flex;gap:14px;align-items:center;justify-content:space-between}
+    .logo{font-weight:800;letter-spacing:.3px;color:var(--acc)}
+    .nav-btn{border:1px solid #ffffffaa;padding:8px 14px;border-radius:999px;background:none;color:#fff;cursor:pointer}
+    .nav-btn:hover{background:#fff;color:#000}
+    .nav-btn.danger{border-color:var(--danger)}
+    .hero{display:grid;place-items:center;min-height:70vh;text-align:center;padding:30px 18px;
+      background:radial-gradient(1000px 500px at 15% 10%,rgba(255,77,109,.2),transparent 60%),
+                 radial-gradient(1000px 500px at 85% 10%,rgba(143,81,234,.25),transparent 60%),
+                 linear-gradient(135deg,var(--acc),var(--acc3),var(--acc2))}
+    .hero h1{font-size:clamp(28px,6vw,48px);margin:6px 0 10px;font-weight:800}
+    .hero p{max-width:640px;margin:0 auto 18px;color:#fff;opacity:.95}
+    .cta{display:inline-block;background:#fff;color:#000;font-weight:800;border-radius:999px;padding:14px 28px;border:0;cursor:pointer}
+    .uspbar{display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+    .pill{border:1px solid #ffffff80;color:#fff;padding:6px 12px;border-radius:999px;font-size:12px;opacity:.9}
+    section{padding:40px 18px}
+    h2{margin:0 0 12px}
+    .muted{color:var(--muted)}
+    .grid{display:grid;gap:16px}
+    .g-2{grid-template-columns:repeat(2,1fr)}
+    @media(max-width:900px){.g-2{grid-template-columns:1fr}}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+    .form{display:grid;gap:10px}
+    .form input,.form textarea{width:100%;border-radius:10px;border:1px solid var(--line);background:#0f1320;color:#fff;padding:10px}
+    .form button{border:0;border-radius:10px;padding:12px 16px;background:var(--acc);color:#000;font-weight:800;cursor:pointer}
+    .file input{display:none}
+    .file span{display:inline-block;border:1px dashed var(--line);padding:10px;border-radius:10px;cursor:pointer}
+    .avatar-wrap{margin-top:10px;text-align:center}
+    .avatar-wrap img{width:120px;height:120px;border-radius:50%;object-fit:cover;border:2px solid var(--line)}
+    .list{display:grid;gap:8px;max-height:280px;overflow:auto}
+    .item{display:flex;align-items:center;gap:10px;border:1px solid var(--line);padding:10px;border-radius:10px}
+    .item img{width:44px;height:44px;border-radius:50%;object-fit:cover}
+    .item .grow{flex:1}
+    .item button{padding:8px 10px;border:0;border-radius:999px;background:var(--acc);font-weight:700}
+    .divider{height:1px;background:var(--line);margin:12px 0}
+    .chat{display:grid;grid-template-columns:220px 1fr;gap:10px}
+    @media(max-width:900px){.chat{grid-template-columns:1fr}}
+    .chat-people{border:1px solid var(--line);border-radius:10px;max-height:320px;overflow:auto}
+    .people-item{padding:10px;border-bottom:1px solid var(--line);cursor:pointer}
+    .people-item.active{background:#0f1320}
+    .chat-box{display:grid;grid-template-rows:1fr auto;border:1px solid var(--line);border-radius:10px}
+    .messages{padding:10px;display:flex;flex-direction:column;gap:6px;max-height:280px;overflow:auto}
+    .msg{max-width:80%;padding:8px 10px;border-radius:10px;border:1px solid var(--line)}
+    .me{align-self:flex-end;background:#1c1f27}
+    .them{align-self:flex-start;background:#11141b}
+    .send{display:flex;gap:8px;border-top:1px solid var(--line);padding:8px}
+    .send input{flex:1}
+    .footer{padding:24px 18px;border-top:1px solid var(--line);text-align:center;color:var(--muted);font-size:14px}
+    #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:#000d;border:1px solid var(--line);
+      padding:10px 14px;border-radius:12px;display:none}
+    .sr-only{position:absolute;left:-99999px;top:auto;width:1px;height:1px;overflow:hidden}
+
+    /* Modal simple (compatible iPhone) */
+    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55);z-index:100}
+    .modal.open{display:flex}
+    .modal-card{min-width:320px;max-width:580px;background:var(--card);border:1px solid var(--line);border-radius:14px}
+    .tabs{display:flex;gap:8px;align-items:center;padding:10px}
+    .tabs button{background:#0f1320;color:#fff;border:1px solid var(--line);padding:8px 12px;border-radius:8px;cursor:pointer}
+    .tabs button.active{outline:2px solid var(--acc)}
+    .close{margin-left:auto;background:none;border:0;color:#fff;font-size:22px;cursor:pointer}
+    .pane{display:none;padding:10px}
+    .pane.active{display:block}
+  </style>
 </head>
 <body>
   <a class="sr-only" href="#main">Aller au contenu</a>
@@ -23,10 +97,10 @@
   </header>
 
   <main id="main">
-    <!-- HERO / MARKETING -->
+    <!-- HERO -->
     <section class="hero">
       <h1>Rencontre l’amour près de chez toi</h1>
-      <p>Inscris-toi en 2 minutes, découvre des profils réels à proximité et commence à discuter. 100% gratuit pour les premiers inscrits.</p>
+      <p>Inscris-toi en 2 minutes, découvre des profils réels à proximité et commence à discuter. 100% gratuit au lancement.</p>
       <button class="cta" id="ctaStart">Rejoins-nous gratuitement</button>
       <div class="uspbar">
         <span class="pill">🔥 Gratuit au départ</span>
@@ -35,7 +109,7 @@
       </div>
     </section>
 
-    <!-- APP (visible après connexion) -->
+    <!-- APP (après connexion) -->
     <section id="app" class="wrap" style="display:none">
       <h2>Bienvenue <span id="hiName"></span> 👋</h2>
 
@@ -104,13 +178,13 @@
     </div>
   </footer>
 
-  <!-- MODALE AUTH -->
-  <dialog id="modalAuth">
-    <form method="dialog" class="modal-card" id="authTabs">
+  <!-- MODALE AUTH (compatible iPhone) -->
+  <div class="modal" id="modalAuth" aria-hidden="true" role="dialog" aria-label="Authentification">
+    <div class="modal-card">
       <div class="tabs">
         <button data-tab="signup" class="active" type="button">Inscription</button>
         <button data-tab="login" type="button">Connexion</button>
-        <button id="closeAuth" class="close" value="close" aria-label="Fermer">×</button>
+        <button id="closeAuth" class="close" aria-label="Fermer">×</button>
       </div>
 
       <div id="paneSignup" class="pane active">
@@ -139,19 +213,286 @@
           <button type="submit">Se connecter</button>
         </form>
       </div>
-    </form>
-  </dialog>
+    </div>
+  </div>
 
   <!-- TOAST -->
   <div id="toast" role="status" aria-live="polite"></div>
 
-  <!-- JS -->
-  <script type="module" src="./ui.js"></script>
-  <script type="module" src="./firebase-config.js"></script>
-  <script type="module" src="./cloudinary.js"></script>
-  <script type="module" src="./utils.js"></script>
-  <script type="module" src="./profile.js"></script>
-  <script type="module" src="./chat.js"></script>
-  <script type="module" src="./auth.js"></script>
+  <!-- ========== JS INTÉGRÉ (modules) ========== -->
+  <script type="module">
+    // ===== Helpers (mini utils)
+    const $  = (sel, ctx=document) => ctx.querySelector(sel);
+    const $$ = (sel, ctx=document) => Array.from(ctx.querySelectorAll(sel));
+    function toast(msg, ms=2200){ const t=$("#toast"); t.textContent=msg; t.style.display="block"; setTimeout(()=>t.style.display="none", ms); }
+    const sanitize = (s="") => s.replace(/[<>]/g,"");
+    const chatIdFor = (a,b) => [a,b].sort().join("_");
+
+    // ===== UI : modale Auth
+    const modal = $("#modalAuth");
+    function openAuth(which="signup"){ modal.classList.add("open"); setTab(which); }
+    function closeAuth(){ modal.classList.remove("open"); }
+    $("#btnOpenAuth")?.addEventListener("click", ()=> openAuth("signup"));
+    $("#ctaStart")?.addEventListener("click", ()=> openAuth("signup"));
+    $("#ctaOpenAuth2")?.addEventListener("click", ()=> openAuth("signup"));
+    $("#closeAuth")?.addEventListener("click", closeAuth);
+    modal.addEventListener("click", (e)=>{ if(e.target===modal) closeAuth(); });
+
+    const tabs = $$("#modalAuth .tabs button");
+    function setTab(which){
+      tabs.forEach(b=> b.classList.toggle("active", b.dataset.tab===which));
+      $("#paneSignup").classList.toggle("active", which==="signup");
+      $("#paneLogin").classList.toggle("active", which==="login");
+    }
+    tabs.forEach(b=> b.addEventListener("click", ()=> setTab(b.dataset.tab)));
+
+    // ===== Firebase (CDN modules)
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
+    import {
+      getAuth, onAuthStateChanged, createUserWithEmailAndPassword,
+      signInWithEmailAndPassword, signOut, updateProfile
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import {
+      getFirestore, doc, setDoc, getDoc, updateDoc, addDoc,
+      collection, query, where, orderBy, limit, getDocs, onSnapshot, serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import {
+      initializeAppCheck, ReCaptchaV3Provider
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check.js";
+
+    // ===== Cloudinary (unsigned)
+    const CLOUD_NAME = "dyqxadd0j";       // ⚠️ adapte si besoin
+    const UPLOAD_PRESET = "profile_pics";  // ⚠️ preset unsigned
+    async function uploadImage(file){
+      const url = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`;
+      const fd  = new FormData();
+      fd.append("file", file);
+      fd.append("upload_preset", UPLOAD_PRESET);
+      const r = await fetch(url, { method:"POST", body: fd });
+      if(!r.ok) throw new Error("Upload Cloudinary échoué");
+      return r.json(); // { secure_url, ... }
+    }
+
+    // ===== Config Firebase (ton projet)
+    const firebaseConfig = {
+      apiKey: "AIzaSyB_-cNA8bxqYCYUp3rUZs-VpiP4DX2wn3M",
+      authDomain: "lovenow-officiel.firebaseapp.com",
+      projectId: "lovenow-officiel",
+      storageBucket: "lovenow-officiel.firebasestorage.app",
+      messagingSenderId: "896585801571",
+      appId: "1:896585801571:web:cdde87293291dc1900bd56",
+      measurementId: "G-QGM25ND7LF"
+    };
+    const RECAPTCHA_SITE_KEY = "6LfjpsErAAAAAExN2IvBq-K475TeJooeNzl9liPD"; // ⚠️ ta clé site v3
+
+    const app = initializeApp(firebaseConfig);
+    try{ getAnalytics(app); }catch{}
+    initializeAppCheck(app, {
+      provider: new ReCaptchaV3Provider(RECAPTCHA_SITE_KEY),
+      isTokenAutoRefreshEnabled: true
+    });
+
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
+
+    // ===== Réfs UI
+    const appWrap   = $("#app");
+    const btnLogout = $("#btnLogout");
+    const hiName    = $("#hiName");
+    const profilesList = $("#profilesList");
+    const convList  = $("#conversationsList");
+    const msgsList  = $("#messagesList");
+    const sendForm  = $("#sendMsgForm");
+    const msgInput  = $("#msgInput");
+
+    // ===== INSCRIPTION
+    $("#signupForm")?.addEventListener("submit", async (e)=>{
+      e.preventDefault();
+      const email = $("#suEmail").value.trim();
+      const pass  = $("#suPass").value.trim();
+      const name  = sanitize($("#suName").value.trim()).slice(0,30);
+      const age   = parseInt($("#suAge").value,10);
+      const bio   = sanitize($("#suBio").value.trim()).slice(0,500);
+      const file  = $("#suAvatar").files[0];
+      if(age < 18){ toast("18+ requis"); return; }
+      try{
+        const cred = await createUserWithEmailAndPassword(auth, email, pass);
+        const uid = cred.user.uid;
+
+        // Upload photo si fournie
+        let photoUrl = "";
+        if(file){ const up = await uploadImage(file); photoUrl = up.secure_url || ""; }
+
+        // Création doc (respecte les règles : createdAt == request.time)
+        await setDoc(doc(db,"users",uid), {
+          name, age, bio, createdAt: serverTimestamp(),
+          photoUrl, photos: photoUrl ? [photoUrl] : []
+        });
+
+        await updateProfile(cred.user, { displayName: name, photoURL: photoUrl || null });
+        toast("Compte créé !");
+        closeAuth();
+      }catch(err){
+        if(err.code === "auth/email-already-in-use"){
+          toast("Adresse déjà utilisée — essayez de vous connecter.");
+          setTab("login");
+        }else{
+          toast(err.message || "Erreur d’inscription");
+        }
+      }
+    });
+
+    // ===== CONNEXION
+    $("#loginForm")?.addEventListener("submit", async (e)=>{
+      e.preventDefault();
+      const email = $("#liEmail").value.trim();
+      const pass  = $("#liPass").value.trim();
+      try{
+        await signInWithEmailAndPassword(auth, email, pass);
+        toast("Connecté !");
+        closeAuth();
+      }catch(err){ toast(err.message || "Erreur de connexion"); }
+    });
+
+    // ===== DÉCONNEXION
+    btnLogout?.addEventListener("click", async ()=>{ await signOut(auth); });
+
+    // ===== ÉTAT AUTH
+    onAuthStateChanged(auth, async (user)=>{
+      if(user){
+        btnLogout.style.display = "";
+        appWrap.style.display = "";
+        $("#btnOpenAuth").style.display = "none";
+        hiName.textContent = user.displayName || "toi";
+
+        // Préremplir profil
+        try{
+          const snap = await getDoc(doc(db,"users",user.uid));
+          if(snap.exists()){
+            const u = snap.data();
+            $("#name").value = u.name || "";
+            $("#age").value  = u.age || "";
+            $("#bio").value  = u.bio || "";
+            if(u.photoUrl) $("#avatarPreview").src = u.photoUrl;
+          }
+        }catch{}
+        loadProfiles();
+      }else{
+        btnLogout.style.display = "none";
+        appWrap.style.display = "none";
+        $("#btnOpenAuth").style.display = "";
+      }
+    });
+
+    // ===== MÀJ PROFIL (nom/âge/bio + photo)
+    $("#editProfileForm")?.addEventListener("submit", async (e)=>{
+      e.preventDefault();
+      const user = auth.currentUser; if(!user) return;
+      const name = sanitize($("#name").value.trim()).slice(0,30);
+      const age  = parseInt($("#age").value,10);
+      const bio  = sanitize($("#bio").value.trim()).slice(0,500);
+      const file = $("#avatarFile").files[0];
+      try{
+        const updates = { name, age, bio };
+        if(file){
+          const up = await uploadImage(file);
+          updates.photoUrl = up.secure_url;
+          updates.photos   = [up.secure_url];
+          $("#avatarPreview").src = up.secure_url;
+        }
+        await updateDoc(doc(db,"users",user.uid), updates);
+        await updateProfile(user, { displayName: name, photoURL: updates.photoUrl || user.photoURL || null });
+        toast("Profil mis à jour");
+        loadProfiles(); // rafraîchir la liste
+      }catch(err){ toast(err.message || "Erreur de mise à jour"); }
+    });
+
+    // ===== PROFILS (lecture publique pour connectés)
+    async function loadProfiles(){
+      const me = auth.currentUser; if(!me) return;
+      try{
+        const q = query(collection(db,"users"), orderBy("createdAt","desc"), limit(30));
+        const snap = await getDocs(q);
+        profilesList.innerHTML = "";
+        snap.forEach(d=>{
+          if(d.id === me.uid) return;
+          const u = d.data();
+          const div = document.createElement("div");
+          div.className = "item";
+          div.innerHTML = `
+            <img src="${u.photoUrl || 'https://placehold.co/80x80?text=👤'}" alt="">
+            <div class="grow">
+              <div><strong>${u.name || "Sans nom"}</strong> · ${u.age || "?"} ans</div>
+              <div class="muted">${(u.bio||"").slice(0,70)}</div>
+            </div>
+            <button data-uid="${d.id}">Message</button>
+          `;
+          profilesList.appendChild(div);
+        });
+      }catch(err){ console.warn(err); }
+    }
+
+    // ===== CHAT
+    let currentPeer = null;
+    let unsubMessages = null;
+
+    profilesList.addEventListener("click", (e)=>{
+      const btn = e.target.closest("button[data-uid]");
+      if(!btn) return;
+      openChatWith(btn.dataset.uid);
+    });
+
+    function openChatWith(peerUid){
+      currentPeer = peerUid;
+      convList.innerHTML = "";
+      const you = document.createElement("div");
+      you.className = "people-item active";
+      you.textContent = "Discussion ouverte";
+      convList.appendChild(you);
+      listenMessages();
+    }
+
+    function listenMessages(){
+      if(unsubMessages){ unsubMessages(); unsubMessages = null; }
+      const me = auth.currentUser; if(!me || !currentPeer) return;
+      const cid = chatIdFor(me.uid, currentPeer);
+
+      const q = query(
+        collection(db,"messages"),
+        where("chatId","==",cid),
+        orderBy("createdAt","asc"),
+        limit(100)
+      );
+      unsubMessages = onSnapshot(q, (snap)=>{
+        msgsList.innerHTML = "";
+        snap.forEach(docu=>{
+          const m = docu.data();
+          const div = document.createElement("div");
+          div.className = "msg " + (m.senderId===me.uid ? "me" : "them");
+          div.textContent = m.text;
+          msgsList.appendChild(div);
+        });
+        msgsList.scrollTop = msgsList.scrollHeight;
+      });
+    }
+
+    sendForm?.addEventListener("submit", async (e)=>{
+      e.preventDefault();
+      const me = auth.currentUser; if(!me || !currentPeer){ toast("Choisis un profil pour discuter."); return; }
+      const text = sanitize(msgInput.value.trim());
+      if(!text) return;
+      if(text.length>500){ toast("500 caractères max"); return; }
+      const cid = chatIdFor(me.uid, currentPeer);
+      await addDoc(collection(db,"messages"), {
+        chatId: cid,
+        senderId: me.uid,
+        receiverId: currentPeer,
+        text,
+        createdAt: serverTimestamp()
+      });
+      msgInput.value = "";
+    });
+  </script>
 </body>
 </html>
