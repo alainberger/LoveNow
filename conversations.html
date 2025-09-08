@@ -63,7 +63,12 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-analytics.js";
     import { getAuth, onAuthStateChanged, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
-    import { getFirestore, collection, query, where, orderBy, onSnapshot, doc, addDoc, serverTimestamp, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+    import {
+      getFirestore, collection, query, where, orderBy, onSnapshot,
+      doc, addDoc, serverTimestamp, getDoc, setDoc, updateDoc
+    } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+
+    const LAST_TS_FIELD = 'lastMessageAt';
 
     const app  = initializeApp(window.firebaseConfig);
     try { getAnalytics(app); } catch(e) {}
@@ -93,16 +98,17 @@
       const q = query(
         collection(db,'conversations'),
         where('members','array-contains', user.uid),
-        orderBy('lastMessageAt','desc')
+        orderBy(LAST_TS_FIELD,'desc')
       );
       onSnapshot(q, (snap)=>{
         convList.innerHTML='';
-        if(snap.empty){ convList.innerHTML='<li class="item"><small>Aucune conversation.</small></li>'; }
+        if(snap.empty){ convList.innerHTML='<li class="item"><small>Aucune conversation.</small></li>'; return; }
         snap.forEach(d=>{
           const c = d.data();
           const li = document.createElement('li');
           li.className = 'item';
-          li.innerHTML = `<strong>${(c.lastMessage && c.lastMessage.text) ? c.lastMessage.text.slice(0,40) : 'Nouvelle conversation'}</strong><br><small>${d.id}</small>`;
+          const preview = (c.lastMessage && c.lastMessage.text) ? c.lastMessage.text.slice(0,40) : 'Nouvelle conversation';
+          li.innerHTML = `<strong>${preview}</strong><br><small>${d.id}</small>`;
           li.onclick = ()=> openConv(d.id);
           convList.appendChild(li);
         });
@@ -115,9 +121,25 @@
 
     function scrollBottom(){ threadEl.scrollTop = threadEl.scrollHeight; }
 
+    async function ensureConversationDoc(cid){
+      const cRef = doc(db,'conversations',cid);
+      const snap = await getDoc(cRef);
+      if(!snap.exists()){
+        const [u1,u2] = cid.split('_');
+        await setDoc(cRef, {
+          members: [u1,u2],
+          createdAt: serverTimestamp(),
+          [LAST_TS_FIELD]: serverTimestamp(),
+          lastMessage: null
+        });
+      }
+    }
+
     async function openConv(cid){
       currentCid = cid;
       threadEl.innerHTML = '<div class="notice">Chargement…</div>';
+
+      await ensureConversationDoc(cid);
 
       const q = query(
         collection(db,'conversations', cid, 'messages'),
@@ -143,19 +165,27 @@
       if(!currentCid){ alert('Choisis une conversation.'); return; }
       const text = inputEl.value.trim();
       if(!text) return;
+
       await addDoc(collection(db,'conversations', currentCid, 'messages'), {
         from: currentUser.uid,
         text,
         createdAt: serverTimestamp()
       });
+
       const cRef = doc(db,'conversations', currentCid);
-      const cSnap = await getDoc(cRef);
-      if(cSnap.exists()){
-        await updateDoc(cRef, {
-          lastMessage: { text, from: currentUser.uid },
-          lastMessageAt: serverTimestamp()
-        });
-      }
+      await updateDoc(cRef, {
+        lastMessage: { text, from: currentUser.uid },
+        [LAST_TS_FIELD]: serverTimestamp()
+      }).catch(async ()=>{
+        const [u1,u2] = currentCid.split('_');
+        await setDoc(cRef, {
+          members:[u1,u2],
+          lastMessage:{ text, from: currentUser.uid },
+          [LAST_TS_FIELD]: serverTimestamp(),
+          createdAt: serverTimestamp()
+        }, { merge:true });
+      });
+
       inputEl.value='';
     });
   </script>
