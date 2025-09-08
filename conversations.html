@@ -4,128 +4,159 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>LoveNow — Conversations</title>
-  <meta name="description" content="Vos conversations privées sur LoveNow.">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
   <style>
-    :root{--bg:#0b0c10;--line:#222a35;--txt:#f6f8fa;--muted:#aeb6c2;--acc:#ff4d6d}
-    *{box-sizing:border-box} html,body{margin:0;background:
-      radial-gradient(900px 450px at 15% 0%,rgba(255,77,109,.18),transparent 60%),
-      radial-gradient(900px 450px at 85% 0%,rgba(143,81,234,.22),transparent 60%),
-      linear-gradient(180deg,#0b0c10,#0d1016);color:var(--txt);font-family:'Poppins',system-ui}
-    .wrap{max-width:1100px;margin:0 auto;padding:18px}
-    header{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
-    .logo{font-weight:800;color:var(--acc)} a{color:#ff6bb5;text-decoration:none}
-    .grid{display:grid;grid-template-columns:280px 1fr;gap:16px} @media(max-width:900px){.grid{grid-template-columns:1fr}}
-    .card{background:#151921;border:1px solid var(--line);border-radius:14px;padding:18px}
-    .list{max-height:70vh;overflow:auto} .item{display:flex;gap:10px;border-bottom:1px solid var(--line);padding:10px 0;cursor:pointer}
-    .item img{width:36px;height:36px;border-radius:50%;object-fit:cover}
-    .badge{margin-left:auto;background:#ff6bb5;color:#000;border-radius:999px;font-weight:800;padding:2px 8px;font-size:12px}
-    .chat{display:grid;grid-template-rows:auto 1fr auto;min-height:70vh}
-    .head{display:flex;gap:8px;align-items:center;border-bottom:1px solid var(--line);padding-bottom:10px}
-    .head img{width:40px;height:40px;border-radius:50%;object-fit:cover}
-    .messages{padding:10px;display:flex;flex-direction:column;gap:6px;overflow:auto}
-    .msg{max-width:80%;padding:8px 10px;border-radius:10px;border:1px solid var(--line)}
-    .me{align-self:flex-end;background:#1c1f27} .them{align-self:flex-start;background:#11141b}
-    .send{display:flex;gap:8px;border-top:1px solid var(--line);padding-top:10px} .send input{flex:1}
-    #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:#000c;border:1px solid var(--line);padding:10px 14px;border-radius:12px;display:none}
+    :root{--ln-bg:#0c0f14;--ln-panel:#111622;--ln-ink:#fff;--ln-soft:#a9b1c3;--ln-accent:#ff3b81;}
+    body{margin:0;background:var(--ln-bg);color:var(--ln-ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial}
+    .wrap{display:grid;grid-template-columns:320px 1fr;min-height:100dvh}
+    .left{border-right:1px solid #ffffff10}
+    .panel{background:var(--ln-panel);border:1px solid #ffffff14;border-radius:14px;margin:16px;padding:12px}
+    .title{margin:16px;font-size:20px}
+    .list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+    .item{padding:10px;border:1px solid #ffffff14;border-radius:12px;background:#0f1524;cursor:pointer}
+    .item small{color:var(--ln-soft)}
+    .right{display:flex;flex-direction:column}
+    .thread{flex:1;display:flex;flex-direction:column;gap:8px;margin:16px;padding:12px;background:#0f1524;border:1px solid #ffffff14;border-radius:14px;overflow:auto}
+    .msg{max-width:70%;padding:8px 10px;border-radius:10px;background:#ffffff14}
+    .mine{align-self:flex-end;background:var(--ln-accent)}
+    form{display:flex;gap:8px;margin:0 16px 16px}
+    input[type=text]{flex:1;background:#12192a;border:1px solid #2a3245;color:#fff;border-radius:10px;padding:10px}
+    .ln-btn{border:1px solid #ffffff40;background:#ffffff12;color:#fff;padding:10px 14px;border-radius:10px;cursor:pointer}
+    .notice{display:flex;gap:8px;align-items:center;background:#2a2f3d;color:#fff;margin:16px;border-radius:10px;padding:10px}
   </style>
 </head>
 <body>
   <div class="wrap">
-    <header>
-      <div class="logo">💘 LoveNow</div>
-      <nav><a href="index.html">← Accueil</a></nav>
-    </header>
-
-    <div class="grid">
-      <div class="card">
-        <h3>Mes conversations</h3>
-        <div id="convList" class="list"></div>
+    <aside class="left">
+      <h2 class="title">Mes conversations</h2>
+      <div id="emailBanner" class="notice" hidden>
+        <span>E-mail non vérifié.</span>
+        <button id="sendVerify" class="ln-btn">Envoyer le lien</button>
+        <button id="refreshAuth" class="ln-btn">Rafraîchir</button>
       </div>
-      <div class="card chat">
-        <div class="head"><img id="peerAvatar" src="https://placehold.co/56x56?text=%F0%9F%91%A4" alt=""><div id="peerTitle" class="muted">Aucune conversation</div></div>
-        <div id="inviteBox" class="muted" style="display:none"></div>
-        <div id="msgs" class="messages"></div>
-        <form id="send" class="send">
-          <input id="msg" placeholder="Écrire un message…" maxlength="500">
-          <button type="submit">Envoyer</button>
-        </form>
+      <div class="panel">
+        <ul id="convList" class="list"></ul>
       </div>
-    </div>
+    </aside>
+    <section class="right">
+      <h2 class="title">Messages</h2>
+      <div id="thread" class="thread" aria-live="polite"></div>
+      <form id="composerForm" autocomplete="off">
+        <input id="composerInput" type="text" placeholder="Écrire un message…" />
+        <button class="ln-btn" type="submit">Envoyer</button>
+      </form>
+    </section>
   </div>
 
-  <div id="toast" role="status" aria-live="polite"></div>
+  <script>
+    window.firebaseConfig = {
+      apiKey: "AIzaSyB_-cNA8bxqYCYUp3rUZs-VpiP4DX2wn3M",
+      authDomain: "lovenow-officiel.firebaseapp.com",
+      projectId: "lovenow-officiel",
+      storageBucket: "lovenow-officiel.firebasestorage.app",
+      messagingSenderId: "896585801571",
+      appId: "1:896585801571:web:cdde87293291dc1900bd56",
+      measurementId: "G-QGM25ND7LF"
+    };
+  </script>
 
   <script type="module">
-    const $=s=>document.querySelector(s); const toast=(m,ms=2400)=>{const t=$("#toast");t.textContent=m;t.style.display="block";setTimeout(()=>t.style.display="none",ms)}
-    const chatIdFor=(a,b)=>[a,b].sort().join("_"); const sanitize=s=>(s||"").replace(/[<>]/g,"");
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, query, where, orderBy, onSnapshot, serverTimestamp, addDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-    import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-analytics.js";
+    import { getAuth, onAuthStateChanged, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+    import { getFirestore, collection, query, where, orderBy, onSnapshot, doc, addDoc, serverTimestamp, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
 
-    const firebaseConfig={
-      apiKey:"AIzaSyB_-cNA8bxqYCYUp3rUZs-VpiP4DX2wn3M",
-      authDomain:"lovenow-officiel.firebaseapp.com",
-      projectId:"lovenow-officiel",
-      storageBucket:"lovenow-officiel.firebasestorage.app",
-      messagingSenderId:"896585801571",
-      appId:"1:896585801571:web:cdde87293291dc1900bd56",
-      measurementId:"G-QGM25ND7LF"
-    };
-    const RECAPTCHA_SITE_KEY="6LfjpsErAAAAAExN2IvBq-K475TeJooeNzl9liPD";
-    const app=initializeApp(firebaseConfig); try{getAnalytics(app)}catch{}
-    initializeAppCheck(app,{provider:new ReCaptchaV3Provider(RECAPTCHA_SITE_KEY),isTokenAutoRefreshEnabled:true});
-    const auth=getAuth(app); const db=getFirestore(app);
+    const app  = initializeApp(window.firebaseConfig);
+    try { getAnalytics(app); } catch(e) {}
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
 
-    let me=null, currentPeer=null, unsubConv=null, unsubMsgs=null;
-    const userCache=new Map(); async function getUser(uid){ if(userCache.has(uid)) return userCache.get(uid);
-      const s=await getDoc(doc(db,"users",uid)); const u=s.exists()?s.data():{}; const o={name:u.name||"Profil",photo:u.photoUrl||"https://placehold.co/56x56?text=%F0%9F%91%A4"}; userCache.set(uid,o); return o;}
+    const convList = document.getElementById('convList');
+    const threadEl = document.getElementById('thread');
+    const formEl   = document.getElementById('composerForm');
+    const inputEl  = document.getElementById('composerInput');
 
-    onAuthStateChanged(auth, async user=>{
-      if(!user){ location.href="login.html"; return; } me=user; listenConversations();
+    const emailBanner = document.getElementById('emailBanner');
+    const sendVerify  = document.getElementById('sendVerify');
+    const refreshAuth = document.getElementById('refreshAuth');
+
+    let currentUser, currentCid=null;
+
+    onAuthStateChanged(auth, async (user)=>{
+      if(!user){ location.href='/login.html'; return; }
+      currentUser = user;
+
+      emailBanner.hidden = user.emailVerified;
+      formEl.querySelector('button[type="submit"]').disabled = !user.emailVerified;
+      sendVerify.onclick = async ()=>{ await sendEmailVerification(user); alert('E-mail de vérification envoyé.'); };
+      refreshAuth.onclick = ()=> location.reload();
+
+      const q = query(
+        collection(db,'conversations'),
+        where('members','array-contains', user.uid),
+        orderBy('lastMessageAt','desc')
+      );
+      onSnapshot(q, (snap)=>{
+        convList.innerHTML='';
+        if(snap.empty){ convList.innerHTML='<li class="item"><small>Aucune conversation.</small></li>'; }
+        snap.forEach(d=>{
+          const c = d.data();
+          const li = document.createElement('li');
+          li.className = 'item';
+          li.innerHTML = `<strong>${(c.lastMessage && c.lastMessage.text) ? c.lastMessage.text.slice(0,40) : 'Nouvelle conversation'}</strong><br><small>${d.id}</small>`;
+          li.onclick = ()=> openConv(d.id);
+          convList.appendChild(li);
+        });
+      });
+
+      const params = new URLSearchParams(location.search);
+      const cid    = params.get('cid');
+      if(cid) openConv(cid);
     });
 
-    function listenConversations(){
-      if(unsubConv){unsubConv();unsubConv=null} const qConv=query(collection(db,"conversations"), where("members","array-contains",me.uid), orderBy("lastAt","desc"));
-      unsubConv=onSnapshot(qConv, async snap=>{
-        const conv=$("#convList"); conv.innerHTML="";
-        for(const c of snap.docs){
-          const data=c.data(); const otherId=data.members.find(x=>x!==me.uid); const other=await getUser(otherId);
-          const div=document.createElement("div"); div.className="item";
-          div.innerHTML=`<img src="${other.photo}"><div><div><strong>${other.name}</strong></div><small>${data.lastText||""}</small></div>${(data.unread&&data.unread[me.uid])?`<span class="badge">${data.unread[me.uid]}</span>`:""}`;
-          div.addEventListener("click",()=>openChatWith(otherId)); conv.appendChild(div);
-        }
+    function scrollBottom(){ threadEl.scrollTop = threadEl.scrollHeight; }
+
+    async function openConv(cid){
+      currentCid = cid;
+      threadEl.innerHTML = '<div class="notice">Chargement…</div>';
+
+      const q = query(
+        collection(db,'conversations', cid, 'messages'),
+        orderBy('createdAt','asc')
+      );
+      onSnapshot(q, (snap)=>{
+        threadEl.innerHTML='';
+        if(snap.empty){ threadEl.innerHTML='<div class="notice">Aucun message pour le moment.</div>'; }
+        snap.forEach(m=>{
+          const msg = m.data();
+          const div = document.createElement('div');
+          div.className = 'msg' + (msg.from===currentUser.uid?' mine':'');
+          div.textContent = msg.text;
+          threadEl.appendChild(div);
+        });
+        scrollBottom();
       });
     }
 
-    async function ensureConversation(peerUid){
-      const cid=chatIdFor(me.uid,peerUid); const ref=doc(db,"conversations",cid); const s=await getDoc(ref);
-      if(!s.exists()) await setDoc(ref,{members:[me.uid,peerUid],status:{[me.uid]:"accepted",[peerUid]:"pending"},lastText:"",lastSender:"",lastSenderName:"",lastAt:serverTimestamp(),unread:{[me.uid]:0,[peerUid]:0},createdAt:serverTimestamp()});
-      return ref;
-    }
-
-    async function openChatWith(peerUid){
-      currentPeer=peerUid; const peer=await getUser(peerUid); $("#peerTitle").textContent=peer.name; $("#peerAvatar").src=peer.photo;
-      const ref=await ensureConversation(peerUid); const s=await getDoc(ref); const st=s.data()?.status||{}; const my=st[me.uid]||"accepted", other=st[peerUid]||"accepted";
-      const inv=$("#inviteBox"); inv.style.display="none"; inv.textContent="";
-      if(my==="pending"){ inv.style.display="block"; inv.textContent="Invitation reçue — accepter pour discuter dans l’accueil (index.html)."; }
-      if(other==="pending"){ inv.style.display="block"; inv.textContent="En attente d’acceptation…"; }
-      if(unsubMsgs){unsubMsgs();unsubMsgs=null}
-      const q=query(collection(db,"messages"), where("chatId","==",chatIdFor(me.uid,peerUid)), orderBy("createdAt","asc"));
-      unsubMsgs=onSnapshot(q,snap=>{ const box=$("#msgs"); box.innerHTML=""; snap.forEach(d=>{const m=d.data(); const div=document.createElement("div"); div.className="msg "+(m.senderId===me.uid?"me":"them"); div.textContent=m.text; box.appendChild(div);}); box.scrollTop=box.scrollHeight; });
-      try{ await updateDoc(ref,{["unread."+me.uid]:0}); }catch{}
-    }
-
-    $("#send").addEventListener("submit", async (e)=>{
-      e.preventDefault(); if(!me||!currentPeer) return toast("Choisissez une conversation.");
-      const t=$("#msg").value.trim(); if(!t) return; const cid=chatIdFor(me.uid,currentPeer); const ref=doc(db,"conversations",cid); const s=await getDoc(ref); const st=s.data()?.status||{};
-      if(st[me.uid]!=="accepted"||st[currentPeer]==="blocked"){toast("Invitation non acceptée.");return;}
-      await addDoc(collection(db,"messages"),{chatId:cid,senderId:me.uid,receiverId:currentPeer,text:sanitize(t),createdAt:serverTimestamp()});
-      try{await updateDoc(ref,{lastText:t,lastSender:me.uid,lastSenderName:me.displayName||"Quelqu’un",lastAt:serverTimestamp(),["unread."+currentPeer]:increment(1)})}catch{}
-      $("#msg").value="";
+    formEl.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      if(!currentUser?.emailVerified){ alert('Valide ton e-mail pour écrire.'); return; }
+      if(!currentCid){ alert('Choisis une conversation.'); return; }
+      const text = inputEl.value.trim();
+      if(!text) return;
+      await addDoc(collection(db,'conversations', currentCid, 'messages'), {
+        from: currentUser.uid,
+        text,
+        createdAt: serverTimestamp()
+      });
+      const cRef = doc(db,'conversations', currentCid);
+      const cSnap = await getDoc(cRef);
+      if(cSnap.exists()){
+        await updateDoc(cRef, {
+          lastMessage: { text, from: currentUser.uid },
+          lastMessageAt: serverTimestamp()
+        });
+      }
+      inputEl.value='';
     });
   </script>
 </body>
