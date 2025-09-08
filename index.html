@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>LoveNow — Rencontres gratuites, proches de toi</title>
+  <meta name="description" content="LoveNow : rencontres gratuites et locales. Inscris-toi en 2 minutes, découvre des profils proches, discute en toute confiance.">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="sr-only" href="#main">Aller au contenu</a>
+
+  <header>
+    <div class="wrap row">
+      <div class="logo" aria-label="LoveNow">💘 LoveNow</div>
+      <nav aria-label="Navigation">
+        <button id="btnOpenAuth" class="nav-btn">Connexion</button>
+        <button id="btnLogout" class="nav-btn danger" style="display:none">Se déconnecter</button>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- HERO / MARKETING -->
+    <section class="hero">
+      <h1>Rencontre l’amour près de chez toi</h1>
+      <p>Inscris-toi en 2 minutes, découvre des profils réels à proximité et commence à discuter. 100% gratuit pour les premiers inscrits.</p>
+      <button class="cta" id="ctaStart">Rejoins-nous gratuitement</button>
+      <div class="uspbar">
+        <span class="pill">🔥 Gratuit au départ</span>
+        <span class="pill">📍 Local & rapide</span>
+        <span class="pill">🔒 Sécurité & respect</span>
+      </div>
+    </section>
+
+    <!-- APP (visible après connexion) -->
+    <section id="app" class="wrap" style="display:none">
+      <h2>Bienvenue <span id="hiName"></span> 👋</h2>
+
+      <div class="grid g-2">
+        <!-- PROFIL -->
+        <div class="card">
+          <h3>Mon profil</h3>
+          <form id="editProfileForm" class="form">
+            <label>Nom
+              <input id="name" name="name" maxlength="30" required>
+            </label>
+            <label>Âge
+              <input id="age" name="age" type="number" min="18" max="100" required>
+            </label>
+            <label>Bio (500 max)
+              <textarea id="bio" name="bio" maxlength="500" rows="3" placeholder="Parle un peu de toi…"></textarea>
+            </label>
+            <div class="row">
+              <label class="file">
+                <input type="file" id="avatarFile" accept="image/*">
+                <span>Ajouter/mettre à jour ma photo</span>
+              </label>
+              <button type="submit">Enregistrer</button>
+            </div>
+          </form>
+          <div class="avatar-wrap">
+            <img id="avatarPreview" alt="Avatar" />
+          </div>
+        </div>
+
+        <!-- DÉCOUVERTE + CHAT -->
+        <div class="card">
+          <h3>Profils proches</h3>
+          <div id="profilesList" class="list"></div>
+
+          <div class="divider"></div>
+
+          <h3>Chat</h3>
+          <div class="chat">
+            <div class="chat-people" id="conversationsList"></div>
+            <div class="chat-box">
+              <div id="messagesList" class="messages"></div>
+              <form id="sendMsgForm" class="send">
+                <input id="msgInput" placeholder="Écrire un message…" maxlength="500" />
+                <button type="submit">Envoyer</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA FINAL -->
+    <section id="cta" class="wrap">
+      <div class="card" style="text-align:center">
+        <h2>Prêt·e à tenter ta chance ?</h2>
+        <p class="muted">Inscription en 2 minutes. 18+ uniquement.</p>
+        <button class="cta" id="ctaOpenAuth2">Créer un compte</button>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap footer">
+      © 2025 LoveNow — <a href="#">Mentions légales</a> · <a href="#">Confidentialité</a> · 18+ uniquement
+    </div>
+  </footer>
+
+  <!-- MODALE AUTH -->
+  <dialog id="modalAuth">
+    <form method="dialog" class="modal-card" id="authTabs">
+      <div class="tabs">
+        <button data-tab="signup" class="active" type="button">Inscription</button>
+        <button data-tab="login" type="button">Connexion</button>
+        <button id="closeAuth" class="close" value="close" aria-label="Fermer">×</button>
+      </div>
+
+      <div id="paneSignup" class="pane active">
+        <form id="signupForm" class="form">
+          <label>Email <input id="suEmail" type="email" required autocomplete="email"></label>
+          <label>Mot de passe <input id="suPass" type="password" minlength="6" required autocomplete="new-password"></label>
+          <div class="row">
+            <label>Nom <input id="suName" maxlength="30" required></label>
+            <label>Âge <input id="suAge" type="number" min="18" max="100" required></label>
+          </div>
+          <label>Bio (500 max)
+            <textarea id="suBio" maxlength="500" rows="3" placeholder="Parle un peu de toi…"></textarea>
+          </label>
+          <label class="file">
+            <input type="file" id="suAvatar" accept="image/*">
+            <span>Photo de profil (optionnel)</span>
+          </label>
+          <button type="submit">Créer mon compte</button>
+        </form>
+      </div>
+
+      <div id="paneLogin" class="pane">
+        <form id="loginForm" class="form">
+          <label>Email <input id="liEmail" type="email" required autocomplete="email"></label>
+          <label>Mot de passe <input id="liPass" type="password" minlength="6" required autocomplete="current-password"></label>
+          <button type="submit">Se connecter</button>
+        </form>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- TOAST -->
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <!-- JS -->
+  <script type="module" src="./ui.js"></script>
+  <script type="module" src="./firebase-config.js"></script>
+  <script type="module" src="./cloudinary.js"></script>
+  <script type="module" src="./utils.js"></script>
+  <script type="module" src="./profile.js"></script>
+  <script type="module" src="./chat.js"></script>
+  <script type="module" src="./auth.js"></script>
+</body>
+</html>
