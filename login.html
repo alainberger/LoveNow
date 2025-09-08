@@ -3,194 +3,123 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>LoveNow — Connexion</title>
-  <meta name="description" content="Connectez-vous à LoveNow pour discuter en privé et rencontrer des personnes proches.">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+  <title>LoveNow — Connexion / Inscription</title>
   <style>
-    :root{
-      --bg:#0b0c10; --card:#151921; --line:#222a35; --txt:#f6f8fa; --muted:#aeb6c2;
-      --acc:#ff4d6d; --acc2:#8f51ea; --acc3:#ff6bb5; --danger:#ff6464; --warn:#ffcf40;
-    }
-    *{box-sizing:border-box}
-    html,body{margin:0;background:
-      radial-gradient(1200px 600px at -10% -10%, rgba(255,77,109,.15), transparent 60%),
-      radial-gradient(900px 500px at 110% -10%, rgba(143,81,234,.18), transparent 60%),
-      linear-gradient(180deg, #0b0c10, #0d1016); color:var(--txt); font-family:'Poppins',system-ui,Segoe UI,Arial,sans-serif}
-    a{color:var(--acc3);text-decoration:none}
-    .wrap{max-width:900px;margin:0 auto;padding:16px 18px}
-    header{position:sticky;top:0;z-index:20;backdrop-filter:saturate(140%) blur(8px);
-      background:linear-gradient(180deg,rgba(0,0,0,.7),rgba(0,0,0,.45));border-bottom:1px solid var(--line)}
-    .row{display:flex;gap:14px;align-items:center;justify-content:space-between}
-    .logo{font-weight:800;color:var(--acc)}
-    .nav-btn{border:1px solid #ffffffaa;padding:8px 14px;border-radius:999px;background:none;color:#fff;cursor:pointer}
-    .nav-btn:hover{background:#fff;color:#000}
-    .hero{display:grid;place-items:center;min-height:30vh;text-align:center;padding:36px 18px}
-    .hero h1{font-size:clamp(26px,5.5vw,40px);margin:6px 0 10px;font-weight:800}
-    .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-    @media(max-width:900px){.grid{grid-template-columns:1fr}}
-    .form{display:grid;gap:10px}
-    .form input{width:100%;border-radius:10px;border:1px solid var(--line);background:#0f1320;color:#fff;padding:10px}
-    .form button{border:0;border-radius:10px;padding:12px 16px;background:var(--acc);color:#000;font-weight:800;cursor:pointer}
-    .tabs{display:flex;gap:8px;margin-bottom:10px}
-    .tabs button{border:1px solid var(--line);background:#0f1320;color:#fff;border-radius:10px;padding:8px 12px;cursor:pointer}
-    .tabs button.active{outline:2px solid var(--acc)}
-    .muted{color:var(--muted)}
-    .banner{display:none;background:#201a00;color:#ffe58f;border:1px solid #665500;padding:10px;border-radius:10px;margin:10px 0}
-    .btn-small{border:0;background:#ffcf40;color:#000;border-radius:8px;padding:6px 10px;font-weight:800;cursor:pointer;margin-left:6px}
-    #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:#000d;border:1px solid var(--line);
-      padding:10px 14px;border-radius:12px;display:none;z-index:90;min-width:240px;text-align:center}
-    footer{padding:24px 18px;border-top:1px solid var(--line);text-align:center;color:var(--muted);font-size:14px}
+    :root{--ln-bg:#0c0f14;--ln-panel:#111622;--ln-ink:#fff;--ln-soft:#a9b1c3;--ln-accent:#ff3b81;}
+    body{margin:0;background:var(--ln-bg);color:var(--ln-ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial}
+    .container{max-width:900px;margin:auto;padding:16px}
+    .tabs{display:flex;gap:8px;margin:16px 0}
+    .tab{padding:8px 12px;border:1px solid #ffffff30;border-radius:10px;background:#ffffff12;color:#fff;cursor:pointer}
+    .tab[aria-selected="true"]{background:var(--ln-accent);border-color:transparent}
+    .panel{background:var(--ln-panel);border:1px solid #ffffff14;border-radius:14px;padding:16px}
+    .field{margin:8px 0;display:flex;flex-direction:column}
+    input,textarea,select{background:#12192a;border:1px solid #2a3245;color:#fff;border-radius:10px;padding:10px}
+    .ln-btn{border:1px solid #ffffff40;background:#ffffff12;color:#fff;padding:10px 14px;border-radius:10px;cursor:pointer}
+    .ln-btn.primary{background:var(--ln-accent);border-color:transparent}
+    .notice{display:flex;gap:10px;align-items:center;background:#2a2f3d;border-radius:10px;padding:10px;margin:12px 0}
   </style>
 </head>
 <body>
-  <header>
-    <div class="wrap row">
-      <div class="logo">💘 LoveNow</div>
-      <nav>
-        <a href="/" class="nav-btn">Accueil</a>
-      </nav>
+  <div class="container">
+    <h1>Connexion / Inscription</h1>
+    <div class="tabs" role="tablist">
+      <button id="tabLogin" class="tab" role="tab" aria-selected="true">Connexion</button>
+      <button id="tabSignup" class="tab" role="tab" aria-selected="false">Inscription</button>
     </div>
-  </header>
 
-  <main class="wrap">
-    <section class="hero">
-      <div>
-        <h1>Connexion / Inscription</h1>
-        <p class="muted">Reprenez vos conversations et découvrez des profils proches.</p>
+    <section id="panelLogin" class="panel" role="tabpanel" aria-labelledby="tabLogin">
+      <div class="field"><label>Email</label><input id="lEmail" type="email" /></div>
+      <div class="field"><label>Mot de passe</label><input id="lPass" type="password" /></div>
+      <button id="btnLogin" class="ln-btn primary">Se connecter</button>
+
+      <div id="verifyBox" class="notice" hidden>
+        <span>Vérifie ton e-mail pour discuter.</span>
+        <button id="sendVerify" class="ln-btn">Envoyer le lien</button>
+        <button id="refreshAuth" class="ln-btn">Rafraîchir</button>
       </div>
     </section>
 
-    <section class="grid">
-      <div class="card">
-        <div class="tabs">
-          <button data-tab="login" class="active">Connexion</button>
-          <button data-tab="signup">Inscription</button>
-        </div>
-
-        <div id="paneLogin">
-          <form id="loginForm" class="form">
-            <label>Email <input id="liEmail" type="email" required autocomplete="email"></label>
-            <label>Mot de passe <input id="liPass" type="password" minlength="6" required autocomplete="current-password"></label>
-            <button type="submit" id="btnLogin">Se connecter</button>
-            <button type="button" id="btnForgot" class="nav-btn" style="margin-top:8px">Mot de passe oublié</button>
-          </form>
-        </div>
-
-        <div id="paneSignup" style="display:none">
-          <form id="signupForm" class="form">
-            <label>Email <input id="suEmail" type="email" required autocomplete="email"></label>
-            <label>Mot de passe <input id="suPass" type="password" minlength="6" required autocomplete="new-password"></label>
-            <label>Nom <input id="suName" maxlength="30" required></label>
-            <label>Âge <input id="suAge" type="number" min="18" max="100" required></label>
-            <label>Bio <input id="suBio" maxlength="120" placeholder="Quelques mots sur vous (optionnel)"></label>
-            <button type="submit" id="btnSignup">Créer mon compte</button>
-          </form>
-        </div>
+    <section id="panelSignup" class="panel" role="tabpanel" aria-labelledby="tabSignup" hidden>
+      <div class="field"><label>Email</label><input id="sEmail" type="email" /></div>
+      <div class="field"><label>Mot de passe</label><input id="sPass" type="password" /></div>
+      <div class="field"><label>Nom</label><input id="sName" maxlength="30" /></div>
+      <div class="field"><label>Âge</label><input id="sAge" type="number" min="18" max="99" /></div>
+      <div class="field"><label>Ville</label><input id="sCity" /></div>
+      <div class="field"><label>Genre</label>
+        <select id="sGender"><option value="">—</option><option value="F">Femme</option><option value="M">Homme</option><option value="O">Autre</option></select>
       </div>
-
-      <div class="card">
-        <h3>Vérification d’e-mail</h3>
-        <p class="muted">Après inscription, validez votre adresse e-mail pour envoyer des messages.</p>
-        <div id="verifyBox" class="banner">
-          Votre e-mail n’est pas vérifié.
-          <button id="btnSendVerify" class="btn-small">Envoyer le lien</button>
-          <button id="btnRefreshVerify" class="btn-small">Rafraîchir</button>
-        </div>
-        <p class="muted">Besoin d’aide ? Consultez les <a href="/privacy.html">règles de confidentialité</a> et les <a href="/cgu.html">CGU</a>.</p>
-      </div>
+      <button id="btnSignup" class="ln-btn primary">Créer mon compte</button>
     </section>
-  </main>
+  </div>
 
-  <footer>
-    © 2025 LoveNow — <a href="/mentions-legales.html">Mentions légales</a> · <a href="/privacy.html">Confidentialité</a> · <a href="/cgu.html">CGU</a>
-  </footer>
-
-  <div id="toast" role="status" aria-live="polite"></div>
+  <script>
+    window.firebaseConfig = {
+      apiKey: "AIzaSyB_-cNA8bxqYCYUp3rUZs-VpiP4DX2wn3M",
+      authDomain: "lovenow-officiel.firebaseapp.com",
+      projectId: "lovenow-officiel",
+      storageBucket: "lovenow-officiel.firebasestorage.app",
+      messagingSenderId: "896585801571",
+      appId: "1:896585801571:web:cdde87293291dc1900bd56",
+      measurementId: "G-QGM25ND7LF"
+    };
+  </script>
 
   <script type="module">
-    // UI helpers
-    const $=(s,c=document)=>c.querySelector(s);
-    const $$=(s,c=document)=>Array.from(c.querySelectorAll(s));
-    const toast=(m,ms=2500)=>{const t=$("#toast");t.textContent=m;t.style.display="block";setTimeout(()=>t.style.display="none",ms)};
-    const setTab=(w)=>{const L=$("#paneLogin"), S=$("#paneSignup"); L.style.display=w==="login"?"block":"none"; S.style.display=w==="signup"?"block":"none";
-      $$("[data-tab]").forEach(b=>b.classList.toggle("active", b.dataset.tab===w)); };
-    $$("[data-tab]").forEach(b=>b.addEventListener("click",()=>setTab(b.dataset.tab)));
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-analytics.js";
+    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+    import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
 
-    // Firebase CDN
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
-    import {
-      getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,
-      sendPasswordResetEmail,sendEmailVerification,reload
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check.js";
+    const app  = initializeApp(window.firebaseConfig);
+    try { getAnalytics(app); } catch(e) {}
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
 
-    // Config (identiques à index.html)
-    const firebaseConfig={
-      apiKey:"AIzaSyB_-cNA8bxqYCYUp3rUZs-VpiP4DX2wn3M",
-      authDomain:"lovenow-officiel.firebaseapp.com",
-      projectId:"lovenow-officiel",
-      storageBucket:"lovenow-officiel.firebasestorage.app",
-      messagingSenderId:"896585801571",
-      appId:"1:896585801571:web:cdde87293291dc1900bd56",
-      measurementId:"G-QGM25ND7LF"
-    };
-    const RECAPTCHA_SITE_KEY="6LfjpsErAAAAAExN2IvBq-K475TeJooeNzl9liPD";
+    const tabLogin  = document.getElementById('tabLogin');
+    const tabSignup = document.getElementById('tabSignup');
+    const panelLogin = document.getElementById('panelLogin');
+    const panelSignup = document.getElementById('panelSignup');
 
-    const app=initializeApp(firebaseConfig); try{getAnalytics(app)}catch{}
-    initializeAppCheck(app,{provider:new ReCaptchaV3Provider(RECAPTCHA_SITE_KEY),isTokenAutoRefreshEnabled:true});
-    const auth=getAuth(app);
+    tabLogin.onclick = ()=>{ tabLogin.setAttribute('aria-selected','true'); tabSignup.setAttribute('aria-selected','false'); panelLogin.hidden=false; panelSignup.hidden=true; };
+    tabSignup.onclick= ()=>{ tabLogin.setAttribute('aria-selected','false'); tabSignup.setAttribute('aria-selected','true'); panelLogin.hidden=true; panelSignup.hidden=false; };
 
-    const verifyBox=$("#verifyBox");
-    const friendlyError=(e)=> e?.code?.includes("unauthorized-continue-uri")
-      ? "Domaine de retour non autorisé (Firebase > Auth > Domaines autorisés)."
-      : (e?.message||"Erreur");
-
-    // Auth flows
-    $("#loginForm").addEventListener("submit", async (e)=>{
-      e.preventDefault();
-      const email=$("#liEmail").value.trim(), pass=$("#liPass").value.trim();
-      try{ await signInWithEmailAndPassword(auth,email,pass); toast("Connexion réussie"); location.href="/"; }
-      catch(err){ toast(friendlyError(err)); }
-    });
-
-    $("#signupForm").addEventListener("submit", async (e)=>{
-      e.preventDefault();
-      const email=$("#suEmail").value.trim(), pass=$("#suPass").value.trim();
-      const name=$("#suName").value.trim(), age=+$("#suAge").value, bio=$("#suBio").value.trim().slice(0,120);
-      if(age<18){ toast("18+ requis"); return; }
+    document.getElementById('btnLogin')?.addEventListener('click', async ()=>{
+      const email = document.getElementById('lEmail').value.trim();
+      const pass  = document.getElementById('lPass').value;
       try{
-        const cred=await createUserWithEmailAndPassword(auth,email,pass);
-        // On ne crée pas le profil ici (côté index) pour rester léger. L’essentiel est la vérification e-mail.
-        try{ await sendEmailVerification(cred.user, { url: window.location.origin + "/?verified=1", handleCodeInApp:false }); }
-        catch(err){ if((err?.code||"").includes("unauthorized-continue-uri")) await sendEmailVerification(cred.user); }
-        toast("Compte créé. Vérifiez votre e-mail ✉️");
-        setTab("login");
-      }catch(err){ toast(friendlyError(err)); }
+        await signInWithEmailAndPassword(auth, email, pass);
+        location.href='/';
+      }catch(e){ alert(e.message); }
     });
 
-    $("#btnForgot").addEventListener("click", async ()=>{
-      const email=$("#liEmail").value.trim(); if(!email){toast("Saisissez votre e-mail d’abord"); return;}
+    document.getElementById('btnSignup')?.addEventListener('click', async ()=>{
+      const email = document.getElementById('sEmail').value.trim();
+      const pass  = document.getElementById('sPass').value;
+      const name  = document.getElementById('sName').value.trim();
+      const age   = Number(document.getElementById('sAge').value);
+      const city  = document.getElementById('sCity').value.trim();
+      const gender= document.getElementById('sGender').value;
       try{
-        try{ await sendPasswordResetEmail(auth,email,{ url: window.location.origin + "/?reset=1", handleCodeInApp:false }); }
-        catch(err){ if((err?.code||"").includes("unauthorized-continue-uri")) await sendPasswordResetEmail(auth,email); }
-        toast("Lien de réinitialisation envoyé.");
-      }catch(err){ toast(friendlyError(err)); }
+        const cred = await createUserWithEmailAndPassword(auth, email, pass);
+        await setDoc(doc(db,'profiles', cred.user.uid), {
+          name: name || null, age: age || null, city: city || null, gender: gender || null,
+          bio: null, photoUrl: null, lastActive: serverTimestamp()
+        });
+        await sendEmailVerification(cred.user);
+        alert('Compte créé. Vérifie ton e-mail pour discuter.');
+        location.href='/';
+      }catch(e){ alert(e.message); }
     });
 
-    async function sendVerify(){ const u=auth.currentUser; if(!u){toast("Connectez-vous d’abord.");return;}
-      try{ await sendEmailVerification(u,{ url: window.location.origin + "/?verified=1", handleCodeInApp:false }); }
-      catch(err){ if((err?.code||"").includes("unauthorized-continue-uri")) await sendEmailVerification(u); else throw err; }
-      toast("E-mail envoyé ✉️"); }
-    async function refreshVerify(){ const u=auth.currentUser; if(!u) return; try{ await reload(u); updateVerifyBox(u); }catch{} }
+    const verifyBox   = document.getElementById('verifyBox');
+    const sendVerify  = document.getElementById('sendVerify');
+    const refreshAuth = document.getElementById('refreshAuth');
 
-    function updateVerifyBox(user){ verifyBox.style.display = user && !user.emailVerified ? "block" : "none"; }
-    $("#btnSendVerify").addEventListener("click", sendVerify);
-    $("#btnRefreshVerify").addEventListener("click", refreshVerify);
-
-    onAuthStateChanged(auth, user=>{ updateVerifyBox(user); });
+    onAuthStateChanged(auth, (user)=>{
+      verifyBox.hidden = !user || user.emailVerified;
+      sendVerify.onclick  = async ()=>{ if(!auth.currentUser) return; await sendEmailVerification(auth.currentUser); alert('E-mail envoyé.'); };
+      refreshAuth.onclick = ()=> location.reload();
+    });
   </script>
 </body>
 </html>
