@@ -1,308 +1,267 @@
 <!doctype html>
 <html lang="fr">
 <head>
-  <!-- =========================
-       LoveNow — Index complet (SPA)
-       =========================
-       ✅ À vérifier une fois (Firebase Console)
-       • Authentification → Paramètres → Domaines autorisés :
-         - lovenow.netlify.app
-         - (ton futur domaine custom si besoin)
-       • Authentification → Modèles d’e-mail : logo & couleurs (optionnel)
-       • Firestore → Règles & Index créés (tu les as déjà faits)
-       • App Check reCAPTCHA v3 : clé site activée
-       • Cloudinary : preset unsigned "profile_pics" + cloud_name "dyqxadd0j"
-  -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>LoveNow — Rencontres proches de toi</title>
   <meta name="description" content="LoveNow : rencontres locales et messagerie privée. 100% gratuit au lancement.">
+
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
 
   <style>
     :root{
-      --bg:#0d0d10; --card:#151921; --line:#222a35; --txt:#f6f8fa; --muted:#aeb6c2;
+      --bg:#0d0d10; --card:#151921; --line:#232b36; --txt:#f6f8fa; --muted:#aeb6c2;
       --acc:#ff4d6d; --acc2:#8f51ea; --acc3:#ff6bb5; --ok:#30d158; --danger:#ff6464;
       --warn:#ffcf40; --warn-bg:#201a00; --warn-line:#665500;
     }
     *{box-sizing:border-box}
     html,body{margin:0;background:var(--bg);color:var(--txt);font-family:'Poppins',system-ui,Segoe UI,Arial,sans-serif}
-    a{color:var(--acc3);text-decoration:none}
-    .wrap{max-width:1100px;margin:0 auto;padding:16px 18px}
+    a{color:#fff;text-decoration:none}
+    img{max-width:100%;display:block}
+
+    .wrap{max-width:1120px;margin:0 auto;padding:16px 20px}
+
+    /* Header + nav */
     header{position:sticky;top:0;z-index:50;backdrop-filter:saturate(140%) blur(8px);
-      background:linear-gradient(180deg,rgba(0,0,0,.7),rgba(0,0,0,.45));border-bottom:1px solid var(--line)}
+      background:linear-gradient(180deg,rgba(0,0,0,.75),rgba(0,0,0,.45));
+      border-bottom:1px solid var(--line)}
     .row{display:flex;gap:14px;align-items:center;justify-content:space-between}
     .logo{font-weight:800;letter-spacing:.3px;color:var(--acc)}
-    .nav-btn{border:1px solid #ffffffaa;padding:8px 14px;border-radius:999px;background:none;color:#fff;cursor:pointer}
-    .nav-btn:hover{background:#fff;color:#000}
-    .nav-btn.danger{border-color:var(--danger)}
-    .hero{display:grid;place-items:center;min-height:68vh;text-align:center;padding:30px 18px;
-      background:radial-gradient(1000px 500px at 15% 10%,rgba(255,77,109,.2),transparent 60%),
-                 radial-gradient(1000px 500px at 85% 10%,rgba(143,81,234,.25),transparent 60%),
-                 linear-gradient(135deg,var(--acc),var(--acc3),var(--acc2))}
+    .nav-desktop{display:flex;gap:18px;align-items:center}
+    .nav-desktop a{opacity:.9}
+    .nav-desktop a:hover{opacity:1}
+    .burger{display:none;border:1px solid #ffffffaa;padding:8px 12px;border-radius:10px;background:none;color:#fff;cursor:pointer}
+
+    .nav-mobile{position:fixed;inset:0;z-index:60;background:#000a;display:flex;justify-content:flex-end}
+    .nav-panel{width:min(84vw,360px);background:#0e131b;border-left:1px solid var(--line);padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+    .nav-panel a{padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#121826}
+
+    .btn{display:inline-block;background:var(--acc);color:#000;font-weight:800;border-radius:10px;padding:10px 16px;border:0;cursor:pointer}
+    .btn.alt{background:#fff;color:#000}
+    .btn.ghost{background:none;border:1px solid #ffffffaa;color:#fff}
+
+    /* Vérification e-mail (bandeau) */
+    .banner{display:none;background:var(--warn-bg);color:#ffe58f;border-bottom:1px solid var(--warn-line);padding:10px}
+    .banner .btn{margin-left:8px;background:var(--warn);color:#000}
+
+    /* Hero */
+    .hero{display:grid;place-items:center;min-height:66vh;text-align:center;padding:30px 18px;
+      background:
+        radial-gradient(900px 480px at 15% 8%,rgba(255,77,109,.18),transparent 60%),
+        radial-gradient(1000px 520px at 85% 10%,rgba(143,81,234,.22),transparent 60%),
+        linear-gradient(135deg,var(--acc),var(--acc3),var(--acc2))}
     .hero h1{font-size:clamp(28px,6vw,48px);margin:6px 0 10px;font-weight:800}
     .hero p{max-width:640px;margin:0 auto 18px;color:#fff;opacity:.95}
     .cta{display:inline-block;background:#fff;color:#000;font-weight:800;border-radius:999px;padding:14px 28px;border:0;cursor:pointer}
     .uspbar{display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap}
     .pill{border:1px solid #ffffff80;color:#fff;padding:6px 12px;border-radius:999px;font-size:12px;opacity:.9}
+
+    /* Discover */
     section{padding:40px 18px}
     h2{margin:0 0 12px}
     .muted{color:var(--muted)}
-    .grid{display:grid;gap:16px}
-    .g-2{grid-template-columns:repeat(2,1fr)}
-    @media(max-width:900px){.g-2{grid-template-columns:1fr}}
-    .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
-    .form{display:grid;gap:10px}
-    .form input,.form textarea{width:100%;border-radius:10px;border:1px solid var(--line);background:#0f1320;color:#fff;padding:10px}
-    .form button{border:0;border-radius:10px;padding:12px 16px;background:var(--acc);color:#000;font-weight:800;cursor:pointer}
-    .file input{display:none}.file span{display:inline-block;border:1px dashed var(--line);padding:10px;border-radius:10px;cursor:pointer}
-    .avatar-wrap{margin-top:10px;text-align:center}
-    .avatar-wrap img{width:120px;height:120px;border-radius:50%;object-fit:cover;border:2px solid var(--line)}
-    .list{display:grid;gap:8px;max-height:320px;overflow:auto}
-    .item{display:flex;align-items:center;gap:10px;border:1px solid var(--line);padding:10px;border-radius:10px}
-    .item img{width:44px;height:44px;border-radius:50%;object-fit:cover}
-    .item .grow{flex:1}
-    .item button{padding:8px 10px;border:0;border-radius:999px;background:var(--acc);font-weight:700}
-    .divider{height:1px;background:var(--line);margin:12px 0}
-    .chat{display:grid;grid-template-columns:260px 1fr;gap:10px}
-    @media(max-width:900px){.chat{grid-template-columns:1fr}}
-    .chat-people{border:1px solid var(--line);border-radius:10px;max-height:360px;overflow:auto}
-    .people-item{display:flex;gap:8px;align-items:center;padding:10px;border-bottom:1px solid var(--line);cursor:pointer}
-    .people-item .badge{margin-left:auto;background:var(--acc);color:#000;border-radius:999px;font-weight:800;padding:2px 8px;font-size:12px}
-    .people-item small{color:var(--muted)}
-    .people-item.active{background:#0f1320}
-    .chat-box{display:grid;grid-template-rows:auto 1fr auto;border:1px solid var(--line);border-radius:10px;min-height:360px}
-    .chat-head{display:flex;gap:8px;align-items:center;border-bottom:1px solid var(--line);padding:8px 10px}
-    .messages{padding:10px;display:flex;flex-direction:column;gap:6px;max-height:300px;overflow:auto}
-    .msg{max-width:80%;padding:8px 10px;border-radius:10px;border:1px solid var(--line)}
-    .me{align-self:flex-end;background:#1c1f27}
-    .them{align-self:flex-start;background:#11141b}
-    .send{display:flex;gap:8px;border-top:1px solid var(--line);padding:8px}
-    .send input{flex:1}
+
+    .filters{display:grid;grid-template-columns:repeat(12,1fr);gap:10px;align-items:end;background:var(--card);border:1px solid var(--line);padding:12px;border-radius:12px}
+    .filters .cell{grid-column:span 3}
+    .filters .cell.w2{grid-column:span 2}
+    .filters .cell.w4{grid-column:span 4}
+    .filters .cell.w6{grid-column:span 6}
+    .filters label{display:block;font-size:13px;margin:0 0 6px}
+    .filters input,.filters select{width:100%;border-radius:10px;border:1px solid var(--line);background:#0f1320;color:#fff;padding:10px}
+    .filters fieldset{border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+    .filters legend{color:var(--muted);font-size:12px;padding:0 6px}
+    .filters .actions{display:flex;gap:10px;justify-content:flex-end}
+
+    @media(max-width:980px){
+      .filters .cell{grid-column:span 6}
+      .nav-desktop{display:none}
+      .burger{display:block}
+    }
+    @media(max-width:560px){
+      .filters{grid-template-columns:repeat(6,1fr)}
+      .filters .cell{grid-column:span 6}
+    }
+
+    .grid{display:grid;gap:16px;grid-template-columns:repeat(3,1fr)}
+    @media(max-width:980px){.grid{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:560px){.grid{grid-template-columns:1fr}}
+
+    .card{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+    .p-card img{aspect-ratio:4/5;object-fit:cover;background:#0e121a}
+    .p-body{padding:12px}
+    .p-title{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin-bottom:6px}
+    .v-badge{background:#133016;color:#a7f3a7;border:1px solid #2d5f2d;border-radius:8px;padding:2px 6px;font-size:12px}
+    .p-body p{color:var(--muted);margin:0 0 10px}
+    .p-actions{display:flex;gap:10px}
+    .loadmore{display:flex;justify-content:center;margin-top:14px}
+
     .footer{padding:24px 18px;border-top:1px solid var(--line);text-align:center;color:var(--muted);font-size:14px}
     #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:#000d;border:1px solid var(--line);
       padding:10px 14px;border-radius:12px;display:none;z-index:90;min-width:240px;text-align:center}
+
     .sr-only{position:absolute;left:-99999px;top:auto;width:1px;height:1px;overflow:hidden}
-    .banner{display:none;background:var(--warn-bg);color:#ffe58f;border-bottom:1px solid var(--warn-line);padding:10px}
-    .banner .btn{margin-left:8px;border:0;background:var(--warn);color:#000;border-radius:8px;padding:6px 10px;font-weight:800}
-    .notice{display:none;background:#121a12;border:1px solid #274b27;color:#cbeacb;padding:8px 10px;border-radius:10px;margin:8px 0}
-    .warnCard{display:none;background:var(--warn-bg);border:1px solid var(--warn-line);color:#ffe58f;padding:8px 10px;border-radius:10px;margin-bottom:10px}
-    .warnCard .btn{margin-left:6px;border:0;background:var(--warn);color:#000;border-radius:8px;padding:6px 10px;font-weight:800}
     button[disabled]{opacity:.6;pointer-events:none}
   </style>
 </head>
 <body>
-  <a class="sr-only" href="#main">Aller au contenu</a>
+  <a class="sr-only" href="#discover">Aller au contenu</a>
 
+  <!-- Header + nav -->
   <header>
     <div class="wrap row">
-      <div class="logo" aria-label="LoveNow">💘 LoveNow</div>
-      <nav aria-label="Navigation">
-        <button id="btnOpenAuth" class="nav-btn">Connexion</button>
-        <button id="btnLogout" class="nav-btn danger" style="display:none">Se déconnecter</button>
+      <a href="index.html" class="logo" aria-label="LoveNow">💘 LoveNow</a>
+
+      <nav class="nav-desktop" aria-label="Navigation principale">
+        <a href="#discover">Découvrir</a>
+        <a href="conversations.html">Conversations</a>
+        <a href="profile.html">Mon profil</a>
+        <a id="navAuth" href="login.html">Connexion</a>
+        <a href="privacy.html">Confidentialité</a>
+        <a href="terms.html">CGU</a>
       </nav>
+
+      <button id="burger" class="burger" aria-controls="navMobile" aria-expanded="false">☰</button>
     </div>
-    <!-- Bandeau global si e-mail non vérifié -->
+
+    <!-- Drawer mobile -->
+    <div id="navMobile" class="nav-mobile" hidden>
+      <div class="nav-panel" role="dialog" aria-label="Menu">
+        <button id="closeNav" class="btn ghost" style="align-self:flex-end">✕</button>
+        <a href="index.html">Accueil</a>
+        <a href="#discover" id="mDiscover">Découvrir</a>
+        <a href="conversations.html">Conversations</a>
+        <a href="profile.html">Mon profil</a>
+        <a id="navAuthM" href="login.html">Connexion</a>
+        <a href="privacy.html">Confidentialité</a>
+        <a href="terms.html">CGU</a>
+      </div>
+    </div>
+
+    <!-- Bandeau e-mail non vérifié -->
     <div id="verifyEmailBar" class="banner" role="status" aria-live="polite">
-      Votre e-mail n’est pas vérifié.
+      Ton e-mail n’est pas vérifié.
       <button id="btnSendVerify" class="btn">Valider mon e-mail</button>
       <button id="btnRefreshVerify" class="btn">Rafraîchir</button>
     </div>
   </header>
 
-  <main id="main">
-    <!-- HERO -->
-    <section class="hero">
-      <h1>Rencontre l’amour près de chez toi</h1>
-      <p>Inscris-toi en 2 minutes, découvre des profils réels à proximité et commence à discuter. 100% gratuit au lancement.</p>
-      <button class="cta" id="ctaStart">Rejoins-nous gratuitement</button>
-      <div class="uspbar">
-        <span class="pill">🔥 Gratuit au départ</span>
-        <span class="pill">📍 Local & rapide</span>
-        <span class="pill">🔒 Sécurité & respect</span>
+  <!-- Hero -->
+  <section class="hero">
+    <h1>Rencontre l’amour près de chez toi</h1>
+    <p>Inscris-toi en 2 minutes, découvre des profils réels à proximité et commence à discuter. 100% gratuit au lancement.</p>
+    <a class="cta" href="login.html">Rejoins-nous gratuitement</a>
+    <div class="uspbar">
+      <span class="pill">🔥 Gratuit au départ</span>
+      <span class="pill">📍 Local & rapide</span>
+      <span class="pill">🔒 Sécurité & respect</span>
+    </div>
+  </section>
+
+  <!-- Discover -->
+  <main id="discover" class="wrap" tabindex="-1" aria-label="Découvrir des profils">
+    <h2>Découvrir des profils</h2>
+    <p class="muted" id="discoverHelp">Affiche des profils réels autour de toi. Connecte-toi pour accéder à toutes les fonctionnalités.</p>
+
+    <form id="filters" class="filters" autocomplete="off">
+      <div class="cell w4">
+        <label for="city">Ville</label>
+        <input id="city" list="cities" placeholder="ex. Paris" inputmode="search">
+        <datalist id="cities">
+          <option>Paris</option><option>Lyon</option><option>Marseille</option>
+          <option>Toulouse</option><option>Bordeaux</option><option>Lille</option>
+          <option>Nantes</option><option>Nice</option><option>Montpellier</option>
+        </datalist>
       </div>
-    </section>
 
-    <!-- APP -->
-    <section id="app" class="wrap" style="display:none">
-      <h2>Bienvenue <span id="hiName"></span> 👋</h2>
+      <div class="cell w2">
+        <label>&nbsp;</label>
+        <button type="button" class="btn ghost" id="nearMe">📍 Autour de moi</button>
+      </div>
 
-      <div class="grid g-2">
-        <!-- PROFIL -->
-        <div class="card">
-          <!-- Encart vérification AU-DESSUS du profil -->
-          <div id="verifyCard" class="warnCard">
-            Votre e-mail n’est pas vérifié.
-            <button id="btnSendVerify2" class="btn">Valider mon e-mail</button>
-            <button id="btnRefreshVerify2" class="btn">Rafraîchir</button>
-          </div>
+      <div class="cell w3">
+        <fieldset>
+          <legend>Genre</legend>
+          <label><input type="radio" name="gender" value="tous" checked> Tous</label><br>
+          <label><input type="radio" name="gender" value="homme"> Hommes</label><br>
+          <label><input type="radio" name="gender" value="femme"> Femmes</label><br>
+          <label><input type="radio" name="gender" value="autre"> Autres</label>
+        </fieldset>
+      </div>
 
-          <h3>Mon profil</h3>
-          <form id="editProfileForm" class="form">
-            <label>Nom <input id="name" maxlength="30" required></label>
-            <label>Âge <input id="age" type="number" min="18" max="100" required></label>
-            <label>Bio (500 max)
-              <textarea id="bio" maxlength="500" rows="3" placeholder="Parle un peu de toi…"></textarea>
-            </label>
-            <div class="row">
-              <label class="file">
-                <input type="file" id="avatarFile" accept="image/*">
-                <span>Ajouter/mettre à jour ma photo</span>
-              </label>
-              <button type="submit">Enregistrer</button>
-            </div>
-          </form>
-          <div class="avatar-wrap">
-            <img id="avatarPreview" alt="Avatar" />
-          </div>
-        </div>
+      <div class="cell w3">
+        <fieldset>
+          <legend>Je cherche</legend>
+          <label><input type="radio" name="seeking" value="tous" checked> Tous</label><br>
+          <label><input type="radio" name="seeking" value="homme"> Homme</label><br>
+          <label><input type="radio" name="seeking" value="femme"> Femme</label>
+        </fieldset>
+      </div>
 
-        <!-- DÉCOUVERTE + CHAT -->
-        <div class="card">
-          <h3>Profils proches</h3>
-          <div id="profilesList" class="list"></div>
-
-          <div class="divider"></div>
-
-          <h3>Chat</h3>
-          <div class="chat">
-            <div class="chat-people" id="conversationsList"></div>
-            <div class="chat-box">
-              <div class="chat-head">
-                <div id="chatTitle" class="muted">Aucune conversation</div>
-                <div id="inviteBox" class="notice"></div>
-              </div>
-              <div id="messagesList" class="messages"></div>
-              <form id="sendMsgForm" class="send">
-                <input id="msgInput" placeholder="Écrire un message…" maxlength="500" />
-                <button type="submit">Envoyer</button>
-              </form>
-            </div>
-          </div>
-
+      <div class="cell w6">
+        <label>Âge <span id="ageLbl">18–99</span></label>
+        <div style="display:flex;gap:10px">
+          <input type="range" id="ageMin" min="18" max="99" value="18" style="flex:1">
+          <input type="range" id="ageMax" min="18" max="99" value="99" style="flex:1">
         </div>
       </div>
-    </section>
 
-    <!-- CTA FINAL -->
-    <section id="cta" class="wrap">
-      <div class="card" style="text-align:center">
-        <h2>Prêt·e à tenter ta chance ?</h2>
-        <p class="muted">Inscription en 2 minutes. 18+ uniquement.</p>
-        <a class="cta" href="cgu.html" style="margin-right:8px">CGU</a>
-        <a class="cta" href="confidentialite.html" style="margin-right:8px">Confidentialité</a>
-        <a class="cta" href="mentions-legales.html">Mentions légales</a>
+      <div class="cell w6 actions">
+        <button class="btn" type="submit" id="btnSearch">Rechercher</button>
+        <button class="btn alt" type="button" id="reset">Réinitialiser</button>
       </div>
-    </section>
+    </form>
+
+    <div id="results" class="grid" aria-live="polite" aria-busy="false"></div>
+    <div class="loadmore">
+      <button id="btnMore" class="btn ghost" style="display:none">Charger plus</button>
+    </div>
   </main>
 
   <footer>
     <div class="wrap footer">
-      © 2025 LoveNow — <a href="mentions-legales.html">Mentions légales</a> · <a href="confidentialite.html">Confidentialité</a> · 18+ uniquement
+      © 2025 LoveNow — <a href="terms.html">Mentions / CGU</a> · <a href="privacy.html">Confidentialité</a> · 18+ uniquement
     </div>
   </footer>
 
-  <!-- MODALE AUTH -->
-  <div class="modal" id="modalAuth" aria-hidden="true" role="dialog" aria-label="Authentification" style="display:none;align-items:center;justify-content:center;background:#0008;position:fixed;inset:0;z-index:60">
-    <div class="card" style="width:min(680px,92vw);padding:0">
-      <div class="row" style="padding:10px;border-bottom:1px solid var(--line)">
-        <div>
-          <button data-tab="signup" class="nav-btn">Inscription</button>
-          <button data-tab="login" class="nav-btn">Connexion</button>
-        </div>
-        <button id="closeAuth" class="nav-btn">×</button>
-      </div>
-
-      <div id="paneSignup" style="padding:12px;display:none">
-        <form id="signupForm" class="form">
-          <label>Email <input id="suEmail" type="email" required autocomplete="email"></label>
-          <label>Mot de passe <input id="suPass" type="password" minlength="6" required autocomplete="new-password"></label>
-          <div class="row">
-            <label>Nom <input id="suName" maxlength="30" required></label>
-            <label>Âge <input id="suAge" type="number" min="18" max="100" required></label>
-          </div>
-          <label>Bio (500 max)
-            <textarea id="suBio" maxlength="500" rows="3" placeholder="Parle un peu de toi…"></textarea>
-          </label>
-          <label class="file">
-            <input type="file" id="suAvatar" accept="image/*">
-            <span>Photo de profil (optionnel)</span>
-          </label>
-          <button type="submit">Créer mon compte</button>
-        </form>
-      </div>
-
-      <div id="paneLogin" style="padding:12px;display:none">
-        <form id="loginForm" class="form">
-          <label>Email <input id="liEmail" type="email" required autocomplete="email"></label>
-          <label>Mot de passe <input id="liPass" type="password" minlength="6" required autocomplete="current-password"></label>
-          <button type="submit">Se connecter</button>
-          <button type="button" id="btnForgot" class="nav-btn danger" style="margin-top:8px;border-color:transparent">Mot de passe oublié</button>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <!-- TOAST -->
   <div id="toast" role="status" aria-live="polite"></div>
 
-  <!-- ========== JS (module) ========== -->
+  <!-- ======================= JS (module) ======================= -->
   <script type="module">
-    // ---------- Utils ----------
+    // ---------- Helpers UI ----------
     const $=(s,c=document)=>c.querySelector(s), $$=(s,c=document)=>Array.from(c.querySelectorAll(s));
     function toast(m,ms=2600){const t=$("#toast");t.textContent=m;t.style.display="block";setTimeout(()=>t.style.display="none",ms)}
-    const sanitize = s=> (s||"").replace(/[<>]/g,"");
-    const chatIdFor = (a,b)=>[a,b].sort().join("_");
-    const setLoading=(btn,on,labelBusy="...")=>{
-      if(!btn) return;
-      if(on){ btn.dataset._label = btn.textContent; btn.textContent = labelBusy; btn.setAttribute("disabled",""); }
-      else { btn.textContent = btn.dataset._label || btn.textContent; btn.removeAttribute("disabled"); }
+    const sanitize=s=>(s||"").replace(/[<>]/g,"");
+    const chatIdFor=(a,b)=>[a,b].sort().join("_");
+    const setLoading=(btn,on,labelBusy="…")=>{
+      if(!btn) return; if(on){btn.dataset._label=btn.textContent;btn.textContent=labelBusy;btn.setAttribute("disabled","")}
+      else{btn.textContent=btn.dataset._label||btn.textContent;btn.removeAttribute("disabled")}
     };
 
-    // ---------- UI modal ----------
-    const modal=$("#modalAuth");
-    const openAuth=w=>{modal.style.display="flex"; setTab(w||"signup")};
-    const closeAuth=()=>{modal.style.display="none"};
-    $("#btnOpenAuth")?.addEventListener("click",()=>openAuth("signup"));
-    $("#ctaStart")?.addEventListener("click",()=>openAuth("signup"));
-    $("#closeAuth")?.addEventListener("click",closeAuth);
-    modal.addEventListener("click",e=>{if(e.target===modal)closeAuth();});
-    function setTab(which){
-      const bSignup = $("[data-tab='signup']"), bLogin=$("[data-tab='login']");
-      bSignup.classList.toggle("active",which==="signup");
-      bLogin.classList.toggle("active",which==="login");
-      $("#paneSignup").style.display = which==="signup" ? "block" : "none";
-      $("#paneLogin").style.display  = which==="login"  ? "block" : "none";
-    }
-    $$("[data-tab]").forEach(b=>b.addEventListener("click",()=>setTab(b.dataset.tab)));
+    // ---------- Burger ----------
+    const burger=$("#burger"), navMobile=$("#navMobile"), closeNav=$("#closeNav"), mDiscover=$("#mDiscover");
+    burger?.addEventListener("click",()=>{navMobile.hidden=false;burger.setAttribute("aria-expanded","true")});
+    closeNav?.addEventListener("click",()=>{navMobile.hidden=true;burger.setAttribute("aria-expanded","false")});
+    navMobile?.addEventListener("click",e=>{if(e.target===navMobile) closeNav.click()});
+    mDiscover?.addEventListener("click",()=>closeNav.click());
 
     // ---------- Firebase (CDN v10) ----------
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
+    import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check.js";
     import {
-      getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,
-      signOut,updateProfile,sendEmailVerification,sendPasswordResetEmail,reload
+      getAuth,onAuthStateChanged,sendEmailVerification,reload,signOut
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import {
-      getFirestore,doc,setDoc,getDoc,updateDoc,addDoc,collection,query,where,
-      orderBy,limit,getDocs,onSnapshot,serverTimestamp,increment
+      getFirestore,collection,query,where,orderBy,limit,startAfter,getDocs,
+      doc,getDoc,setDoc,serverTimestamp,updateDoc,increment
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-    import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check.js";
 
-    // ---------- Cloudinary (unsigned) ----------
-    const CLOUD_NAME="dyqxadd0j";         // ton cloud name
-    const UPLOAD_PRESET="profile_pics";    // preset unsigned créé
-    async function uploadImage(file){
-      const fd=new FormData();
-      fd.append("file",file);
-      fd.append("upload_preset",UPLOAD_PRESET);
-      const r=await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,{method:"POST",body:fd});
-      if(!r.ok) throw new Error("Upload Cloudinary échoué");
-      return r.json(); // => { secure_url, ... }
-    }
+    // ---------- Cloudinary (optionnel ici, utile sur profile/login) ----------
+    const CLOUD_NAME="dyqxadd0j";
+    const UPLOAD_PRESET="profile_pics";
 
-    // ---------- Config Firebase ----------
+    // ---------- Config Firebase (tes valeurs) ----------
     const firebaseConfig={
       apiKey:"AIzaSyB_-cNA8bxqYCYUp3rUZs-VpiP4DX2wn3M",
       authDomain:"lovenow-officiel.firebaseapp.com",
@@ -314,255 +273,160 @@
     };
     const RECAPTCHA_SITE_KEY="6LfjpsErAAAAAExN2IvBq-K475TeJooeNzl9liPD";
 
-    const app=initializeApp(firebaseConfig);
-    try{ getAnalytics(app); }catch{}
+    const app=initializeApp(firebaseConfig); try{getAnalytics(app)}catch{}
     initializeAppCheck(app,{provider:new ReCaptchaV3Provider(RECAPTCHA_SITE_KEY),isTokenAutoRefreshEnabled:true});
+    const auth=getAuth(app); const db=getFirestore(app);
 
-    const auth=getAuth(app);
-    const db=getFirestore(app);
-
-    // ---------- Refs ----------
-    const appWrap=$("#app"), btnLogout=$("#btnLogout"), hiName=$("#hiName");
-    const profilesList=$("#profilesList"), convList=$("#conversationsList");
-    const msgsList=$("#messagesList"), sendForm=$("#sendMsgForm"), msgInput=$("#msgInput");
-    const chatTitle=$("#chatTitle"), inviteBox=$("#inviteBox");
-    const verifyBar=$("#verifyEmailBar"), verifyCard=$("#verifyCard");
+    // ---------- Vérification e-mail ----------
+    const verifyBar=$("#verifyEmailBar");
     const btnSendVerify=$("#btnSendVerify"), btnRefreshVerify=$("#btnRefreshVerify");
-    const btnSendVerify2=$("#btnSendVerify2"), btnRefreshVerify2=$("#btnRefreshVerify2");
 
-    // ---------- Erreurs lisibles ----------
-    const friendlyError=(e)=>{
-      const code=e?.code||"";
-      if(code.includes("too-many-requests")) return "Trop de tentatives. Réessaie dans une minute.";
-      if(code.includes("network-request-failed")) return "Problème réseau. Vérifie ta connexion.";
-      if(code.includes("unauthorized-continue-uri")) return "Domaine de retour non autorisé (ajoute le domaine dans Firebase > Auth > Domaines autorisés).";
+    const actionCodeSettings={
+      url: window.location.origin + '/?verified=1',
+      handleCodeInApp: false
+    };
+    const friendlyError=e=>{
+      const c=e?.code||"";
+      if(c.includes("too-many-requests")) return "Trop de tentatives. Réessaie dans une minute.";
+      if(c.includes("network-request-failed")) return "Problème réseau. Vérifie ta connexion.";
+      if(c.includes("unauthorized-continue-uri")) return "Domaine de retour non autorisé (Firebase > Auth > Domaines autorisés).";
       return e?.message||"Une erreur est survenue.";
     };
 
-    // ---------- Vérification e-mail ----------
-    const actionCodeSettings={ url: window.location.origin + '/?verified=1', handleCodeInApp:false };
-
-    async function sendVerification(user, btn){
-      if(!user) return toast("Connecte-toi d’abord.");
-      if(btn) setLoading(btn,true,"Envoi…");
-      try{
-        try{ await sendEmailVerification(user, actionCodeSettings); }
-        catch(err){
-          if((err?.code||"").includes("unauthorized-continue-uri")){
-            await sendEmailVerification(user); // fallback
-          } else { throw err; }
-        }
-        toast("E-mail de validation envoyé ✉️ (vérifie SPAM)");
-      }catch(e){ console.debug(e); toast(friendlyError(e)); }
-      finally{ if(btn) setLoading(btn,false); }
-    }
-    async function refreshVerification(user, btn){
+    async function sendVerification(user,btn){
       if(!user) return;
-      if(btn) setLoading(btn,true,"Maj…");
-      try{ await reload(user); updateVerifyUI(user); }
-      catch(e){ console.debug(e); toast(friendlyError(e)); }
-      finally{ if(btn) setLoading(btn,false); }
+      setLoading(btn,true,"Envoi…");
+      try{
+        try{ await sendEmailVerification(user,actionCodeSettings) }
+        catch(err){ if((err?.code||"").includes("unauthorized-continue-uri")) await sendEmailVerification(user); else throw err }
+        toast("E-mail de validation envoyé ✉️ (regarde tes SPAM).");
+      }catch(e){ toast(friendlyError(e)) }
+      finally{ setLoading(btn,false) }
     }
-    function wireVerifyButtons(){
-      btnSendVerify?.addEventListener("click",()=>sendVerification(auth.currentUser,btnSendVerify));
-      btnRefreshVerify?.addEventListener("click",()=>refreshVerification(auth.currentUser,btnRefreshVerify));
-      btnSendVerify2?.addEventListener("click",()=>sendVerification(auth.currentUser,btnSendVerify2));
-      btnRefreshVerify2?.addEventListener("click",()=>refreshVerification(auth.currentUser,btnRefreshVerify2));
+    async function refreshVerification(user,btn){
+      if(!user) return;
+      setLoading(btn,true,"Maj…");
+      try{ await reload(user); updateVerifyUI(user) }catch(e){ toast(friendlyError(e)) }
+      finally{ setLoading(btn,false) }
     }
-    wireVerifyButtons();
+    btnSendVerify?.addEventListener("click",()=>sendVerification(auth.currentUser,btnSendVerify));
+    btnRefreshVerify?.addEventListener("click",()=>refreshVerification(auth.currentUser,btnRefreshVerify));
 
     function updateVerifyUI(user){
       const verified=!!user?.emailVerified;
       verifyBar.style.display = verified ? "none" : "block";
-      verifyCard.style.display = verified ? "none" : "block";
-      msgInput.disabled = !verified; // bloque l’envoi si non vérifié
+      // blocage léger côté UI (les règles sécurisent de toute façon côté serveur)
+      $("#btnMore").disabled = !verified && false; // on laisse consulter, l'envoi de message reste côté conversations
     }
 
-    // ---------- Auth: inscription ----------
-    $("#signupForm")?.addEventListener("submit",async e=>{
-      e.preventDefault();
-      const email=$("#suEmail").value.trim();
-      const pass=$("#suPass").value.trim();
-      const name=sanitize($("#suName").value.trim()).slice(0,30);
-      const age=parseInt($("#suAge").value,10);
-      const bio=sanitize($("#suBio").value.trim()).slice(0,500);
-      const file=$("#suAvatar").files[0];
-      if(age<18){ toast("18+ requis"); return; }
-      try{
-        const cred=await createUserWithEmailAndPassword(auth,email,pass);
-        const uid=cred.user.uid;
-
-        let photoUrl="";
-        if(file){ const up=await uploadImage(file); photoUrl=up.secure_url||""; }
-
-        await setDoc(doc(db,"users",uid),{
-          name, age, bio, createdAt: serverTimestamp(),
-          photoUrl, photos: photoUrl ? [photoUrl] : []
-        });
-        await updateProfile(cred.user,{displayName:name,photoURL:photoUrl||null});
-        // envoi vérification auto
-        await sendVerification(cred.user,null);
-
-        toast("Compte créé — vérifie ton e-mail ✉️");
-        closeAuth();
-      }catch(err){
-        if(err.code==="auth/email-already-in-use"){ toast("Adresse déjà utilisée — connecte-toi."); setTab("login"); }
-        else { toast(friendlyError(err)); }
-      }
-    });
-
-    // ---------- Auth: connexion / reset / logout ----------
-    $("#loginForm")?.addEventListener("submit",async e=>{
-      e.preventDefault();
-      const email=$("#liEmail").value.trim();
-      const pass=$("#liPass").value.trim();
-      try{
-        await signInWithEmailAndPassword(auth,email,pass);
-        toast("Connecté !");
-        closeAuth();
-      }catch(err){ toast(friendlyError(err)); }
-    });
-    $("#btnForgot")?.addEventListener("click",async ()=>{
-      const email=$("#liEmail").value.trim();
-      if(!email){ toast("Entre d’abord ton e-mail"); return; }
-      try{
-        try{ await sendPasswordResetEmail(auth,email,actionCodeSettings); }
-        catch(err){
-          if((err?.code||"").includes("unauthorized-continue-uri")){
-            await sendPasswordResetEmail(auth,email); // fallback
-          } else throw err;
-        }
-        toast("Lien de réinitialisation envoyé.");
-      }catch(e){ toast(friendlyError(e)); }
-    });
-    btnLogout?.addEventListener("click",async ()=>{ await signOut(auth); });
-
-    // ---------- État auth ----------
-    let currentPeer=null, currentConv=null, unsubMessages=null, unsubConversations=null;
-
-    onAuthStateChanged(auth, async user=>{
+    // ---------- Auth state + Nav ----------
+    const navAuth=$("#navAuth"), navAuthM=$("#navAuthM"), discoverHelp=$("#discoverHelp");
+    onAuthStateChanged(auth, async (user)=>{
       if(user){
-        try{ await reload(user) }catch{}
-        $("#btnOpenAuth").style.display="none";
-        btnLogout.style.display="";
-        appWrap.style.display="";
-        hiName.textContent=user.displayName||"toi";
+        try{await reload(user)}catch{}
+        navAuth.textContent="Se déconnecter"; navAuth.href="#"; navAuth.onclick=async(e)=>{e.preventDefault(); await signOut(auth)};
+        navAuthM.textContent="Se déconnecter"; navAuthM.href="#"; navAuthM.onclick=async(e)=>{e.preventDefault(); closeNav?.click(); await signOut(auth)};
+        discoverHelp.textContent="Utilise les filtres pour affiner et envoie un message aux profils qui te plaisent.";
         updateVerifyUI(user);
-
-        // Si on revient de l’e-mail (?verified=1) et pas encore rafraîchi
-        if(new URLSearchParams(location.search).has("verified") && !user.emailVerified){
-          toast("Clique ‘Rafraîchir’ pour mettre à jour le statut.");
-        }
-
-        // Charger profil
-        try{
-          const s=await getDoc(doc(db,"users",user.uid));
-          if(s.exists()){
-            const u=s.data();
-            $("#name").value=u.name||"";
-            $("#age").value=u.age||"";
-            $("#bio").value=u.bio||"";
-            if(u.photoUrl) $("#avatarPreview").src=u.photoUrl;
-          }
-        }catch{}
-        loadProfiles();
-        listenConversations();
       }else{
-        $("#btnOpenAuth").style.display="";
-        btnLogout.style.display="none";
-        appWrap.style.display="none";
+        navAuth.textContent="Connexion"; navAuth.href="login.html"; navAuth.onclick=null;
+        navAuthM.textContent="Connexion"; navAuthM.href="login.html"; navAuthM.onclick=null;
+        discoverHelp.textContent="Affiche des profils réels autour de toi. Connecte-toi pour accéder à toutes les fonctionnalités.";
         verifyBar.style.display="none";
-        verifyCard.style.display="none";
-        stopListening();
       }
+      // Charger une première page
+      lastDoc=null; await runSearch();
     });
 
-    function stopListening(){
-      if(unsubMessages){unsubMessages();unsubMessages=null}
-      if(unsubConversations){unsubConversations();unsubConversations=null}
-      msgsList.innerHTML="";
-      chatTitle.textContent="Aucune conversation";
-    }
-
-    // ---------- Mise à jour profil ----------
-    $("#editProfileForm")?.addEventListener("submit",async e=>{
-      e.preventDefault();
-      const user=auth.currentUser; if(!user) return;
-      const name=sanitize($("#name").value.trim()).slice(0,30);
-      const age=parseInt($("#age").value,10);
-      const bio=sanitize($("#bio").value.trim()).slice(0,500);
-      const file=$("#avatarFile").files[0];
-      try{
-        const upd={name,age,bio};
-        if(file){
-          const up=await uploadImage(file);
-          upd.photoUrl=up.secure_url;
-          upd.photos=[up.secure_url];
-          $("#avatarPreview").src=up.secure_url;
-        }
-        await updateDoc(doc(db,"users",user.uid),upd);
-        await updateProfile(user,{displayName:name,photoURL:upd.photoUrl||user.photoURL||null});
-        toast("Profil mis à jour");
-        loadProfiles();
-      }catch(err){ toast(friendlyError(err)); }
+    // ---------- Filtres ----------
+    const ageMin=$("#ageMin"), ageMax=$("#ageMax"), ageLbl=$("#ageLbl"), city=$("#city");
+    function syncAge(){ const a=parseInt(ageMin.value,10), b=parseInt(ageMax.value,10); if(a>b){[ageMin.value,ageMax.value]=[b,a]} ageLbl.textContent=`${ageMin.value}–${ageMax.value}` }
+    ageMin.addEventListener("input",syncAge); ageMax.addEventListener("input",syncAge); syncAge();
+    $("#reset").addEventListener("click",()=>{
+      city.value=""; ageMin.value=18; ageMax.value=99; syncAge();
+      $$("input[name='gender']").forEach(r=>r.checked=r.value==="tous");
+      $$("input[name='seeking']").forEach(r=>r.checked=r.value==="tous");
+    });
+    $("#nearMe").addEventListener("click",()=>{
+      if(!navigator.geolocation){toast("Géoloc non disponible");return;}
+      navigator.geolocation.getCurrentPosition(()=>{toast("Filtre ‘Autour de moi’ activé (approx)."); /* à brancher si tu ajoutes geohash */},
+        ()=>toast("Géoloc refusée"));
     });
 
-    // ---------- Profils (liste) ----------
-    async function loadProfiles(){
-      const me=auth.currentUser; if(!me) return;
+    // ---------- Recherche Firestore ----------
+    let lastDoc=null;
+    $("#filters").addEventListener("submit",async e=>{e.preventDefault(); lastDoc=null; await runSearch()});
+    $("#btnMore").addEventListener("click",async ()=>{ await runSearch(true) });
+
+    async function runSearch(append=false){
+      const res=$("#results"); const btnMore=$("#btnMore"); const btnSearch=$("#btnSearch");
+      const gender = ($("input[name='gender']:checked")||{}).value || "tous";
+      const seeking = ($("input[name='seeking']:checked")||{}).value || "tous";
+      const ageA=parseInt(ageMin.value,10), ageB=parseInt(ageMax.value,10); const min=Math.min(ageA,ageB), max=Math.max(ageA,ageB);
+      const cityVal=city.value.trim();
+
+      setLoading(btnSearch,true,"Recherche…"); res.setAttribute("aria-busy","true");
+      if(!append) res.innerHTML="";
+
       try{
-        const q=query(collection(db,"users"), orderBy("createdAt","desc"), limit(30));
+        let q=query(collection(db,"users"), orderBy("createdAt","desc"), limit(24));
+        if(cityVal) q=query(q, where("city","==",cityVal));
+        if(gender!=="tous") q=query(q, where("gender","==",gender));
+        // seeking : on filtre côté client (simple, pas d’index supplémentaire)
+        if(lastDoc) q=query(q, startAfter(lastDoc));
+
         const snap=await getDocs(q);
-        profilesList.innerHTML="";
+        const items=[];
         snap.forEach(d=>{
-          if(d.id===me.uid) return;
           const u=d.data();
-          const div=document.createElement("div");
-          div.className="item";
-          div.innerHTML=`
-            <img src="${u.photoUrl||'https://placehold.co/80x80?text=👤'}" alt="">
-            <div class="grow">
-              <div><strong>${u.name||"Sans nom"}</strong> · ${u.age||"?"} ans</div>
-              <div class="muted">${(u.bio||"").slice(0,70)}</div>
-            </div>
-            <button data-uid="${d.id}">Message</button>
-          `;
-          div.querySelector("button").addEventListener("click",()=>openChatWith(d.id));
-          profilesList.appendChild(div);
+          // bornes d’âge filtrées côté client
+          if((u.age??99) >= min && (u.age??0) <= max){
+            if(seeking==="tous" || (u.seeking||"tous")===seeking) items.push({id:d.id, ...u});
+          }
         });
-      }catch(e){ console.debug(e); }
+
+        if(!append && items.length===0){ res.innerHTML=`<div class="card" style="padding:16px">Aucun profil ne correspond à tes filtres.</div>` }
+
+        items.forEach(u=> res.insertAdjacentHTML("beforeend", renderCard(u)) );
+
+        // wire des boutons Message
+        res.querySelectorAll("button.msg").forEach(b=>{
+          b.addEventListener("click",()=> openChatWith(b.dataset.uid));
+        });
+
+        lastDoc = snap.docs[snap.docs.length-1] || null;
+        btnMore.style.display = lastDoc ? "inline-block" : "none";
+      }catch(e){
+        console.debug(e);
+        toast("Requête impossible (index manquant ?). Va dans Firestore > Index si besoin.");
+      }finally{
+        setLoading(btnSearch,false); res.setAttribute("aria-busy","false");
+      }
     }
 
-    // ---------- Conversations & messages ----------
-    function listenConversations(){
-      const me=auth.currentUser; if(!me) return;
-      if(unsubConversations){unsubConversations();unsubConversations=null}
-      const qConv=query(collection(db,"conversations"),
-                        where("members","array-contains",me.uid),
-                        orderBy("lastAt","desc"));
-      unsubConversations=onSnapshot(qConv,snap=>{
-        convList.innerHTML="";
-        snap.forEach(c=>{
-          const data=c.data();
-          const otherId=data.members.find(x=>x!==me.uid);
-          const unread=(data.unread&&data.unread[me.uid])?data.unread[me.uid]:0;
-          const item=document.createElement("div");
-          item.className="people-item";
-          item.innerHTML=`
-            <div>
-              <div><strong>${data.lastSenderName||"Discussion"}</strong>
-                <small class="muted">· ${new Date(data.lastAt?.toDate?.()||Date.now()).toLocaleString()}</small>
-              </div>
-              <small>${sanitize(data.lastText||"")}</small>
+    // ---------- Rendu carte profil ----------
+    function renderCard(u){
+      const city = u.city ? ` · ${sanitize(u.city)}` : "";
+      const verified = u.emailVerified ? `<span class="v-badge">✔︎ Vérifié</span>` : "";
+      const bio = sanitize((u.bio||"").slice(0,140));
+      const img = u.photoUrl || "https://placehold.co/600x750?text=Profil";
+      const title = `${sanitize(u.name||"Sans nom")} · ${u.age||"?"} ans${city}`;
+      return `
+        <article class="card p-card">
+          <img src="${img}" alt="Photo de ${sanitize(u.name||'profil')}">
+          <div class="p-body">
+            <div class="p-title"><strong>${title}</strong> ${verified}</div>
+            <p>${bio}</p>
+            <div class="p-actions">
+              <button class="btn msg" data-uid="${u.id}">Message</button>
+              <a href="profile.html" class="btn ghost">Voir le profil</a>
             </div>
-            ${unread?`<span class="badge">${unread}</span>`:""}
-          `;
-          item.addEventListener("click",()=>openChatWith(otherId));
-          convList.appendChild(item);
-        });
-      },err=>{ console.debug(err); toast("Erreur: conversations"); });
+          </div>
+        </article>
+      `;
     }
 
+    // ---------- Conversation helper ----------
     async function ensureConversation(meUid,peerUid){
       const cid=chatIdFor(meUid,peerUid);
       const ref=doc(db,"conversations",cid);
@@ -570,116 +434,30 @@
       if(!s.exists()){
         await setDoc(ref,{
           members:[meUid,peerUid],
-          status:{[meUid]:"accepted",[peerUid]:"pending"}, // invitation
-          lastText:"", lastSender:"", lastSenderName:"",
-          lastAt: serverTimestamp(),
-          unread:{[meUid]:0,[peerUid]:0},
-          createdAt: serverTimestamp()
+          status:{[meUid]:"accepted",[peerUid]:"pending"},
+          lastText:"",lastSender:"",lastSenderName:"",lastAt:serverTimestamp(),
+          unread:{[meUid]:0,[peerUid]:0},createdAt:serverTimestamp()
         });
       }
       return ref;
     }
-
     async function openChatWith(peerUid){
-      const me=auth.currentUser; if(!me) return;
-      const ref=await ensureConversation(me.uid,peerUid);
-      const cid=chatIdFor(me.uid,peerUid);
-      chatTitle.textContent="Discussion";
-      inviteBox.style.display="none"; inviteBox.innerHTML="";
-
-      const cs=await getDoc(ref);
-      if(cs.exists()){
-        const c=cs.data();
-        const my=c.status?.[me.uid]||"accepted";
-        const other=c.status?.[peerUid]||"accepted";
-        if(my==="pending"){
-          inviteBox.style.display="block";
-          inviteBox.innerHTML=`
-            <strong>Invitation reçue</strong> — accepter pour discuter ?
-            <div style="margin-top:6px">
-              <button id="btnAccept" class="btn" style="background:#ffd34d;color:#000;border:0;border-radius:8px;padding:6px 10px;font-weight:800">Accepter</button>
-              <button id="btnRefuse" class="btn" style="background:#ff6464;color:#000;border:0;border-radius:8px;padding:6px 10px;font-weight:800">Refuser</button>
-            </div>`;
-          $("#btnAccept").onclick=async()=>{ await updateDoc(ref,{["status."+me.uid]:"accepted"}); inviteBox.style.display="none"; toast("Invitation acceptée ✅"); };
-          $("#btnRefuse").onclick=async()=>{ await updateDoc(ref,{["status."+me.uid]:"blocked"}); toast("Conversation bloquée"); };
-        } else if(other==="pending"){
-          inviteBox.style.display="block";
-          inviteBox.textContent="En attente d’acceptation…";
-        }
-      }
-
-      currentPeer=peerUid;
-      currentConv=cid;
-      listenMessages();
-      try{ await updateDoc(doc(db,"conversations",cid),{["unread."+me.uid]:0}); }catch{}
-    }
-
-    function listenMessages(){
-      if(unsubMessages){unsubMessages();unsubMessages=null}
-      const me=auth.currentUser; if(!me||!currentPeer) return;
-      const cid=chatIdFor(me.uid,currentPeer);
-      const q=query(collection(db,"messages"),
-                    where("chatId","==",cid),
-                    orderBy("createdAt","asc"),
-                    limit(500));
-      unsubMessages=onSnapshot(q,snap=>{
-        msgsList.innerHTML="";
-        snap.forEach(d=>{
-          const m=d.data();
-          const div=document.createElement("div");
-          div.className="msg "+(m.senderId===me.uid?"me":"them");
-          div.textContent=m.text;
-          msgsList.appendChild(div);
-        });
-        msgsList.scrollTop=msgsList.scrollHeight;
-      }, err=>{ console.debug(err); toast("Erreur de lecture des messages."); });
-    }
-
-    // ---------- Envoi ----------
-    sendForm?.addEventListener("submit",async e=>{
-      e.preventDefault();
-      const me=auth.currentUser;
-      if(!me||!currentPeer){ toast("Choisis un profil"); return; }
-      if(!me.emailVerified){ toast("Valide d’abord ton e-mail ✉️"); return; }
-
-      const text=sanitize(msgInput.value.trim());
-      if(!text) return;
-      if(text.length>500){ toast("500 caractères max"); return; }
-
-      const cid=chatIdFor(me.uid,currentPeer);
-      const ref=doc(db,"conversations",cid);
-      const cSnap=await getDoc(ref);
-      const st=cSnap.data()?.status||{};
-      if(st[me.uid]!=="accepted"||st[currentPeer]==="blocked"){
-        toast("Invitation non acceptée."); return;
-      }
-
-      await addDoc(collection(db,"messages"),{
-        chatId:cid,
-        senderId:me.uid,
-        receiverId:currentPeer,
-        text,
-        createdAt: serverTimestamp()
-      });
+      const user=auth.currentUser;
+      if(!user){toast("Connecte-toi pour envoyer un message."); return; }
+      if(!user.emailVerified){toast("Valide d’abord ton e-mail ✉️"); return;}
       try{
-        await updateDoc(ref,{
-          lastText:text,
-          lastSender:me.uid,
-          lastSenderName: me.displayName||"Quelqu’un",
-          lastAt: serverTimestamp(),
-          ["unread."+currentPeer]: increment(1)
-        });
-      }catch{}
-      msgInput.value="";
-    });
+        const ref=await ensureConversation(user.uid,peerUid);
+        try{ await updateDoc(ref,{["unread."+user.uid]:0}) }catch{}
+        // Redirection vers la page de conversations
+        window.location.href="conversations.html";
+      }catch(e){ toast("Impossible d’ouvrir la conversation."); }
+    }
 
-    // ---------- Brancher boutons vérif (header + encart) ----------
-    (function initVerifyButtons(){
-      btnSendVerify?.addEventListener("click",()=>sendVerification(auth.currentUser,btnSendVerify));
-      btnRefreshVerify?.addEventListener("click",()=>refreshVerification(auth.currentUser,btnRefreshVerify));
-      btnSendVerify2?.addEventListener("click",()=>sendVerification(auth.currentUser,btnSendVerify2));
-      btnRefreshVerify2?.addEventListener("click",()=>refreshVerification(auth.currentUser,btnRefreshVerify2));
-    })();
+    // ---------- Utilitaires page ----------
+    // Met à jour le badge d’âge en live
+    ["input","change"].forEach(evt=>{
+      ageMin.addEventListener(evt,syncAge); ageMax.addEventListener(evt,syncAge);
+    });
   </script>
 </body>
 </html>
