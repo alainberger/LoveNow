@@ -185,9 +185,22 @@
         document.getElementById('publicGender').textContent = p.gender ?? '—';
         document.getElementById('publicBio').textContent  = p.bio ?? '—';
 
-        document.getElementById('publicMessageBtn')?.addEventListener('click', ()=>{
+        document.getElementById('publicMessageBtn')?.addEventListener('click', async ()=>{
           if(!auth.currentUser.emailVerified){ alert('Valide ton e-mail pour envoyer des messages.'); return; }
-          const cid = [auth.currentUser.uid, targetId].sort().join('_');
+          const me   = auth.currentUser.uid;
+          const them = targetId;
+          const cid  = [me, them].sort().join('_');
+
+          const cRef = doc(db,'conversations', cid);
+          const s = await getDoc(cRef);
+          if(!s.exists()){
+            await setDoc(cRef, {
+              members: [me, them],
+              createdAt: serverTimestamp(),
+              lastMessage: null,
+              lastMessageAt: serverTimestamp()
+            });
+          }
           location.href = `/conversations.html?cid=${cid}`;
         });
       }
