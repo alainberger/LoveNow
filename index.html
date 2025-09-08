@@ -23,13 +23,14 @@
     .nav-btn{border:1px solid #ffffffaa;padding:8px 14px;border-radius:999px;background:none;color:#fff;cursor:pointer}
     .nav-btn:hover{background:#fff;color:#000}
     .nav-btn.danger{border-color:var(--danger)}
-    .hero{display:grid;place-items:center;min-height:64vh;text-align:center;padding:30px 18px;
+    .hero{display:grid;place-items:center;min-height:70vh;text-align:center;padding:30px 18px;
       background:radial-gradient(1000px 500px at 15% 10%,rgba(255,77,109,.2),transparent 60%),
                  radial-gradient(1000px 500px at 85% 10%,rgba(143,81,234,.25),transparent 60%),
                  linear-gradient(135deg,var(--acc),var(--acc3),var(--acc2))}
     .hero h1{font-size:clamp(28px,6vw,48px);margin:6px 0 10px;font-weight:800}
     .hero p{max-width:640px;margin:0 auto 18px;color:#fff;opacity:.95}
     .cta{display:inline-block;background:#fff;color:#000;font-weight:800;border-radius:999px;padding:14px 28px;border:0;cursor:pointer}
+
     .uspbar{display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap}
     .pill{border:1px solid #ffffff80;color:#fff;padding:6px 12px;border-radius:999px;font-size:12px;opacity:.9}
     section{padding:40px 18px}
@@ -52,13 +53,15 @@
     .item .grow{flex:1}
     .item button{padding:8px 10px;border:0;border-radius:999px;background:var(--acc);font-weight:700}
     .divider{height:1px;background:var(--line);margin:12px 0}
-    .chat{display:grid;grid-template-columns:240px 1fr;gap:10px}
+    .chat{display:grid;grid-template-columns:260px 1fr;gap:10px}
     @media(max-width:900px){.chat{grid-template-columns:1fr}}
-    .chat-people{border:1px solid var(--line);border-radius:10px;max-height:320px;overflow:auto}
-    .people-item{padding:10px;border-bottom:1px solid var(--line);cursor:pointer;display:flex;gap:8px;align-items:center}
-    .badge{display:inline-block;background:#fff;color:#000;font-size:11px;border-radius:999px;padding:2px 8px;margin-left:auto}
-    .chat-box{display:grid;grid-template-rows:auto 1fr auto;border:1px solid var(--line);border-radius:10px}
-    .chat-head{padding:10px;border-bottom:1px solid var(--line);display:flex;gap:8px;align-items:center}
+    .chat-people{border:1px solid var(--line);border-radius:10px;max-height:360px;overflow:auto}
+    .people-item{display:flex;gap:8px;align-items:center;padding:10px;border-bottom:1px solid var(--line);cursor:pointer}
+    .people-item .badge{margin-left:auto;background:var(--acc);color:#000;border-radius:999px;font-weight:800;padding:2px 8px;font-size:12px}
+    .people-item small{color:var(--muted)}
+    .people-item.active{background:#0f1320}
+    .chat-box{display:grid;grid-template-rows:auto 1fr auto;border:1px solid var(--line);border-radius:10px;min-height:340px}
+    .chat-head{display:flex;gap:8px;align-items:center;border-bottom:1px solid var(--line);padding:8px 10px}
     .messages{padding:10px;display:flex;flex-direction:column;gap:6px;max-height:280px;overflow:auto}
     .msg{max-width:80%;padding:8px 10px;border-radius:10px;border:1px solid var(--line)}
     .me{align-self:flex-end;background:#1c1f27}
@@ -67,32 +70,16 @@
     .send input{flex:1}
     .footer{padding:24px 18px;border-top:1px solid var(--line);text-align:center;color:var(--muted);font-size:14px}
     #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:#000d;border:1px solid var(--line);
-      padding:10px 14px;border-radius:12px;display:none;z-index:200}
+      padding:10px 14px;border-radius:12px;display:none;z-index:90}
     .sr-only{position:absolute;left:-99999px;top:auto;width:1px;height:1px;overflow:hidden}
-
-    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55);z-index:100}
-    .modal.open{display:flex}
-    .modal-card{min-width:320px;max-width:580px;background:var(--card);border:1px solid var(--line);border-radius:14px}
-    .tabs{display:flex;gap:8px;align-items:center;padding:10px}
-    .tabs button{background:#0f1320;color:#fff;border:1px solid var(--line);padding:8px 12px;border-radius:8px;cursor:pointer}
-    .tabs button.active{outline:2px solid var(--acc)}
-    .close{margin-left:auto;background:none;border:0;color:#fff;font-size:22px;cursor:pointer}
-    .pane{display:none;padding:10px}
-    .pane.active{display:block}
-
-    .bar{display:none;padding:10px;text-align:center;background:#ffeecc;color:#000;border-bottom:1px solid #e1c17a}
-    .bar.show{display:block}
-    .bar .btn{margin-left:8px;padding:6px 10px;border-radius:8px;border:0;background:#111;color:#fff;cursor:pointer}
+    .banner{display:none;background:#201a00;color:#ffe58f;border-bottom:1px solid #665500;padding:10px}
+    .banner .btn{margin-left:8px;border:0;background:#ffd34d;color:#000;border-radius:8px;padding:6px 10px;font-weight:800}
+    .notice{display:none;background:#121a12;border:1px solid #274b27;color:#cbeacb;padding:8px 10px;border-radius:10px;margin:8px}
+    .danger-btn{background:var(--danger)!important;color:#000!important}
   </style>
 </head>
 <body>
   <a class="sr-only" href="#main">Aller au contenu</a>
-
-  <div id="verifyBar" class="bar">
-    ✉️ Adresse e-mail non vérifiée.
-    <button id="btnResendVerify" class="btn">Renvoyer le mail</button>
-    <button id="btnIveVerified" class="btn">J’ai vérifié</button>
-  </div>
 
   <header>
     <div class="wrap row">
@@ -102,9 +89,16 @@
         <button id="btnLogout" class="nav-btn danger" style="display:none">Se déconnecter</button>
       </nav>
     </div>
+    <!-- Bandeau email non vérifié -->
+    <div id="verifyBanner" class="banner">
+      Ton e-mail n’est pas vérifié.
+      <button id="btnSendVerify" class="btn">Valider mon e-mail</button>
+      <button id="btnRefreshVerify" class="btn">Rafraîchir</button>
+    </div>
   </header>
 
   <main id="main">
+    <!-- HERO -->
     <section class="hero">
       <h1>Rencontre l’amour près de chez toi</h1>
       <p>Inscris-toi en 2 minutes, découvre des profils réels à proximité et commence à discuter. 100% gratuit au lancement.</p>
@@ -116,6 +110,7 @@
       </div>
     </section>
 
+    <!-- APP (après connexion) -->
     <section id="app" class="wrap" style="display:none">
       <h2>Bienvenue <span id="hiName"></span> 👋</h2>
 
@@ -146,29 +141,20 @@
           </div>
         </div>
 
-        <!-- LISTES + CHAT -->
+        <!-- DÉCOUVERTE + CHAT -->
         <div class="card">
           <h3>Profils proches</h3>
           <div id="profilesList" class="list"></div>
 
           <div class="divider"></div>
 
-          <h3>Invitations</h3>
-          <div id="requestsList" class="list"></div>
-
-          <div class="divider"></div>
-
           <h3>Chat</h3>
           <div class="chat">
-            <div class="chat-people">
-              <div id="conversationsList"></div>
-            </div>
+            <div class="chat-people" id="conversationsList"></div>
             <div class="chat-box">
               <div class="chat-head">
-                <div id="chatTitle" class="muted">Pas de conversation ouverte</div>
-                <span id="chatStatus" class="pill" style="margin-left:auto;display:none"></span>
-                <button id="btnAccept" class="nav-btn" style="display:none">Accepter</button>
-                <button id="btnDecline" class="nav-btn danger" style="display:none">Refuser</button>
+                <div id="chatTitle" class="muted">Aucune conversation</div>
+                <div id="inviteBox" class="notice"></div>
               </div>
               <div id="messagesList" class="messages"></div>
               <form id="sendMsgForm" class="send">
@@ -181,6 +167,7 @@
       </div>
     </section>
 
+    <!-- CTA FINAL -->
     <section id="cta" class="wrap">
       <div class="card" style="text-align:center">
         <h2>Prêt·e à tenter ta chance ?</h2>
@@ -228,10 +215,8 @@
         <form id="loginForm" class="form">
           <label>Email <input id="liEmail" type="email" required autocomplete="email"></label>
           <label>Mot de passe <input id="liPass" type="password" minlength="6" required autocomplete="current-password"></label>
-          <div style="display:flex;gap:10px;align-items:center">
-            <button type="submit">Se connecter</button>
-            <button id="btnForgot" type="button" class="nav-btn">Mot de passe oublié</button>
-          </div>
+          <button type="submit">Se connecter</button>
+          <button type="button" id="btnForgot" class="danger-btn" style="margin-top:8px">Mot de passe oublié</button>
         </form>
       </div>
     </div>
@@ -240,15 +225,16 @@
   <!-- TOAST -->
   <div id="toast" role="status" aria-live="polite"></div>
 
+  <!-- ========== JS (modules) ========== -->
   <script type="module">
-    // Helpers
+    // ---------- Utils ----------
     const $  = (sel, ctx=document) => ctx.querySelector(sel);
     const $$ = (sel, ctx=document) => Array.from(ctx.querySelectorAll(sel));
-    function toast(msg, ms=2200){ const t=$("#toast"); t.textContent=msg; t.style.display="block"; setTimeout(()=>t.style.display="none", ms); }
+    function toast(msg, ms=2500){ const t=$("#toast"); t.textContent=msg; t.style.display="block"; setTimeout(()=>t.style.display="none", ms); }
     const sanitize = (s="") => s.replace(/[<>]/g,"");
     const chatIdFor = (a,b) => [a,b].sort().join("_");
 
-    // UI Auth modal
+    // ---------- UI modal ----------
     const modal = $("#modalAuth");
     function openAuth(which="signup"){ modal.classList.add("open"); setTab(which); }
     function closeAuth(){ modal.classList.remove("open"); }
@@ -266,20 +252,7 @@
     }
     tabs.forEach(b=> b.addEventListener("click", ()=> setTab(b.dataset.tab)));
 
-    // ==== Cloudinary (unsigned)
-    const CLOUD_NAME   = "dyqxadd0j";
-    const UPLOAD_PRESET= "profile_pics";
-    async function uploadImage(file){
-      const url = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`;
-      const fd  = new FormData();
-      fd.append("file", file);
-      fd.append("upload_preset", UPLOAD_PRESET);
-      const r = await fetch(url, { method:"POST", body: fd });
-      if(!r.ok) throw new Error("Upload Cloudinary échoué");
-      return r.json();
-    }
-
-    // ==== Firebase (CDN)
+    // ---------- Firebase (CDN) ----------
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
     import {
@@ -290,11 +263,26 @@
     import {
       getFirestore, doc, setDoc, getDoc, updateDoc, addDoc,
       collection, query, where, orderBy, limit, getDocs, onSnapshot,
-      serverTimestamp, arrayUnion, arrayRemove
+      serverTimestamp, getCountFromServer, increment
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-    import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check.js";
+    import {
+      initializeAppCheck, ReCaptchaV3Provider
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check.js";
 
-    // Config (ton projet)
+    // ---------- Cloudinary (unsigned) ----------
+    const CLOUD_NAME   = "dyqxadd0j";        // ← adapte si besoin
+    const UPLOAD_PRESET= "profile_pics";     // ← unsigned preset
+    async function uploadImage(file){
+      const url = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`;
+      const fd  = new FormData();
+      fd.append("file", file);
+      fd.append("upload_preset", UPLOAD_PRESET);
+      const r = await fetch(url, { method:"POST", body: fd });
+      if(!r.ok) throw new Error("Upload Cloudinary échoué");
+      return r.json(); // { secure_url, ... }
+    }
+
+    // ---------- Config Firebase ----------
     const firebaseConfig = {
       apiKey: "AIzaSyB_-cNA8bxqYCYUp3rUZs-VpiP4DX2wn3M",
       authDomain: "lovenow-officiel.firebaseapp.com",
@@ -316,25 +304,22 @@
     const auth = getAuth(app);
     const db   = getFirestore(app);
 
-    // Refs UI principales
-    const verifyBar = $("#verifyBar");
-    const btnResendVerify = $("#btnResendVerify");
-    const btnIveVerified  = $("#btnIveVerified");
+    // ---------- Refs UI ----------
     const appWrap   = $("#app");
     const btnLogout = $("#btnLogout");
     const hiName    = $("#hiName");
     const profilesList = $("#profilesList");
     const convList  = $("#conversationsList");
-    const reqList   = $("#requestsList");
     const msgsList  = $("#messagesList");
     const sendForm  = $("#sendMsgForm");
     const msgInput  = $("#msgInput");
     const chatTitle = $("#chatTitle");
-    const chatStatus= $("#chatStatus");
-    const btnAccept = $("#btnAccept");
-    const btnDecline= $("#btnDecline");
+    const inviteBox = $("#inviteBox");
+    const verifyBanner = $("#verifyBanner");
+    const btnSendVerify = $("#btnSendVerify");
+    const btnRefreshVerify = $("#btnRefreshVerify");
 
-    // ==== Auth: inscription
+    // ---------- Auth: Sign up ----------
     $("#signupForm")?.addEventListener("submit", async (e)=>{
       e.preventDefault();
       const email = $("#suEmail").value.trim();
@@ -347,12 +332,11 @@
       try{
         const cred = await createUserWithEmailAndPassword(auth, email, pass);
         const uid = cred.user.uid;
-
-        // Upload photo si fournie
+        // Photo optionnelle
         let photoUrl = "";
         if(file){ const up = await uploadImage(file); photoUrl = up.secure_url || ""; }
 
-        // Doc user
+        // Créer profile
         await setDoc(doc(db,"users",uid), {
           name, age, bio, createdAt: serverTimestamp(),
           photoUrl, photos: photoUrl ? [photoUrl] : []
@@ -360,13 +344,13 @@
 
         await updateProfile(cred.user, { displayName: name, photoURL: photoUrl || null });
 
-        // Vérification e-mail
-        await sendEmailVerification(cred.user);
-        toast("Compte créé. Vérifie ton e-mail !");
+        // Mail de vérification immédiat
+        await sendEmailVerification(cred.user, { url: location.origin });
+        toast("Compte créé. Vérifie ton e-mail ✉️");
         closeAuth();
       }catch(err){
         if(err.code === "auth/email-already-in-use"){
-          toast("Adresse déjà utilisée — utilisez la connexion.");
+          toast("Adresse déjà utilisée — connecte-toi.");
           setTab("login");
         }else{
           toast(err.message || "Erreur d’inscription");
@@ -374,7 +358,7 @@
       }
     });
 
-    // Connexion
+    // ---------- Auth: Login / Logout / Forgot ----------
     $("#loginForm")?.addEventListener("submit", async (e)=>{
       e.preventDefault();
       const email = $("#liEmail").value.trim();
@@ -386,42 +370,45 @@
       }catch(err){ toast(err.message || "Erreur de connexion"); }
     });
 
-    // Mot de passe oublié
     $("#btnForgot")?.addEventListener("click", async ()=>{
       const email = $("#liEmail").value.trim();
       if(!email){ toast("Entre d’abord ton e-mail"); return; }
       try{
-        await sendPasswordResetEmail(auth, email);
+        await sendPasswordResetEmail(auth, email, { url: location.origin });
         toast("Lien de réinitialisation envoyé.");
-      }catch(err){ toast(err.message || "Erreur d’envoi"); }
+      }catch(err){ toast(err.message || "Impossible d’envoyer le lien"); }
     });
 
-    // Déconnexion
     btnLogout?.addEventListener("click", async ()=>{ await signOut(auth); });
 
-    // Vérif e-mail bar
-    btnResendVerify.addEventListener("click", async ()=>{
-      const user = auth.currentUser; if(!user) return;
-      await sendEmailVerification(user);
-      toast("Mail envoyé.");
+    btnSendVerify?.addEventListener("click", async ()=>{
+      const u = auth.currentUser; if(!u) return;
+      try{
+        await sendEmailVerification(u, { url: location.origin });
+        toast("E-mail de validation envoyé.");
+      }catch(err){ toast(err.message || "Envoi impossible"); }
     });
-    btnIveVerified.addEventListener("click", async ()=>{
-      const user = auth.currentUser; if(!user) return;
-      await reload(user);
-      if(user.emailVerified){ toast("Merci !"); verifyBar.classList.remove("show"); }
-      else toast("Toujours non vérifié.");
+    btnRefreshVerify?.addEventListener("click", async ()=>{
+      const u = auth.currentUser; if(!u) return;
+      await reload(u);
+      updateVerifyBanner(u);
     });
 
-    // === État Auth
+    // ---------- Auth state ----------
+    let currentPeer = null;
+    let currentConv = null;
+    let unsubMessages = null;
+    let unsubConversations = null;
+
     onAuthStateChanged(auth, async (user)=>{
       if(user){
         btnLogout.style.display = "";
         appWrap.style.display = "";
         $("#btnOpenAuth").style.display = "none";
         hiName.textContent = user.displayName || "toi";
-        verifyBar.classList.toggle("show", !user.emailVerified);
+        updateVerifyBanner(user);
 
-        // Préremplissage
+        // Prefill profil
         try{
           const snap = await getDoc(doc(db,"users",user.uid));
           if(snap.exists()){
@@ -433,17 +420,30 @@
           }
         }catch{}
         loadProfiles();
-        listenMyConversations();
-        listRequests();
+        listenConversations();
       }else{
         btnLogout.style.display = "none";
         appWrap.style.display = "none";
         $("#btnOpenAuth").style.display = "";
-        verifyBar.classList.remove("show");
+        verifyBanner.style.display = "none";
+        stopListening();
       }
     });
 
-    // === Mise à jour profil
+    function updateVerifyBanner(user){
+      const verified = !!user?.emailVerified;
+      verifyBanner.style.display = verified ? "none" : "block";
+      // Empêcher l’envoi si non vérifié
+      $("#msgInput").disabled = !verified;
+    }
+
+    function stopListening(){
+      if(unsubMessages){ unsubMessages(); unsubMessages=null; }
+      if(unsubConversations){ unsubConversations(); unsubConversations=null; }
+      messagesListReset();
+    }
+
+    // ---------- Profil (update) ----------
     $("#editProfileForm")?.addEventListener("submit", async (e)=>{
       e.preventDefault();
       const user = auth.currentUser; if(!user) return;
@@ -462,15 +462,15 @@
         await updateDoc(doc(db,"users",user.uid), updates);
         await updateProfile(user, { displayName: name, photoURL: updates.photoUrl || user.photoURL || null });
         toast("Profil mis à jour");
-        loadProfiles();
+        loadProfiles(); // rafraîchir la liste
       }catch(err){ toast(err.message || "Erreur de mise à jour"); }
     });
 
-    // === Profils
+    // ---------- Profils (liste) ----------
     async function loadProfiles(){
       const me = auth.currentUser; if(!me) return;
       try{
-        const q = query(collection(db,"users"), orderBy("createdAt","desc"), limit(50));
+        const q = query(collection(db,"users"), orderBy("createdAt","desc"), limit(30));
         const snap = await getDocs(q);
         profilesList.innerHTML = "";
         snap.forEach(d=>{
@@ -494,140 +494,118 @@
     profilesList.addEventListener("click", async (e)=>{
       const btn = e.target.closest("button[data-uid]");
       if(!btn) return;
-      openChatWith(btn.dataset.uid, true); // true => créer demande si inexistante
+      const peerUid = btn.dataset.uid;
+      await openChatWith(peerUid);
     });
 
-    // === Conversations (invitations + liste)
-    let currentPeer = null;
-    let currentCid  = null;
-    let unsubMessages = null;
-    let unsubConvList = null;
-
-    function listenMyConversations(){
+    // ---------- Conversations ----------
+    async function listenConversations(){
       const me = auth.currentUser; if(!me) return;
-      if(unsubConvList) { unsubConvList(); unsubConvList = null; }
-      const qConv = query(collection(db,"conversations"), where("members","array-contains", me.uid), orderBy("lastAt","desc"));
-      unsubConvList = onSnapshot(qConv, snap=>{
+      if(unsubConversations){unsubConversations();unsubConversations=null;}
+      const qConv = query(
+        collection(db,"conversations"),
+        where("members","array-contains", me.uid),
+        orderBy("lastAt","desc")
+      );
+      unsubConversations = onSnapshot(qConv, (snap)=>{
         convList.innerHTML = "";
-        snap.forEach(docu=>{
-          const c = docu.data();
-          const other = c.members.find(x=>x!==me.uid) || "inconnu";
-          const div = document.createElement("div");
-          div.className = "people-item";
-          const unread = (c.unread && c.unread[me.uid]) ? `<span class="badge">${c.unread[me.uid]}</span>` : "";
-          div.innerHTML = `<span>${other.slice(0,6)}…</span>${unread}`;
-          div.addEventListener("click", ()=> openChatWith(other, false, docu.id));
-          convList.appendChild(div);
+        snap.forEach(c=>{
+          const data = c.data();
+          const otherId = data.members.find(x=>x!==me.uid);
+          const item = document.createElement("div");
+          item.className = "people-item";
+          const unread = (data.unread && data.unread[me.uid]) ? data.unread[me.uid] : 0;
+          item.innerHTML = `
+            <div>
+              <div><strong>${(data.lastSenderName||"")}</strong> <small class="muted">· ${new Date(data.lastAt?.toDate?.()||Date.now()).toLocaleString()}</small></div>
+              <small>${sanitize(data.lastText || "Conversation")}</small>
+            </div>
+            ${unread?`<span class="badge">${unread}</span>`:""}
+          `;
+          item.addEventListener("click", ()=> openChatWith(otherId));
+          convList.appendChild(item);
         });
-      }, err=> toast("Erreur de lecture des conversations"));
-    }
-
-    function listRequests(){
-      const me = auth.currentUser; if(!me) return;
-      const qR = query(collection(db,"conversations"), where("members","array-contains", me.uid), orderBy("lastAt","desc"));
-      onSnapshot(qR, (snap)=>{
-        reqList.innerHTML = "";
-        snap.forEach(d=>{
-          const c = d.data();
-          const accepted = (c.accepted||[]);
-          const iAmAccepted = accepted.includes(me.uid);
-          const bothAccepted = accepted.length===2;
-          if(bothAccepted) return;
-          // Si je ne suis pas accepté => j'ai une demande à accepter
-          if(!iAmAccepted){
-            const other = c.members.find(x=>x!==me.uid);
-            const row = document.createElement("div");
-            row.className="item";
-            row.innerHTML = `
-              <div class="grow"><strong>Invitation</strong> de ${other.slice(0,6)}…</div>
-              <button data-accept="${d.id}">Accepter</button>
-              <button class="danger" data-decline="${d.id}">Refuser</button>
-            `;
-            reqList.appendChild(row);
-          }
-        });
-      });
-      reqList.addEventListener("click", async (e)=>{
-        const a = e.target.closest("[data-accept]");
-        const r = e.target.closest("[data-decline]");
-        if(a){ await acceptConversation(a.dataset.accept); }
-        if(r){ await declineConversation(r.dataset.decline); }
+      }, (err)=>{
+        toast("Erreur: conversations"); console.error(err);
       });
     }
 
-    async function getOrCreateConversation(peerUid){
-      const me = auth.currentUser; if(!me) return null;
-      const cid = chatIdFor(me.uid, peerUid);
+    async function ensureConversation(meUid, peerUid){
+      const cid = chatIdFor(meUid, peerUid);
       const ref = doc(db,"conversations", cid);
-      const s = await getDoc(ref);
-      if(s.exists()) return { id: cid, data: s.data() };
-      await setDoc(ref, {
-        chatId: cid,
-        members: [me.uid, peerUid],
-        createdBy: me.uid,
-        accepted: [me.uid],          // je valide d'emblée ma demande
-        lastAt: serverTimestamp(),
-        lastText: ""
-      });
-      return { id: cid, data: { members:[me.uid,peerUid], accepted:[me.uid] } };
+      const snap = await getDoc(ref);
+      if(!snap.exists()){
+        await setDoc(ref, {
+          members: [meUid, peerUid],
+          status: { [meUid]:"accepted", [peerUid]:"pending" },
+          lastText: "",
+          lastSender: "",
+          lastSenderName: "",
+          lastAt: serverTimestamp(),
+          unread: { [meUid]:0, [peerUid]:0 },
+          createdAt: serverTimestamp()
+        });
+      }
+      return ref;
     }
 
-    async function acceptConversation(cid){
-      const me = auth.currentUser; if(!me) return;
-      await updateDoc(doc(db,"conversations", cid), { accepted: arrayUnion(me.uid), lastAt: serverTimestamp() });
-      toast("Invitation acceptée");
-    }
-    async function declineConversation(cid){
-      await updateDoc(doc(db,"conversations", cid), { declinedAt: serverTimestamp() });
-      toast("Invitation refusée");
-    }
-
-    async function openChatWith(peerUid, createIfMissing=false, knownCid=null){
+    async function openChatWith(peerUid){
       const me = auth.currentUser; if(!me) return;
       currentPeer = peerUid;
-      currentCid  = knownCid || chatIdFor(me.uid, peerUid);
-      if(createIfMissing){
-        const { id } = await getOrCreateConversation(peerUid);
-        currentCid = id;
+      const cid = chatIdFor(me.uid, peerUid);
+      const ref = await ensureConversation(me.uid, peerUid);
+      currentConv = cid;
+
+      chatTitle.textContent = "Discussion";
+      inviteBox.style.display = "none"; inviteBox.innerHTML = "";
+
+      // Lire conversation pour afficher état d'invitation
+      const convSnap = await getDoc(ref);
+      if(convSnap.exists()){
+        const c = convSnap.data();
+        const myStatus = c.status?.[me.uid] || "accepted";
+        const otherStatus = c.status?.[peerUid] || "accepted";
+        // Si je suis pending => proposer d'accepter/refuser
+        if(myStatus==="pending"){
+          inviteBox.style.display = "block";
+          inviteBox.innerHTML = `
+            <strong>Invitation reçue</strong> — accepter pour discuter ?
+            <div style="margin-top:6px">
+              <button id="btnAccept" class="btn">Accepter</button>
+              <button id="btnRefuse" class="btn danger-btn">Refuser</button>
+            </div>`;
+          $("#btnAccept").onclick = async ()=>{
+            await updateDoc(ref, { ["status."+me.uid]:"accepted" });
+            inviteBox.style.display = "none";
+            toast("Invitation acceptée ✅");
+          };
+          $("#btnRefuse").onclick = async ()=>{
+            await updateDoc(ref, { ["status."+me.uid]:"blocked" });
+            toast("Conversation bloquée");
+          };
+        }else if(otherStatus==="pending"){
+          inviteBox.style.display = "block";
+          inviteBox.innerHTML = `En attente d’acceptation…`;
+        }
       }
-      chatTitle.textContent = "Chat avec " + (peerUid.slice(0,6)) + "…";
-      listenConversationHeader();
-      listenMessages();
+
+      listenMessages(); // et marquer non-lus à 0
+      // Remet mon compteur non-lus à 0
+      try{ await updateDoc(doc(db,"conversations",cid), { ["unread."+me.uid]: 0 }); }catch{}
     }
 
-    function listenConversationHeader(){
-      const me = auth.currentUser; if(!me || !currentCid) return;
-      const ref = doc(db,"conversations", currentCid);
-      onSnapshot(ref, (s)=>{
-        if(!s.exists()) return;
-        const c = s.data();
-        const accepted = c.accepted || [];
-        const bothAccepted = accepted.length===2;
-        const iAmAccepted  = accepted.includes(me.uid);
-        const otherAccepted= accepted.includes(currentPeer);
-        btnAccept.style.display = (!iAmAccepted) ? "" : "none";
-        btnDecline.style.display= (!iAmAccepted) ? "" : "none";
-        chatStatus.style.display = "";
-        if(bothAccepted){ chatStatus.textContent = "Privé"; chatStatus.style.background="#2ecc71"; }
-        else if(!iAmAccepted){ chatStatus.textContent = "Invitation reçue"; chatStatus.style.background="#f1c40f"; }
-        else if(!otherAccepted){ chatStatus.textContent = "En attente…"; chatStatus.style.background="#f1c40f"; }
-      });
-    }
-    btnAccept.addEventListener("click",()=> acceptConversation(currentCid));
-    btnDecline.addEventListener("click",()=> declineConversation(currentCid));
+    function messagesListReset(){ msgsList.innerHTML = ""; chatTitle.textContent="Aucune conversation"; }
 
-    // === Messages (temps réel)
     function listenMessages(){
       if(unsubMessages){ unsubMessages(); unsubMessages = null; }
-      const me = auth.currentUser; if(!me || !currentPeer || !currentCid) return;
+      const me = auth.currentUser; if(!me || !currentPeer) return;
+      const cid = chatIdFor(me.uid, currentPeer);
 
-      // Marquer comme lu
-      updateDoc(doc(db,"conversations", currentCid), { ["unread."+me.uid]: 0 }).catch(()=>{});
-
-      const qMsg = query(collection(db,"messages"),
-        where("chatId","==",currentCid),
+      const qMsg = query(
+        collection(db,"messages"),
+        where("chatId","==",cid),
         orderBy("createdAt","asc"),
-        limit(200)
+        limit(500)
       );
       unsubMessages = onSnapshot(qMsg, (snap)=>{
         msgsList.innerHTML = "";
@@ -639,29 +617,33 @@
           msgsList.appendChild(div);
         });
         msgsList.scrollTop = msgsList.scrollHeight;
-      }, err=> toast("Erreur de lecture des messages."));
+      }, (err)=>{ toast("Erreur de lecture des messages."); console.error(err); });
     }
 
+    // ---------- Envoi de message ----------
     sendForm?.addEventListener("submit", async (e)=>{
       e.preventDefault();
-      const me = auth.currentUser; if(!me || !currentPeer || !currentCid){ toast("Choisis une conversation."); return; }
-      if(!me.emailVerified){ toast("Vérifie d’abord ton e-mail."); return; }
-
-      // Vérifier si la conversation est acceptée par les deux
-      const cSnap = await getDoc(doc(db,"conversations", currentCid));
-      if(!cSnap.exists()){ toast("Conversation inconnue"); return; }
-      const acc = cSnap.data().accepted || [];
-      if(!(acc.includes(me.uid) && acc.includes(currentPeer))){
-        toast("En attente d’acceptation de l’invitation.");
-        return;
-      }
+      const me = auth.currentUser;
+      if(!me || !currentPeer){ toast("Choisis un profil pour discuter."); return; }
+      if(!me.emailVerified){ toast("Valide d’abord ton e-mail ✉️"); return; }
 
       const text = sanitize(msgInput.value.trim());
       if(!text) return;
       if(text.length>500){ toast("500 caractères max"); return; }
 
+      const cid = chatIdFor(me.uid, currentPeer);
+
+      // Vérifier que conversation acceptée des 2 côtés
+      const ref = doc(db,"conversations",cid);
+      const cSnap = await getDoc(ref);
+      const status = cSnap.data()?.status || {};
+      if(status[me.uid]!=="accepted" || status[currentPeer]==="blocked"){
+        toast("Invitation non acceptée."); return;
+      }
+
+      // Créer le message
       await addDoc(collection(db,"messages"), {
-        chatId: currentCid,
+        chatId: cid,
         senderId: me.uid,
         receiverId: currentPeer,
         text,
@@ -669,14 +651,18 @@
       });
 
       // MAJ conversation (dernier message + unread pour le destinataire)
-      await updateDoc(doc(db,"conversations", currentCid), {
-        lastText: text,
-        lastAt: serverTimestamp(),
-        ["unread."+currentPeer]: (cSnap.data().unread?.[currentPeer] || 0) + 1
-      });
-
+      try{
+        await updateDoc(ref, {
+          lastText: text,
+          lastSender: me.uid,
+          lastSenderName: me.displayName || "Quelqu’un",
+          lastAt: serverTimestamp(),
+          ["unread."+currentPeer]: increment(1)
+        });
+      }catch{}
       msgInput.value = "";
     });
+
   </script>
 </body>
 </html>
