@@ -1,95 +1,75 @@
 <!doctype html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>LoveNow — Rencontres gratuites, proches de toi</title>
-  <meta name="description" content="LoveNow : rencontres gratuites et locales. Inscris-toi en 2 minutes, découvre des profils proches, discute en toute confiance.">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>LoveNow — Rencontres près de chez toi</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
   <style>
-    :root{
-      --bg:#0d0d10; --card:#151921; --line:#222a35; --txt:#f6f8fa; --muted:#aeb6c2;
-      --acc:#ff4d6d; --acc2:#8f51ea; --acc3:#ff6bb5; --ok:#30d158; --danger:#ff6464;
-    }
-    *{box-sizing:border-box}
-    html,body{margin:0;background:var(--bg);color:var(--txt);font-family:'Poppins',system-ui,Segoe UI,Arial,sans-serif}
-    a{color:var(--acc3);text-decoration:none}
+    :root{--bg:#0d0d10;--card:#151921;--line:#222a35;--txt:#f6f8fa;--muted:#aeb6c2;--acc:#ff4d6d;--acc2:#8f51ea;--ok:#30d158;--danger:#ff6464}
+    *{box-sizing:border-box} html,body{margin:0;background:var(--bg);color:var(--txt);font-family:Poppins,system-ui,Arial}
+    a{color:#ff6bb5;text-decoration:none}
     .wrap{max-width:1100px;margin:0 auto;padding:16px 18px}
-    header{position:sticky;top:0;z-index:50;backdrop-filter:saturate(140%) blur(8px);
-      background:linear-gradient(180deg,rgba(0,0,0,.7),rgba(0,0,0,.45));border-bottom:1px solid var(--line)}
+    header{position:sticky;top:0;z-index:50;backdrop-filter:saturate(140%) blur(8px);background:linear-gradient(180deg,rgba(0,0,0,.7),rgba(0,0,0,.45));border-bottom:1px solid var(--line)}
     .row{display:flex;gap:14px;align-items:center;justify-content:space-between}
-    .logo{font-weight:800;letter-spacing:.3px;color:var(--acc)}
-    .nav-btn{border:1px solid #ffffffaa;padding:8px 14px;border-radius:999px;background:none;color:#fff;cursor:pointer}
+    .logo{font-weight:800;color:var(--acc)}
+    .nav-btn{border:1px solid #fff9;padding:8px 14px;border-radius:999px;background:none;color:#fff;cursor:pointer}
     .nav-btn:hover{background:#fff;color:#000}
     .nav-btn.danger{border-color:var(--danger)}
-    .hero{display:grid;place-items:center;min-height:70vh;text-align:center;padding:30px 18px;
-      background:radial-gradient(1000px 500px at 15% 10%,rgba(255,77,109,.2),transparent 60%),
-                 radial-gradient(1000px 500px at 85% 10%,rgba(143,81,234,.25),transparent 60%),
-                 linear-gradient(135deg,var(--acc),var(--acc3),var(--acc2))}
+    .hero{display:grid;place-items:center;min-height:64vh;text-align:center;padding:30px 18px;background:linear-gradient(135deg,var(--acc),#ff6bb5,var(--acc2))}
     .hero h1{font-size:clamp(28px,6vw,48px);margin:6px 0 10px;font-weight:800}
-    .hero p{max-width:640px;margin:0 auto 18px;color:#fff;opacity:.95}
     .cta{display:inline-block;background:#fff;color:#000;font-weight:800;border-radius:999px;padding:14px 28px;border:0;cursor:pointer}
-
-    .uspbar{display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap}
-    .pill{border:1px solid #ffffff80;color:#fff;padding:6px 12px;border-radius:999px;font-size:12px;opacity:.9}
-    section{padding:40px 18px}
-    h2{margin:0 0 12px}
-    .muted{color:var(--muted)}
-    .grid{display:grid;gap:16px}
-    .g-2{grid-template-columns:repeat(2,1fr)}
-    @media(max-width:900px){.g-2{grid-template-columns:1fr}}
+    section{padding:32px 18px} h2{margin:0 0 12px}
+    .grid{display:grid;gap:16px}.g-2{grid-template-columns:repeat(2,1fr)}@media(max-width:900px){.g-2{grid-template-columns:1fr}}
     .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
-    .form{display:grid;gap:10px}
-    .form input,.form textarea{width:100%;border-radius:10px;border:1px solid var(--line);background:#0f1320;color:#fff;padding:10px}
+    .form{display:grid;gap:10px}.form input,.form textarea{width:100%;border-radius:10px;border:1px solid var(--line);background:#0f1320;color:#fff;padding:10px}
     .form button{border:0;border-radius:10px;padding:12px 16px;background:var(--acc);color:#000;font-weight:800;cursor:pointer}
-    .file input{display:none}
-    .file span{display:inline-block;border:1px dashed var(--line);padding:10px;border-radius:10px;cursor:pointer}
-    .avatar-wrap{margin-top:10px;text-align:center}
-    .avatar-wrap img{width:120px;height:120px;border-radius:50%;object-fit:cover;border:2px solid var(--line)}
+    .file input{display:none}.file span{display:inline-block;border:1px dashed var(--line);padding:10px;border-radius:10px;cursor:pointer}
+    .avatar-wrap{text-align:center;margin-top:8px}.avatar-wrap img{width:120px;height:120px;border-radius:50%;object-fit:cover;border:2px solid var(--line)}
     .list{display:grid;gap:8px;max-height:280px;overflow:auto}
     .item{display:flex;align-items:center;gap:10px;border:1px solid var(--line);padding:10px;border-radius:10px}
     .item img{width:44px;height:44px;border-radius:50%;object-fit:cover}
-    .item .grow{flex:1}
-    .item button{padding:8px 10px;border:0;border-radius:999px;background:var(--acc);font-weight:700}
+    .item .grow{flex:1}.item button{padding:8px 10px;border:0;border-radius:999px;background:var(--acc);font-weight:700}
+    .item .sub{color:#aeb6c2;font-size:12px}
+    .badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:999px}
+    .badge.ok{background:#193a25;color:#b9f6c3;border:1px solid #2f6243}
+    .badge.warn{background:#3a2a19;color:#ffe1b3;border:1px solid #6a4b28}
     .divider{height:1px;background:var(--line);margin:12px 0}
-    .chat{display:grid;grid-template-columns:260px 1fr;gap:10px}
-    @media(max-width:900px){.chat{grid-template-columns:1fr}}
+    .chat{display:grid;grid-template-columns:260px 1fr;gap:10px}@media(max-width:900px){.chat{grid-template-columns:1fr}}
     .chat-people{border:1px solid var(--line);border-radius:10px;max-height:360px;overflow:auto}
     .people-item{display:flex;gap:8px;align-items:center;padding:10px;border-bottom:1px solid var(--line);cursor:pointer}
-    .people-item .badge{margin-left:auto;background:var(--acc);color:#000;border-radius:999px;font-weight:800;padding:2px 8px;font-size:12px}
-    .people-item small{color:var(--muted)}
-    .people-item.active{background:#0f1320}
-    .chat-box{display:grid;grid-template-rows:auto 1fr auto;border:1px solid var(--line);border-radius:10px;min-height:340px}
+    .people-item .badge{margin-left:auto;background:var(--acc);color:#000;font-weight:800}
+    .chat-box{display:grid;grid-template-rows:auto 1fr auto;border:1px solid var(--line);border-radius:10px;min-height:320px}
     .chat-head{display:flex;gap:8px;align-items:center;border-bottom:1px solid var(--line);padding:8px 10px}
-    .messages{padding:10px;display:flex;flex-direction:column;gap:6px;max-height:280px;overflow:auto}
+    .messages{padding:10px;display:flex;flex-direction:column;gap:6px;max-height:260px;overflow:auto}
     .msg{max-width:80%;padding:8px 10px;border-radius:10px;border:1px solid var(--line)}
-    .me{align-self:flex-end;background:#1c1f27}
-    .them{align-self:flex-start;background:#11141b}
-    .send{display:flex;gap:8px;border-top:1px solid var(--line);padding:8px}
-    .send input{flex:1}
-    .footer{padding:24px 18px;border-top:1px solid var(--line);text-align:center;color:var(--muted);font-size:14px}
-    #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:#000d;border:1px solid var(--line);
-      padding:10px 14px;border-radius:12px;display:none;z-index:90}
-    .sr-only{position:absolute;left:-99999px;top:auto;width:1px;height:1px;overflow:hidden}
+    .me{align-self:flex-end;background:#1c1f27}.them{align-self:flex-start;background:#11141b}
+    .send{display:flex;gap:8px;border-top:1px solid var(--line);padding:8px}.send input{flex:1}
     .banner{display:none;background:#201a00;color:#ffe58f;border-bottom:1px solid #665500;padding:10px}
     .banner .btn{margin-left:8px;border:0;background:#ffd34d;color:#000;border-radius:8px;padding:6px 10px;font-weight:800}
     .notice{display:none;background:#121a12;border:1px solid #274b27;color:#cbeacb;padding:8px 10px;border-radius:10px;margin:8px}
-    .danger-btn{background:var(--danger)!important;color:#000!important}
+    #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:#000d;border:1px solid var(--line);padding:10px 14px;border-radius:12px;display:none;z-index:90}
+    .muted{color:#aeb6c2}.danger-btn{background:var(--danger)!important;color:#000!important}
+    /* mini modale */
+    .modal{position:fixed;inset:0;background:#0008;display:none;place-items:center;z-index:60}
+    .modal.open{display:grid}
+    .modal-card{width:min(560px,94vw);background:var(--card);border:1px solid var(--line);border-radius:14px;padding:0 0 18px}
+    .tabs{display:flex;gap:6px;align-items:center;border-bottom:1px solid var(--line);padding:10px}
+    .tabs button{background:none;border:0;color:#fff;opacity:.7;font-weight:700;padding:10px 12px;border-bottom:2px solid transparent;cursor:pointer}
+    .tabs button.active{opacity:1;border-color:var(--acc)} .tabs .close{margin-left:auto;font-size:22px}
+    .pane{display:none;padding:18px}.pane.active{display:block}
   </style>
 </head>
 <body>
-  <a class="sr-only" href="#main">Aller au contenu</a>
-
   <header>
     <div class="wrap row">
-      <div class="logo" aria-label="LoveNow">💘 LoveNow</div>
-      <nav aria-label="Navigation">
+      <div class="logo">💘 LoveNow</div>
+      <nav>
         <button id="btnOpenAuth" class="nav-btn">Connexion</button>
         <button id="btnLogout" class="nav-btn danger" style="display:none">Se déconnecter</button>
       </nav>
     </div>
-    <!-- Bandeau email non vérifié -->
+    <!-- Bandeau global non vérifié -->
     <div id="verifyBanner" class="banner">
       Ton e-mail n’est pas vérifié.
       <button id="btnSendVerify" class="btn">Valider mon e-mail</button>
@@ -98,51 +78,49 @@
   </header>
 
   <main id="main">
-    <!-- HERO -->
     <section class="hero">
       <h1>Rencontre l’amour près de chez toi</h1>
-      <p>Inscris-toi en 2 minutes, découvre des profils réels à proximité et commence à discuter. 100% gratuit au lancement.</p>
+      <p>Inscris-toi en 2 minutes, découvre des profils réels à proximité et commence à discuter. Gratuit au lancement.</p>
       <button class="cta" id="ctaStart">Rejoins-nous gratuitement</button>
-      <div class="uspbar">
-        <span class="pill">🔥 Gratuit au départ</span>
-        <span class="pill">📍 Local & rapide</span>
-        <span class="pill">🔒 Sécurité & respect</span>
-      </div>
     </section>
 
-    <!-- APP (après connexion) -->
     <section id="app" class="wrap" style="display:none">
       <h2>Bienvenue <span id="hiName"></span> 👋</h2>
 
       <div class="grid g-2">
-        <!-- PROFIL -->
+        <!-- ======= Profil ======= -->
         <div class="card">
+          <!-- AVERTISSEMENT / BOUTON AU-DESSUS DU PROFIL -->
+          <div id="verifyCard" class="notice" style="display:none">
+            <strong>Vérifie ton e-mail pour profiter de tout 💌</strong><br>
+            <button id="btnVerifyCard" class="btn" style="margin-top:6px">Valider mon e-mail</button>
+            <button id="btnVerifyCardRefresh" class="btn" style="margin-top:6px">Rafraîchir</button>
+          </div>
+
           <h3>Mon profil</h3>
           <form id="editProfileForm" class="form">
-            <label>Nom
-              <input id="name" name="name" maxlength="30" required>
-            </label>
-            <label>Âge
-              <input id="age" name="age" type="number" min="18" max="100" required>
-            </label>
+            <label>Nom <input id="name" maxlength="30" required></label>
+            <label>Âge <input id="age" type="number" min="18" max="100" required></label>
             <label>Bio (500 max)
-              <textarea id="bio" name="bio" maxlength="500" rows="3" placeholder="Parle un peu de toi…"></textarea>
+              <textarea id="bio" maxlength="500" rows="3" placeholder="Parle un peu de toi…"></textarea>
             </label>
             <div class="row">
-              <label class="file">
-                <input type="file" id="avatarFile" accept="image/*">
-                <span>Ajouter/mettre à jour ma photo</span>
-              </label>
+              <label class="file"><input type="file" id="avatarFile" accept="image/*"><span>Ajouter/mettre à jour ma photo</span></label>
               <button type="submit">Enregistrer</button>
             </div>
           </form>
-          <div class="avatar-wrap">
-            <img id="avatarPreview" alt="Avatar" />
-          </div>
+          <div class="avatar-wrap"><img id="avatarPreview" alt="Avatar"/></div>
         </div>
 
-        <!-- DÉCOUVERTE + CHAT -->
+        <!-- ======= Découverte + Chat ======= -->
         <div class="card">
+          <!-- RAPPEL AU-DESSUS DE LA LISTE DES PROFILS -->
+          <div id="verifyStrip" class="banner" style="display:none">
+            Tu dois d’abord valider ton e-mail pour envoyer des messages.
+            <button id="btnVerifyStrip" class="btn">Valider mon e-mail</button>
+            <button id="btnVerifyStripRefresh" class="btn">Rafraîchir</button>
+          </div>
+
           <h3>Profils proches</h3>
           <div id="profilesList" class="list"></div>
 
@@ -158,7 +136,7 @@
               </div>
               <div id="messagesList" class="messages"></div>
               <form id="sendMsgForm" class="send">
-                <input id="msgInput" placeholder="Écrire un message…" maxlength="500" />
+                <input id="msgInput" placeholder="Écrire un message…" maxlength="500"/>
                 <button type="submit">Envoyer</button>
               </form>
             </div>
@@ -167,7 +145,6 @@
       </div>
     </section>
 
-    <!-- CTA FINAL -->
     <section id="cta" class="wrap">
       <div class="card" style="text-align:center">
         <h2>Prêt·e à tenter ta chance ?</h2>
@@ -177,14 +154,8 @@
     </section>
   </main>
 
-  <footer>
-    <div class="wrap footer">
-      © 2025 LoveNow — <a href="#">Mentions légales</a> · <a href="#">Confidentialité</a> · 18+ uniquement
-    </div>
-  </footer>
-
-  <!-- MODALE AUTH -->
-  <div class="modal" id="modalAuth" aria-hidden="true" role="dialog" aria-label="Authentification">
+  <!-- Auth modal -->
+  <div class="modal" id="modalAuth" aria-hidden="true">
     <div class="modal-card">
       <div class="tabs">
         <button data-tab="signup" class="active" type="button">Inscription</button>
@@ -201,12 +172,9 @@
             <label>Âge <input id="suAge" type="number" min="18" max="100" required></label>
           </div>
           <label>Bio (500 max)
-            <textarea id="suBio" maxlength="500" rows="3" placeholder="Parle un peu de toi…"></textarea>
+            <textarea id="suBio" maxlength="500" rows="3"></textarea>
           </label>
-          <label class="file">
-            <input type="file" id="suAvatar" accept="image/*">
-            <span>Photo de profil (optionnel)</span>
-          </label>
+          <label class="file"><input type="file" id="suAvatar" accept="image/*"><span>Photo de profil (optionnel)</span></label>
           <button type="submit">Créer mon compte</button>
         </form>
       </div>
@@ -222,447 +190,219 @@
     </div>
   </div>
 
-  <!-- TOAST -->
   <div id="toast" role="status" aria-live="polite"></div>
 
-  <!-- ========== JS (modules) ========== -->
   <script type="module">
-    // ---------- Utils ----------
-    const $  = (sel, ctx=document) => ctx.querySelector(sel);
-    const $$ = (sel, ctx=document) => Array.from(ctx.querySelectorAll(sel));
-    function toast(msg, ms=2500){ const t=$("#toast"); t.textContent=msg; t.style.display="block"; setTimeout(()=>t.style.display="none", ms); }
-    const sanitize = (s="") => s.replace(/[<>]/g,"");
-    const chatIdFor = (a,b) => [a,b].sort().join("_");
+    // ===== Utils =====
+    const $=(s,c=document)=>c.querySelector(s), $$=(s,c=document)=>Array.from(c.querySelectorAll(s));
+    const toast=(m,ms=2400)=>{const t=$("#toast");t.textContent=m;t.style.display="block";setTimeout(()=>t.style.display="none",ms);}
+    const sanitize=s=>String(s||"").replace(/[<>]/g,"");
+    const chatIdFor=(a,b)=>[a,b].sort().join("_");
 
-    // ---------- UI modal ----------
-    const modal = $("#modalAuth");
-    function openAuth(which="signup"){ modal.classList.add("open"); setTab(which); }
-    function closeAuth(){ modal.classList.remove("open"); }
-    $("#btnOpenAuth")?.addEventListener("click", ()=> openAuth("signup"));
-    $("#ctaStart")?.addEventListener("click", ()=> openAuth("signup"));
-    $("#ctaOpenAuth2")?.addEventListener("click", ()=> openAuth("signup"));
-    $("#closeAuth")?.addEventListener("click", closeAuth);
-    modal.addEventListener("click", (e)=>{ if(e.target===modal) closeAuth(); });
-
-    const tabs = $$("#modalAuth .tabs button");
-    function setTab(which){
-      tabs.forEach(b=> b.classList.toggle("active", b.dataset.tab===which));
-      $("#paneSignup").classList.toggle("active", which==="signup");
-      $("#paneLogin").classList.toggle("active", which==="login");
-    }
-    tabs.forEach(b=> b.addEventListener("click", ()=> setTab(b.dataset.tab)));
-
-    // ---------- Firebase (CDN) ----------
+    // ===== Firebase =====
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
-    import {
-      getAuth, onAuthStateChanged, createUserWithEmailAndPassword,
-      signInWithEmailAndPassword, signOut, updateProfile,
-      sendEmailVerification, sendPasswordResetEmail, reload
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import {
-      getFirestore, doc, setDoc, getDoc, updateDoc, addDoc,
-      collection, query, where, orderBy, limit, getDocs, onSnapshot,
-      serverTimestamp, getCountFromServer, increment
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-    import {
-      initializeAppCheck, ReCaptchaV3Provider
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check.js";
+    import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile, sendEmailVerification, sendPasswordResetEmail, reload } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc, updateDoc, addDoc, collection, query, where, orderBy, limit, getDocs, onSnapshot, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check.js";
 
-    // ---------- Cloudinary (unsigned) ----------
-    const CLOUD_NAME   = "dyqxadd0j";        // ← adapte si besoin
-    const UPLOAD_PRESET= "profile_pics";     // ← unsigned preset
-    async function uploadImage(file){
-      const url = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`;
-      const fd  = new FormData();
-      fd.append("file", file);
-      fd.append("upload_preset", UPLOAD_PRESET);
-      const r = await fetch(url, { method:"POST", body: fd });
-      if(!r.ok) throw new Error("Upload Cloudinary échoué");
-      return r.json(); // { secure_url, ... }
-    }
+    // Cloudinary (unsigned)
+    const CLOUD_NAME="dyqxadd0j"; const UPLOAD_PRESET="profile_pics";
+    async function uploadImage(file){const fd=new FormData();fd.append("file",file);fd.append("upload_preset",UPLOAD_PRESET);const r=await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,{method:"POST",body:fd});if(!r.ok)throw new Error("Upload Cloudinary échoué");return r.json();}
 
-    // ---------- Config Firebase ----------
-    const firebaseConfig = {
-      apiKey: "AIzaSyB_-cNA8bxqYCYUp3rUZs-VpiP4DX2wn3M",
-      authDomain: "lovenow-officiel.firebaseapp.com",
-      projectId: "lovenow-officiel",
-      storageBucket: "lovenow-officiel.firebasestorage.app",
-      messagingSenderId: "896585801571",
-      appId: "1:896585801571:web:cdde87293291dc1900bd56",
-      measurementId: "G-QGM25ND7LF"
-    };
-    const RECAPTCHA_SITE_KEY = "6LfjpsErAAAAAExN2IvBq-K475TeJooeNzl9liPD";
+    const firebaseConfig={apiKey:"AIzaSyB_-cNA8bxqYCYUp3rUZs-VpiP4DX2wn3M",authDomain:"lovenow-officiel.firebaseapp.com",projectId:"lovenow-officiel",storageBucket:"lovenow-officiel.firebasestorage.app",messagingSenderId:"896585801571",appId:"1:896585801571:web:cdde87293291dc1900bd56",measurementId:"G-QGM25ND7LF"};
+    const app=initializeApp(firebaseConfig);
+    initializeAppCheck(app,{provider:new ReCaptchaV3Provider("6LfjpsErAAAAAExN2IvBq-K475TeJooeNzl9liPD"),isTokenAutoRefreshEnabled:true});
+    const auth=getAuth(app); const db=getFirestore(app);
 
-    const app = initializeApp(firebaseConfig);
-    try{ getAnalytics(app); }catch{}
-    initializeAppCheck(app, {
-      provider: new ReCaptchaV3Provider(RECAPTCHA_SITE_KEY),
-      isTokenAutoRefreshEnabled: true
-    });
+    // ===== UI refs =====
+    const appWrap=$("#app"), btnLogout=$("#btnLogout"), hiName=$("#hiName");
+    const verifyBanner=$("#verifyBanner"), btnVerifyBanner=$("#btnSendVerify"), btnRefreshBanner=$("#btnRefreshVerify");
+    const verifyCard=$("#verifyCard"), btnVerifyCard=$("#btnVerifyCard"), btnVerifyCardRefresh=$("#btnVerifyCardRefresh");
+    const verifyStrip=$("#verifyStrip"), btnVerifyStrip=$("#btnVerifyStrip"), btnVerifyStripRefresh=$("#btnVerifyStripRefresh");
+    const profilesList=$("#profilesList"), convList=$("#conversationsList"), msgsList=$("#messagesList"), sendForm=$("#sendMsgForm"), msgInput=$("#msgInput"), chatTitle=$("#chatTitle"), inviteBox=$("#inviteBox");
 
-    const auth = getAuth(app);
-    const db   = getFirestore(app);
+    // ===== Modal auth =====
+    const modal=$("#modalAuth"); const setTab=w=>{$$("#modalAuth .tabs button").forEach(b=>b.classList.toggle("active",b.dataset.tab===w));$("#paneSignup").classList.toggle("active",w==="signup");$("#paneLogin").classList.toggle("active",w==="login");}
+    const openAuth=w=>{modal.classList.add("open");setTab(w||"signup")}; const closeAuth=()=>modal.classList.remove("open");
+    $("#btnOpenAuth").onclick=()=>openAuth("signup"); $("#ctaStart").onclick=()=>openAuth("signup"); $("#ctaOpenAuth2").onclick=()=>openAuth("signup"); $("#closeAuth").onclick=closeAuth; modal.addEventListener("click",e=>{if(e.target===modal)closeAuth();});
+    $$("#modalAuth .tabs button").forEach(b=>b.addEventListener("click",()=>setTab(b.dataset.tab)));
 
-    // ---------- Refs UI ----------
-    const appWrap   = $("#app");
-    const btnLogout = $("#btnLogout");
-    const hiName    = $("#hiName");
-    const profilesList = $("#profilesList");
-    const convList  = $("#conversationsList");
-    const msgsList  = $("#messagesList");
-    const sendForm  = $("#sendMsgForm");
-    const msgInput  = $("#msgInput");
-    const chatTitle = $("#chatTitle");
-    const inviteBox = $("#inviteBox");
-    const verifyBanner = $("#verifyBanner");
-    const btnSendVerify = $("#btnSendVerify");
-    const btnRefreshVerify = $("#btnRefreshVerify");
-
-    // ---------- Auth: Sign up ----------
-    $("#signupForm")?.addEventListener("submit", async (e)=>{
-      e.preventDefault();
-      const email = $("#suEmail").value.trim();
-      const pass  = $("#suPass").value.trim();
-      const name  = sanitize($("#suName").value.trim()).slice(0,30);
-      const age   = parseInt($("#suAge").value,10);
-      const bio   = sanitize($("#suBio").value.trim()).slice(0,500);
-      const file  = $("#suAvatar").files[0];
-      if(age < 18){ toast("18+ requis"); return; }
-      try{
-        const cred = await createUserWithEmailAndPassword(auth, email, pass);
-        const uid = cred.user.uid;
-        // Photo optionnelle
-        let photoUrl = "";
-        if(file){ const up = await uploadImage(file); photoUrl = up.secure_url || ""; }
-
-        // Créer profile
-        await setDoc(doc(db,"users",uid), {
-          name, age, bio, createdAt: serverTimestamp(),
-          photoUrl, photos: photoUrl ? [photoUrl] : []
-        });
-
-        await updateProfile(cred.user, { displayName: name, photoURL: photoUrl || null });
-
-        // Mail de vérification immédiat
-        await sendEmailVerification(cred.user, { url: location.origin });
-        toast("Compte créé. Vérifie ton e-mail ✉️");
-        closeAuth();
-      }catch(err){
-        if(err.code === "auth/email-already-in-use"){
-          toast("Adresse déjà utilisée — connecte-toi.");
-          setTab("login");
-        }else{
-          toast(err.message || "Erreur d’inscription");
-        }
-      }
-    });
-
-    // ---------- Auth: Login / Logout / Forgot ----------
-    $("#loginForm")?.addEventListener("submit", async (e)=>{
-      e.preventDefault();
-      const email = $("#liEmail").value.trim();
-      const pass  = $("#liPass").value.trim();
-      try{
-        await signInWithEmailAndPassword(auth, email, pass);
-        toast("Connecté !");
-        closeAuth();
-      }catch(err){ toast(err.message || "Erreur de connexion"); }
-    });
-
-    $("#btnForgot")?.addEventListener("click", async ()=>{
-      const email = $("#liEmail").value.trim();
-      if(!email){ toast("Entre d’abord ton e-mail"); return; }
-      try{
-        await sendPasswordResetEmail(auth, email, { url: location.origin });
-        toast("Lien de réinitialisation envoyé.");
-      }catch(err){ toast(err.message || "Impossible d’envoyer le lien"); }
-    });
-
-    btnLogout?.addEventListener("click", async ()=>{ await signOut(auth); });
-
-    btnSendVerify?.addEventListener("click", async ()=>{
-      const u = auth.currentUser; if(!u) return;
-      try{
-        await sendEmailVerification(u, { url: location.origin });
-        toast("E-mail de validation envoyé.");
-      }catch(err){ toast(err.message || "Envoi impossible"); }
-    });
-    btnRefreshVerify?.addEventListener("click", async ()=>{
-      const u = auth.currentUser; if(!u) return;
-      await reload(u);
-      updateVerifyBanner(u);
-    });
-
-    // ---------- Auth state ----------
-    let currentPeer = null;
-    let currentConv = null;
-    let unsubMessages = null;
-    let unsubConversations = null;
-
-    onAuthStateChanged(auth, async (user)=>{
-      if(user){
-        btnLogout.style.display = "";
-        appWrap.style.display = "";
-        $("#btnOpenAuth").style.display = "none";
-        hiName.textContent = user.displayName || "toi";
-        updateVerifyBanner(user);
-
-        // Prefill profil
-        try{
-          const snap = await getDoc(doc(db,"users",user.uid));
-          if(snap.exists()){
-            const u = snap.data();
-            $("#name").value = u.name || "";
-            $("#age").value  = u.age || "";
-            $("#bio").value  = u.bio || "";
-            if(u.photoUrl) $("#avatarPreview").src = u.photoUrl;
-          }
-        }catch{}
-        loadProfiles();
-        listenConversations();
-      }else{
-        btnLogout.style.display = "none";
-        appWrap.style.display = "none";
-        $("#btnOpenAuth").style.display = "";
-        verifyBanner.style.display = "none";
-        stopListening();
-      }
-    });
-
-    function updateVerifyBanner(user){
-      const verified = !!user?.emailVerified;
-      verifyBanner.style.display = verified ? "none" : "block";
-      // Empêcher l’envoi si non vérifié
-      $("#msgInput").disabled = !verified;
-    }
-
-    function stopListening(){
-      if(unsubMessages){ unsubMessages(); unsubMessages=null; }
-      if(unsubConversations){ unsubConversations(); unsubConversations=null; }
-      messagesListReset();
-    }
-
-    // ---------- Profil (update) ----------
-    $("#editProfileForm")?.addEventListener("submit", async (e)=>{
-      e.preventDefault();
-      const user = auth.currentUser; if(!user) return;
-      const name = sanitize($("#name").value.trim()).slice(0,30);
-      const age  = parseInt($("#age").value,10);
-      const bio  = sanitize($("#bio").value.trim()).slice(0,500);
-      const file = $("#avatarFile").files[0];
-      try{
-        const updates = { name, age, bio };
-        if(file){
-          const up = await uploadImage(file);
-          updates.photoUrl = up.secure_url;
-          updates.photos   = [up.secure_url];
-          $("#avatarPreview").src = up.secure_url;
-        }
-        await updateDoc(doc(db,"users",user.uid), updates);
-        await updateProfile(user, { displayName: name, photoURL: updates.photoUrl || user.photoURL || null });
-        toast("Profil mis à jour");
-        loadProfiles(); // rafraîchir la liste
-      }catch(err){ toast(err.message || "Erreur de mise à jour"); }
-    });
-
-    // ---------- Profils (liste) ----------
-    async function loadProfiles(){
-      const me = auth.currentUser; if(!me) return;
-      try{
-        const q = query(collection(db,"users"), orderBy("createdAt","desc"), limit(30));
-        const snap = await getDocs(q);
-        profilesList.innerHTML = "";
-        snap.forEach(d=>{
-          if(d.id === me.uid) return;
-          const u = d.data();
-          const div = document.createElement("div");
-          div.className = "item";
-          div.innerHTML = `
-            <img src="${u.photoUrl || 'https://placehold.co/80x80?text=👤'}" alt="">
-            <div class="grow">
-              <div><strong>${u.name || "Sans nom"}</strong> · ${u.age || "?"} ans</div>
-              <div class="muted">${(u.bio||"").slice(0,70)}</div>
-            </div>
-            <button data-uid="${d.id}">Message</button>
-          `;
-          profilesList.appendChild(div);
-        });
-      }catch(err){ console.warn(err); }
-    }
-
-    profilesList.addEventListener("click", async (e)=>{
-      const btn = e.target.closest("button[data-uid]");
-      if(!btn) return;
-      const peerUid = btn.dataset.uid;
-      await openChatWith(peerUid);
-    });
-
-    // ---------- Conversations ----------
-    async function listenConversations(){
-      const me = auth.currentUser; if(!me) return;
-      if(unsubConversations){unsubConversations();unsubConversations=null;}
-      const qConv = query(
-        collection(db,"conversations"),
-        where("members","array-contains", me.uid),
-        orderBy("lastAt","desc")
-      );
-      unsubConversations = onSnapshot(qConv, (snap)=>{
-        convList.innerHTML = "";
-        snap.forEach(c=>{
-          const data = c.data();
-          const otherId = data.members.find(x=>x!==me.uid);
-          const item = document.createElement("div");
-          item.className = "people-item";
-          const unread = (data.unread && data.unread[me.uid]) ? data.unread[me.uid] : 0;
-          item.innerHTML = `
-            <div>
-              <div><strong>${(data.lastSenderName||"")}</strong> <small class="muted">· ${new Date(data.lastAt?.toDate?.()||Date.now()).toLocaleString()}</small></div>
-              <small>${sanitize(data.lastText || "Conversation")}</small>
-            </div>
-            ${unread?`<span class="badge">${unread}</span>`:""}
-          `;
-          item.addEventListener("click", ()=> openChatWith(otherId));
-          convList.appendChild(item);
-        });
-      }, (err)=>{
-        toast("Erreur: conversations"); console.error(err);
+    // ===== Helpers email verify UI =====
+    function updateVerifyUIs(user){
+      const verified=!!user?.emailVerified;
+      verifyBanner.style.display=verified?"none":"block";
+      verifyCard.style.display=verified?"none":"block";
+      verifyStrip.style.display=verified?"none":"block";
+      msgInput.disabled=!verified;
+      // changer les boutons "Message" si non vérifié
+      profilesList.querySelectorAll("button[data-uid]").forEach(b=>{
+        if(verified){ b.disabled=false; b.textContent="Message"; b.dataset.action="chat"; }
+        else{ b.disabled=false; b.textContent="Valider mon e-mail"; b.dataset.action="verify"; }
       });
     }
+    async function syncEmailVerified(user){
+      if(!user) return;
+      try{
+        await updateDoc(doc(db,"users",user.uid),{ emailVerified: !!user.emailVerified, email: user.email || null });
+      }catch{}
+    }
+    async function sendVerify(){
+      const u=auth.currentUser; if(!u) return;
+      await sendEmailVerification(u,{url:location.origin}); toast("E-mail de validation envoyé.");
+    }
+    async function refreshVerify(){
+      const u=auth.currentUser; if(!u) return; await reload(u); updateVerifyUIs(u); await syncEmailVerified(u);
+    }
+    [btnVerifyBanner,btnVerifyCard,btnVerifyStrip].forEach(b=>b.onclick=sendVerify);
+    [btnRefreshBanner,btnVerifyCardRefresh,btnVerifyStripRefresh].forEach(b=>b.onclick=refreshVerify);
 
-    async function ensureConversation(meUid, peerUid){
-      const cid = chatIdFor(meUid, peerUid);
-      const ref = doc(db,"conversations", cid);
-      const snap = await getDoc(ref);
-      if(!snap.exists()){
-        await setDoc(ref, {
-          members: [meUid, peerUid],
-          status: { [meUid]:"accepted", [peerUid]:"pending" },
-          lastText: "",
-          lastSender: "",
-          lastSenderName: "",
-          lastAt: serverTimestamp(),
-          unread: { [meUid]:0, [peerUid]:0 },
-          createdAt: serverTimestamp()
+    // ===== Sign up / login / forgot =====
+    $("#signupForm").addEventListener("submit",async e=>{
+      e.preventDefault();
+      const email=$("#suEmail").value.trim(), pass=$("#suPass").value.trim(), name=sanitize($("#suName").value).slice(0,30), age=parseInt($("#suAge").value,10), bio=sanitize($("#suBio").value).slice(0,500), file=$("#suAvatar").files[0];
+      if(age<18){toast("18+ requis");return;}
+      try{
+        const {user}=await createUserWithEmailAndPassword(auth,email,pass);
+        let photoUrl=""; if(file){const up=await uploadImage(file); photoUrl=up.secure_url||"";}
+        await setDoc(doc(db,"users",user.uid),{name,age,bio,photoUrl,photos:photoUrl?[photoUrl]:[],createdAt:serverTimestamp(),emailVerified:false,email:user.email});
+        await updateProfile(user,{displayName:name,photoURL:photoUrl||null});
+        await sendEmailVerification(user,{url:location.origin}); toast("Compte créé. Vérifie ton e-mail ✉️");
+        closeAuth();
+      }catch(err){ toast(err.message||"Erreur d’inscription"); }
+    });
+    $("#loginForm").addEventListener("submit",async e=>{
+      e.preventDefault();
+      try{ await signInWithEmailAndPassword(auth,$("#liEmail").value.trim(),$("#liPass").value.trim()); closeAuth(); toast("Connecté !"); }
+      catch(err){ toast(err.message||"Erreur de connexion"); }
+    });
+    $("#btnForgot").onclick=async ()=>{
+      const email=$("#liEmail").value.trim(); if(!email){toast("Entre ton e-mail");return;}
+      try{ await sendPasswordResetEmail(auth,email,{url:location.origin}); toast("Lien de réinitialisation envoyé."); }
+      catch(err){ toast(err.message||"Impossible d’envoyer le lien"); }
+    };
+    btnLogout.onclick=()=>signOut(auth);
+
+    // ===== State =====
+    let currentPeer=null, currentConv=null, unsubMessages=null, unsubConversations=null;
+
+    onAuthStateChanged(auth, async user=>{
+      if(user){
+        appWrap.style.display=""; $("#btnOpenAuth").style.display="none"; btnLogout.style.display="";
+        $("#hiName").textContent=user.displayName||"toi";
+        updateVerifyUIs(user); await syncEmailVerified(user);
+        await prefillProfile(); await loadProfiles(); await listenConversations();
+      }else{
+        appWrap.style.display="none"; $("#btnOpenAuth").style.display=""; btnLogout.style.display="none"; verifyBanner.style.display="none"; stopListening();
+      }
+    });
+
+    function stopListening(){ if(unsubMessages){unsubMessages();unsubMessages=null;} if(unsubConversations){unsubConversations();unsubConversations=null;} msgsList.innerHTML=""; chatTitle.textContent="Aucune conversation"; }
+
+    // ===== Profil (prefill / save) =====
+    async function prefillProfile(){
+      const me=auth.currentUser; if(!me) return;
+      try{ const s=await getDoc(doc(db,"users",me.uid)); if(s.exists()){const u=s.data(); $("#name").value=u.name||""; $("#age").value=u.age||""; $("#bio").value=u.bio||""; if(u.photoUrl) $("#avatarPreview").src=u.photoUrl;} }catch{}
+    }
+    $("#editProfileForm").addEventListener("submit",async e=>{
+      e.preventDefault(); const me=auth.currentUser; if(!me) return;
+      const name=sanitize($("#name").value).slice(0,30), age=parseInt($("#age").value,10), bio=sanitize($("#bio").value).slice(0,500), file=$("#avatarFile").files[0];
+      const updates={name,age,bio}; if(file){const up=await uploadImage(file); updates.photoUrl=up.secure_url; updates.photos=[up.secure_url]; $("#avatarPreview").src=up.secure_url;}
+      try{ await updateDoc(doc(db,"users",me.uid),updates); await updateProfile(me,{displayName:name,photoURL:updates.photoUrl||me.photoURL||null}); toast("Profil mis à jour"); await loadProfiles(); }catch(err){ toast(err.message||"Erreur de mise à jour"); }
+    });
+
+    // ===== Profils proches =====
+    async function loadProfiles(){
+      const me=auth.currentUser; if(!me) return;
+      const q=query(collection(db,"users"), orderBy("createdAt","desc"), limit(40));
+      const snap=await getDocs(q);
+      profilesList.innerHTML="";
+      snap.forEach(d=>{
+        if(d.id===me.uid) return;
+        const u=d.data(); const verified=u.emailVerified===true;
+        const div=document.createElement("div"); div.className="item";
+        div.innerHTML=`
+          <img src="${u.photoUrl||'https://placehold.co/80x80?text=👤'}" alt="">
+          <div class="grow">
+            <div><strong>${u.name||"Sans nom"}</strong> · ${u.age||"?"} ans
+              ${verified?'<span class="badge ok">✅ vérifié</span>':'<span class="badge warn">⚠️ non vérifié</span>'}
+            </div>
+            <div class="sub">${(u.bio||"").slice(0,70)}</div>
+          </div>
+          <button data-uid="${d.id}" data-action="chat">Message</button>
+        `;
+        profilesList.appendChild(div);
+      });
+      // appliquer l’état vérification courant
+      updateVerifyUIs(auth.currentUser);
+    }
+
+    profilesList.addEventListener("click",async e=>{
+      const btn=e.target.closest("button[data-uid]"); if(!btn) return;
+      const action=btn.dataset.action;
+      if(action==="verify"){ await sendVerify(); return; }
+      const me=auth.currentUser; if(!me?.emailVerified){ toast("Valide d’abord ton e-mail ✉️"); return; }
+      await openChatWith(btn.dataset.uid);
+    });
+
+    // ===== Conversations & messages =====
+    async function listenConversations(){
+      const me=auth.currentUser; if(!me) return;
+      if(unsubConversations){unsubConversations();unsubConversations=null;}
+      const qConv=query(collection(db,"conversations"), where("members","array-contains",me.uid), orderBy("lastAt","desc"));
+      unsubConversations=onSnapshot(qConv,snap=>{
+        convList.innerHTML=""; snap.forEach(c=>{
+          const data=c.data(); const other=data.members.find(x=>x!==me.uid)||"";
+          const unread=(data.unread&&data.unread[me.uid])?data.unread[me.uid]:0;
+          const item=document.createElement("div"); item.className="people-item";
+          item.innerHTML=`<div><div><strong>${data.lastSenderName||"Conversation"}</strong></div><small class="muted">${new Date(data.lastAt?.toDate?.()||Date.now()).toLocaleString()}</small></div>${unread?`<span class="badge">${unread}</span>`:""}`;
+          item.onclick=()=>openChatWith(other); convList.appendChild(item);
+        });
+      },err=>{toast("Erreur conversations");console.error(err);});
+    }
+
+    async function ensureConversation(meUid,peerUid){
+      const cid=chatIdFor(meUid,peerUid); const ref=doc(db,"conversations",cid); const s=await getDoc(ref);
+      if(!s.exists()){
+        await setDoc(ref,{
+          members:[meUid,peerUid],
+          status:{[meUid]:"accepted",[peerUid]:"pending"},
+          lastText:"", lastSender:"", lastSenderName:"", lastAt:serverTimestamp(),
+          unread:{[meUid]:0,[peerUid]:0}, createdAt:serverTimestamp()
         });
       }
       return ref;
     }
 
     async function openChatWith(peerUid){
-      const me = auth.currentUser; if(!me) return;
-      currentPeer = peerUid;
-      const cid = chatIdFor(me.uid, peerUid);
-      const ref = await ensureConversation(me.uid, peerUid);
-      currentConv = cid;
-
-      chatTitle.textContent = "Discussion";
-      inviteBox.style.display = "none"; inviteBox.innerHTML = "";
-
-      // Lire conversation pour afficher état d'invitation
-      const convSnap = await getDoc(ref);
-      if(convSnap.exists()){
-        const c = convSnap.data();
-        const myStatus = c.status?.[me.uid] || "accepted";
-        const otherStatus = c.status?.[peerUid] || "accepted";
-        // Si je suis pending => proposer d'accepter/refuser
-        if(myStatus==="pending"){
-          inviteBox.style.display = "block";
-          inviteBox.innerHTML = `
-            <strong>Invitation reçue</strong> — accepter pour discuter ?
-            <div style="margin-top:6px">
-              <button id="btnAccept" class="btn">Accepter</button>
-              <button id="btnRefuse" class="btn danger-btn">Refuser</button>
-            </div>`;
-          $("#btnAccept").onclick = async ()=>{
-            await updateDoc(ref, { ["status."+me.uid]:"accepted" });
-            inviteBox.style.display = "none";
-            toast("Invitation acceptée ✅");
-          };
-          $("#btnRefuse").onclick = async ()=>{
-            await updateDoc(ref, { ["status."+me.uid]:"blocked" });
-            toast("Conversation bloquée");
-          };
-        }else if(otherStatus==="pending"){
-          inviteBox.style.display = "block";
-          inviteBox.innerHTML = `En attente d’acceptation…`;
-        }
+      const me=auth.currentUser; if(!me) return; currentPeer=peerUid; const cid=chatIdFor(me.uid,peerUid);
+      const ref=await ensureConversation(me.uid,peerUid); currentConv=cid;
+      chatTitle.textContent="Discussion"; inviteBox.style.display="none"; inviteBox.innerHTML="";
+      const convSnap=await getDoc(ref); if(convSnap.exists()){const c=convSnap.data(); const my=c.status?.[me.uid]||"accepted"; const other=c.status?.[peerUid]||"accepted";
+        if(my==="pending"){ inviteBox.style.display="block"; inviteBox.innerHTML=`<strong>Invitation reçue</strong> — accepter ? <div style="margin-top:6px"><button id="btnAccept" class="btn">Accepter</button> <button id="btnRefuse" class="btn danger-btn">Refuser</button></div>`;
+          $("#btnAccept").onclick=async()=>{await updateDoc(ref,{["status."+me.uid]:"accepted"}); inviteBox.style.display="none"; toast("Invitation acceptée ✅");};
+          $("#btnRefuse").onclick=async()=>{await updateDoc(ref,{["status."+me.uid]:"blocked"}); toast("Conversation bloquée");}; }
+        else if(other==="pending"){ inviteBox.style.display="block"; inviteBox.textContent="En attente d’acceptation…"; }
       }
-
-      listenMessages(); // et marquer non-lus à 0
-      // Remet mon compteur non-lus à 0
-      try{ await updateDoc(doc(db,"conversations",cid), { ["unread."+me.uid]: 0 }); }catch{}
+      listenMessages(); try{ await updateDoc(doc(db,"conversations",cid),{["unread."+me.uid]:0}); }catch{}
     }
-
-    function messagesListReset(){ msgsList.innerHTML = ""; chatTitle.textContent="Aucune conversation"; }
 
     function listenMessages(){
-      if(unsubMessages){ unsubMessages(); unsubMessages = null; }
-      const me = auth.currentUser; if(!me || !currentPeer) return;
-      const cid = chatIdFor(me.uid, currentPeer);
-
-      const qMsg = query(
-        collection(db,"messages"),
-        where("chatId","==",cid),
-        orderBy("createdAt","asc"),
-        limit(500)
-      );
-      unsubMessages = onSnapshot(qMsg, (snap)=>{
-        msgsList.innerHTML = "";
-        snap.forEach(docu=>{
-          const m = docu.data();
-          const div = document.createElement("div");
-          div.className = "msg " + (m.senderId===me.uid ? "me" : "them");
-          div.textContent = m.text;
-          msgsList.appendChild(div);
-        });
-        msgsList.scrollTop = msgsList.scrollHeight;
-      }, (err)=>{ toast("Erreur de lecture des messages."); console.error(err); });
+      if(unsubMessages){unsubMessages();unsubMessages=null;}
+      const me=auth.currentUser; if(!me||!currentPeer) return; const cid=chatIdFor(me.uid,currentPeer);
+      const qMsg=query(collection(db,"messages"), where("chatId","==",cid), orderBy("createdAt","asc"), limit(500));
+      unsubMessages=onSnapshot(qMsg,snap=>{ msgsList.innerHTML=""; snap.forEach(d=>{const m=d.data(); const div=document.createElement("div"); div.className="msg "+(m.senderId===me.uid?"me":"them"); div.textContent=m.text; msgsList.appendChild(div);}); msgsList.scrollTop=msgsList.scrollHeight; },err=>{toast("Erreur de lecture des messages.");console.error(err);});
     }
 
-    // ---------- Envoi de message ----------
-    sendForm?.addEventListener("submit", async (e)=>{
-      e.preventDefault();
-      const me = auth.currentUser;
-      if(!me || !currentPeer){ toast("Choisis un profil pour discuter."); return; }
-      if(!me.emailVerified){ toast("Valide d’abord ton e-mail ✉️"); return; }
-
-      const text = sanitize(msgInput.value.trim());
-      if(!text) return;
-      if(text.length>500){ toast("500 caractères max"); return; }
-
-      const cid = chatIdFor(me.uid, currentPeer);
-
-      // Vérifier que conversation acceptée des 2 côtés
-      const ref = doc(db,"conversations",cid);
-      const cSnap = await getDoc(ref);
-      const status = cSnap.data()?.status || {};
-      if(status[me.uid]!=="accepted" || status[currentPeer]==="blocked"){
-        toast("Invitation non acceptée."); return;
-      }
-
-      // Créer le message
-      await addDoc(collection(db,"messages"), {
-        chatId: cid,
-        senderId: me.uid,
-        receiverId: currentPeer,
-        text,
-        createdAt: serverTimestamp()
-      });
-
-      // MAJ conversation (dernier message + unread pour le destinataire)
-      try{
-        await updateDoc(ref, {
-          lastText: text,
-          lastSender: me.uid,
-          lastSenderName: me.displayName || "Quelqu’un",
-          lastAt: serverTimestamp(),
-          ["unread."+currentPeer]: increment(1)
-        });
-      }catch{}
-      msgInput.value = "";
+    sendForm.addEventListener("submit",async e=>{
+      e.preventDefault(); const me=auth.currentUser; if(!me||!currentPeer){toast("Choisis un profil");return;}
+      if(!me.emailVerified){toast("Valide d’abord ton e-mail ✉️");return;}
+      const text=sanitize(msgInput.value.trim()); if(!text) return; if(text.length>500){toast("500 caractères max");return;}
+      const cid=chatIdFor(me.uid,currentPeer); const ref=doc(db,"conversations",cid); const s=await getDoc(ref); const st=s.data()?.status||{};
+      if(st[me.uid]!=="accepted"||st[currentPeer]==="blocked"){toast("Invitation non acceptée.");return;}
+      await addDoc(collection(db,"messages"),{chatId:cid,senderId:me.uid,receiverId:currentPeer,text,createdAt:serverTimestamp()});
+      try{await updateDoc(ref,{lastText:text,lastSender:me.uid,lastSenderName:me.displayName||"Quelqu’un",lastAt:serverTimestamp(),["unread."+currentPeer]:increment(1)});}catch{}
+      msgInput.value="";
     });
-
   </script>
 </body>
 </html>
