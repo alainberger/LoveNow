@@ -8,7 +8,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
 
-  <!-- ========== CSS INTÉGRÉ ========== -->
   <style>
     :root{
       --bg:#0d0d10; --card:#151921; --line:#222a35; --txt:#f6f8fa; --muted:#aeb6c2;
@@ -70,8 +69,6 @@
     #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:#000d;border:1px solid var(--line);
       padding:10px 14px;border-radius:12px;display:none}
     .sr-only{position:absolute;left:-99999px;top:auto;width:1px;height:1px;overflow:hidden}
-
-    /* Modal simple (compatible iPhone) */
     .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55);z-index:100}
     .modal.open{display:flex}
     .modal-card{min-width:320px;max-width:580px;background:var(--card);border:1px solid var(--line);border-radius:14px}
@@ -97,7 +94,6 @@
   </header>
 
   <main id="main">
-    <!-- HERO -->
     <section class="hero">
       <h1>Rencontre l’amour près de chez toi</h1>
       <p>Inscris-toi en 2 minutes, découvre des profils réels à proximité et commence à discuter. 100% gratuit au lancement.</p>
@@ -109,12 +105,10 @@
       </div>
     </section>
 
-    <!-- APP (après connexion) -->
     <section id="app" class="wrap" style="display:none">
       <h2>Bienvenue <span id="hiName"></span> 👋</h2>
 
       <div class="grid g-2">
-        <!-- PROFIL -->
         <div class="card">
           <h3>Mon profil</h3>
           <form id="editProfileForm" class="form">
@@ -140,13 +134,10 @@
           </div>
         </div>
 
-        <!-- DÉCOUVERTE + CHAT -->
         <div class="card">
           <h3>Profils proches</h3>
           <div id="profilesList" class="list"></div>
-
           <div class="divider"></div>
-
           <h3>Chat</h3>
           <div class="chat">
             <div class="chat-people" id="conversationsList"></div>
@@ -162,7 +153,6 @@
       </div>
     </section>
 
-    <!-- CTA FINAL -->
     <section id="cta" class="wrap">
       <div class="card" style="text-align:center">
         <h2>Prêt·e à tenter ta chance ?</h2>
@@ -178,7 +168,7 @@
     </div>
   </footer>
 
-  <!-- MODALE AUTH (compatible iPhone) -->
+  <!-- MODALE AUTH -->
   <div class="modal" id="modalAuth" aria-hidden="true" role="dialog" aria-label="Authentification">
     <div class="modal-card">
       <div class="tabs">
@@ -216,19 +206,17 @@
     </div>
   </div>
 
-  <!-- TOAST -->
   <div id="toast" role="status" aria-live="polite"></div>
 
-  <!-- ========== JS INTÉGRÉ (modules) ========== -->
   <script type="module">
-    // ===== Helpers (mini utils)
+    // Helpers
     const $  = (sel, ctx=document) => ctx.querySelector(sel);
     const $$ = (sel, ctx=document) => Array.from(ctx.querySelectorAll(sel));
     function toast(msg, ms=2200){ const t=$("#toast"); t.textContent=msg; t.style.display="block"; setTimeout(()=>t.style.display="none", ms); }
     const sanitize = (s="") => s.replace(/[<>]/g,"");
     const chatIdFor = (a,b) => [a,b].sort().join("_");
 
-    // ===== UI : modale Auth
+    // Modale
     const modal = $("#modalAuth");
     function openAuth(which="signup"){ modal.classList.add("open"); setTab(which); }
     function closeAuth(){ modal.classList.remove("open"); }
@@ -246,7 +234,7 @@
     }
     tabs.forEach(b=> b.addEventListener("click", ()=> setTab(b.dataset.tab)));
 
-    // ===== Firebase (CDN modules)
+    /* ===== Firebase + App Check ===== */
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
     import {
@@ -261,9 +249,9 @@
       initializeAppCheck, ReCaptchaV3Provider
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check.js";
 
-    // ===== Cloudinary (unsigned)
-    const CLOUD_NAME = "dyqxadd0j";       // ⚠️ adapte si besoin
-    const UPLOAD_PRESET = "profile_pics";  // ⚠️ preset unsigned
+    /* ===== Cloudinary (unsigned) ===== */
+    const CLOUD_NAME    = "dyqxadd0j";
+    const UPLOAD_PRESET = "profile_pics";
     async function uploadImage(file){
       const url = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`;
       const fd  = new FormData();
@@ -274,7 +262,7 @@
       return r.json(); // { secure_url, ... }
     }
 
-    // ===== Config Firebase (ton projet)
+    /* ===== Config Firebase (ton projet) ===== */
     const firebaseConfig = {
       apiKey: "AIzaSyB_-cNA8bxqYCYUp3rUZs-VpiP4DX2wn3M",
       authDomain: "lovenow-officiel.firebaseapp.com",
@@ -284,7 +272,8 @@
       appId: "1:896585801571:web:cdde87293291dc1900bd56",
       measurementId: "G-QGM25ND7LF"
     };
-    const RECAPTCHA_SITE_KEY = "6LfjpsErAAAAAExN2IvBq-K475TeJooeNzl9liPD"; // ⚠️ ta clé site v3
+    // Ta clé **du site** reCAPTCHA v3 :
+    const RECAPTCHA_SITE_KEY = "6LfjpsErAAAAAExN2IvBq-K475TeJooeNzl9liPD";
 
     const app = initializeApp(firebaseConfig);
     try{ getAnalytics(app); }catch{}
@@ -296,17 +285,7 @@
     const auth = getAuth(app);
     const db   = getFirestore(app);
 
-    // ===== Réfs UI
-    const appWrap   = $("#app");
-    const btnLogout = $("#btnLogout");
-    const hiName    = $("#hiName");
-    const profilesList = $("#profilesList");
-    const convList  = $("#conversationsList");
-    const msgsList  = $("#messagesList");
-    const sendForm  = $("#sendMsgForm");
-    const msgInput  = $("#msgInput");
-
-    // ===== INSCRIPTION
+    /* ===== Inscription ===== */
     $("#signupForm")?.addEventListener("submit", async (e)=>{
       e.preventDefault();
       const email = $("#suEmail").value.trim();
@@ -318,13 +297,13 @@
       if(age < 18){ toast("18+ requis"); return; }
       try{
         const cred = await createUserWithEmailAndPassword(auth, email, pass);
-        const uid = cred.user.uid;
+        const uid  = cred.user.uid;
 
         // Upload photo si fournie
         let photoUrl = "";
         if(file){ const up = await uploadImage(file); photoUrl = up.secure_url || ""; }
 
-        // Création doc (respecte les règles : createdAt == request.time)
+        // Création du doc (règles : createdAt == request.time)
         await setDoc(doc(db,"users",uid), {
           name, age, bio, createdAt: serverTimestamp(),
           photoUrl, photos: photoUrl ? [photoUrl] : []
@@ -335,7 +314,7 @@
         closeAuth();
       }catch(err){
         if(err.code === "auth/email-already-in-use"){
-          toast("Adresse déjà utilisée — essayez de vous connecter.");
+          toast("Adresse déjà utilisée — connecte-toi.");
           setTab("login");
         }else{
           toast(err.message || "Erreur d’inscription");
@@ -343,7 +322,7 @@
       }
     });
 
-    // ===== CONNEXION
+    /* ===== Connexion / Déconnexion ===== */
     $("#loginForm")?.addEventListener("submit", async (e)=>{
       e.preventDefault();
       const email = $("#liEmail").value.trim();
@@ -354,19 +333,16 @@
         closeAuth();
       }catch(err){ toast(err.message || "Erreur de connexion"); }
     });
+    $("#btnLogout")?.addEventListener("click", async ()=>{ await signOut(auth); });
 
-    // ===== DÉCONNEXION
-    btnLogout?.addEventListener("click", async ()=>{ await signOut(auth); });
-
-    // ===== ÉTAT AUTH
     onAuthStateChanged(auth, async (user)=>{
       if(user){
-        btnLogout.style.display = "";
-        appWrap.style.display = "";
+        $("#btnLogout").style.display = "";
+        $("#app").style.display = "";
         $("#btnOpenAuth").style.display = "none";
-        hiName.textContent = user.displayName || "toi";
+        $("#hiName").textContent = user.displayName || "toi";
 
-        // Préremplir profil
+        // Préremplir le profil
         try{
           const snap = await getDoc(doc(db,"users",user.uid));
           if(snap.exists()){
@@ -379,13 +355,13 @@
         }catch{}
         loadProfiles();
       }else{
-        btnLogout.style.display = "none";
-        appWrap.style.display = "none";
+        $("#btnLogout").style.display = "none";
+        $("#app").style.display = "none";
         $("#btnOpenAuth").style.display = "";
       }
     });
 
-    // ===== MÀJ PROFIL (nom/âge/bio + photo)
+    /* ===== Mise à jour du profil ===== */
     $("#editProfileForm")?.addEventListener("submit", async (e)=>{
       e.preventDefault();
       const user = auth.currentUser; if(!user) return;
@@ -404,17 +380,18 @@
         await updateDoc(doc(db,"users",user.uid), updates);
         await updateProfile(user, { displayName: name, photoURL: updates.photoUrl || user.photoURL || null });
         toast("Profil mis à jour");
-        loadProfiles(); // rafraîchir la liste
+        loadProfiles();
       }catch(err){ toast(err.message || "Erreur de mise à jour"); }
     });
 
-    // ===== PROFILS (lecture publique pour connectés)
+    /* ===== Profils (lecture simple) ===== */
     async function loadProfiles(){
       const me = auth.currentUser; if(!me) return;
       try{
         const q = query(collection(db,"users"), orderBy("createdAt","desc"), limit(30));
         const snap = await getDocs(q);
-        profilesList.innerHTML = "";
+        const box = $("#profilesList");
+        box.innerHTML = "";
         snap.forEach(d=>{
           if(d.id === me.uid) return;
           const u = d.data();
@@ -428,16 +405,20 @@
             </div>
             <button data-uid="${d.id}">Message</button>
           `;
-          profilesList.appendChild(div);
+          box.appendChild(div);
         });
       }catch(err){ console.warn(err); }
     }
 
-    // ===== CHAT
+    /* ===== Chat ultra-simple ===== */
+    const convList = $("#conversationsList");
+    const msgsList = $("#messagesList");
+    const sendForm = $("#sendMsgForm");
+    const msgInput = $("#msgInput");
     let currentPeer = null;
     let unsubMessages = null;
 
-    profilesList.addEventListener("click", (e)=>{
+    $("#profilesList").addEventListener("click", (e)=>{
       const btn = e.target.closest("button[data-uid]");
       if(!btn) return;
       openChatWith(btn.dataset.uid);
