@@ -7,7 +7,6 @@
   <meta name="description" content="LoveNow : rencontres gratuites et locales. Inscris-toi en 2 minutes, découvre des profils proches, discute en toute confiance.">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-
   <style>
     :root{
       --bg:#0d0d10; --card:#151921; --line:#222a35; --txt:#f6f8fa; --muted:#aeb6c2;
@@ -24,7 +23,6 @@
     .nav-btn{border:1px solid #ffffffaa;padding:8px 14px;border-radius:999px;background:none;color:#fff;cursor:pointer}
     .nav-btn:hover{background:#fff;color:#000}
     .nav-btn.danger{border-color:var(--danger)}
-
     .hero{display:grid;place-items:center;min-height:70vh;text-align:center;padding:30px 18px;
       background:radial-gradient(1000px 500px at 15% 10%,rgba(255,77,109,.2),transparent 60%),
                  radial-gradient(1000px 500px at 85% 10%,rgba(143,81,234,.25),transparent 60%),
@@ -32,33 +30,26 @@
     .hero h1{font-size:clamp(28px,6vw,48px);margin:6px 0 10px;font-weight:800}
     .hero p{max-width:640px;margin:0 auto 18px;color:#fff;opacity:.95}
     .cta{display:inline-block;background:#fff;color:#000;font-weight:800;border-radius:999px;padding:14px 28px;border:0;cursor:pointer}
-
     section{padding:40px 18px}
     h2{margin:0 0 12px}
     .muted{color:var(--muted)}
-
     .grid{display:grid;gap:16px}
     .g-2{grid-template-columns:repeat(2,1fr)}
     @media(max-width:900px){.g-2{grid-template-columns:1fr}}
     .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
-
     .form{display:grid;gap:10px}
     .form input,.form textarea{width:100%;border-radius:10px;border:1px solid var(--line);background:#0f1320;color:#fff;padding:10px}
     .form button{border:0;border-radius:10px;padding:12px 16px;background:var(--acc);color:#000;font-weight:800;cursor:pointer}
-
     .file input{display:none}
     .file span{display:inline-block;border:1px dashed var(--line);padding:10px;border-radius:10px;cursor:pointer}
     .avatar-wrap{margin-top:10px;text-align:center}
     .avatar-wrap img{width:120px;height:120px;border-radius:50%;object-fit:cover;border:2px solid var(--line)}
-
     .list{display:grid;gap:8px;max-height:280px;overflow:auto}
     .item{display:flex;align-items:center;gap:10px;border:1px solid var(--line);padding:10px;border-radius:10px}
     .item img{width:44px;height:44px;border-radius:50%;object-fit:cover}
     .item .grow{flex:1}
     .item button{padding:8px 10px;border:0;border-radius:999px;background:var(--acc);font-weight:700}
-
     .divider{height:1px;background:var(--line);margin:12px 0}
-
     .chat{display:grid;grid-template-columns:220px 1fr;gap:10px}
     @media(max-width:900px){.chat{grid-template-columns:1fr}}
     .chat-people{border:1px solid var(--line);border-radius:10px;max-height:320px;overflow:auto}
@@ -71,13 +62,10 @@
     .them{align-self:flex-start;background:#11141b}
     .send{display:flex;gap:8px;border-top:1px solid var(--line);padding:8px}
     .send input{flex:1}
-
     .footer{padding:24px 18px;border-top:1px solid var(--line);text-align:center;color:var(--muted);font-size:14px}
     #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:#000d;border:1px solid var(--line);
       padding:10px 14px;border-radius:12px;display:none}
     .sr-only{position:absolute;left:-99999px;top:auto;width:1px;height:1px;overflow:hidden}
-
-    /* Modal */
     .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55);z-index:100}
     .modal.open{display:flex}
     .modal-card{min-width:320px;max-width:580px;background:var(--card);border:1px solid var(--line);border-radius:14px}
@@ -103,7 +91,6 @@
   </header>
 
   <main id="main">
-    <!-- HERO -->
     <section class="hero">
       <h1>Rencontre l’amour près de chez toi</h1>
       <p>Inscris-toi en 2 minutes, découvre des profils réels à proximité et commence à discuter. 100% gratuit au lancement.</p>
@@ -111,7 +98,6 @@
       <div class="muted" style="margin-top:10px">Conversations privées, photos via Cloudinary, sécurité reCAPTCHA.</div>
     </section>
 
-    <!-- APP (après connexion) -->
     <section id="app" class="wrap" style="display:none">
       <h2>Bienvenue <span id="hiName"></span> 👋</h2>
 
@@ -120,14 +106,10 @@
         <div class="card">
           <h3>Mon profil</h3>
           <form id="editProfileForm" class="form">
-            <label>Nom
-              <input id="name" name="name" maxlength="30" required>
-            </label>
-            <label>Âge
-              <input id="age" name="age" type="number" min="18" max="100" required>
-            </label>
+            <label>Nom <input id="name" maxlength="30" required></label>
+            <label>Âge <input id="age" type="number" min="18" max="100" required></label>
             <label>Bio (500 max)
-              <textarea id="bio" name="bio" maxlength="500" rows="3" placeholder="Parle un peu de toi…"></textarea>
+              <textarea id="bio" maxlength="500" rows="3" placeholder="Parle un peu de toi…"></textarea>
             </label>
             <div class="row">
               <label class="file">
@@ -164,7 +146,6 @@
       </div>
     </section>
 
-    <!-- CTA FINAL -->
     <section id="cta" class="wrap">
       <div class="card" style="text-align:center">
         <h2>Prêt·e à tenter ta chance ?</h2>
@@ -220,16 +201,16 @@
 
   <div id="toast" role="status" aria-live="polite"></div>
 
-  <!-- ===== JS ===== -->
   <script type="module">
-    /* Helpers */
+    /* ===== Helpers ===== */
     const $  = (sel, ctx=document) => ctx.querySelector(sel);
     const $$ = (sel, ctx=document) => Array.from(ctx.querySelectorAll(sel));
     const sanitize = (s="") => s.replace(/[<>]/g,"");
-    function toast(msg, ms=2200){ const t=$("#toast"); t.textContent=msg; t.style.display="block"; setTimeout(()=>t.style.display="none", ms); }
     const chatIdFor = (a,b)=>[a,b].sort().join("_");
+    function toast(msg, ms=2500){ const t=$("#toast"); t.textContent=msg; t.style.display="block"; setTimeout(()=>t.style.display="none", ms); }
+    function short(s="",n=70){ return s.length>n ? s.slice(0,n-1)+"…" : s; }
 
-    /* UI Modale */
+    /* ===== UI Modale ===== */
     const modal = $("#modalAuth");
     const tabs  = $$("#modalAuth .tabs button");
     function openAuth(which="signup"){ modal.classList.add("open"); setTab(which); }
@@ -246,7 +227,7 @@
     modal.addEventListener("click", (e)=>{ if(e.target===modal) closeAuth(); });
     tabs.forEach(b=> b.addEventListener("click", ()=> setTab(b.dataset.tab)));
 
-    /* Firebase (CDN) */
+    /* ===== Firebase (CDN) ===== */
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
     import {
@@ -259,7 +240,7 @@
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
     import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check.js";
 
-    /* Cloudinary (unsigned) */
+    /* ===== Cloudinary (unsigned) ===== */
     const CLOUD_NAME   = "dyqxadd0j";
     const UPLOAD_PRESET= "profile_pics";
     async function uploadImage(file){
@@ -272,7 +253,7 @@
       return r.json();
     }
 
-    /* Firebase config + AppCheck (ta clé site reCAPTCHA v3) */
+    /* ===== Config Firebase + AppCheck (reCAPTCHA v3) ===== */
     const firebaseConfig = {
       apiKey: "AIzaSyB_-cNA8bxqYCYUp3rUZs-VpiP4DX2wn3M",
       authDomain: "lovenow-officiel.firebaseapp.com",
@@ -294,7 +275,7 @@
     const auth = getAuth(app);
     const db   = getFirestore(app);
 
-    /* Refs UI */
+    /* ===== Refs UI ===== */
     const appWrap   = $("#app");
     const btnLogout = $("#btnLogout");
     const hiName    = $("#hiName");
@@ -304,7 +285,23 @@
     const sendForm  = $("#sendMsgForm");
     const msgInput  = $("#msgInput");
 
-    /* INSCRIPTION */
+    /* ===== Notifications navigateur (optionnel) ===== */
+    function askNotifOnce(){
+      if('Notification' in window && Notification.permission==='default'){
+        Notification.requestPermission().catch(()=>{});
+      }
+    }
+    function notify(title, body){
+      try{
+        if('Notification' in window && Notification.permission==='granted'){
+          new Notification(title, { body });
+        }else{
+          toast(`${title} — ${body}`);
+        }
+      }catch{ toast(`${title} — ${body}`); }
+    }
+
+    /* ===== INSCRIPTION ===== */
     $("#signupForm")?.addEventListener("submit", async (e)=>{
       e.preventDefault();
       const email = $("#suEmail").value.trim();
@@ -317,7 +314,6 @@
       try{
         const cred = await createUserWithEmailAndPassword(auth, email, pass);
         const uid = cred.user.uid;
-
         let photoUrl = "";
         if(file){ const up = await uploadImage(file); photoUrl = up.secure_url || ""; }
 
@@ -339,7 +335,7 @@
       }
     });
 
-    /* CONNEXION */
+    /* ===== CONNEXION ===== */
     $("#loginForm")?.addEventListener("submit", async (e)=>{
       e.preventDefault();
       const email = $("#liEmail").value.trim();
@@ -351,17 +347,19 @@
       }catch(err){ toast(err.message || "Erreur de connexion"); }
     });
 
-    /* DÉCONNEXION */
+    /* ===== DÉCONNEXION ===== */
     btnLogout?.addEventListener("click", async ()=>{ await signOut(auth); });
 
-    /* STATE */
+    /* ===== STATE ===== */
     onAuthStateChanged(auth, async (user)=>{
       if(user){
         btnLogout.style.display = "";
         appWrap.style.display = "";
         $("#btnOpenAuth").style.display = "none";
         hiName.textContent = user.displayName || "toi";
+        askNotifOnce();
 
+        // Préremplir profil
         try{
           const snap = await getDoc(doc(db,"users",user.uid));
           if(snap.exists()){
@@ -373,6 +371,7 @@
           }
         }catch{}
         loadProfiles();
+        watchIncoming();  // notifier si un nouveau message arrive (global)
       }else{
         btnLogout.style.display = "none";
         appWrap.style.display = "none";
@@ -380,7 +379,7 @@
       }
     });
 
-    /* PROFIL : update + upsert si doc manquant */
+    /* ===== PROFIL : update + upsert ===== */
     $("#editProfileForm")?.addEventListener("submit", async (e)=>{
       e.preventDefault();
       const user = auth.currentUser; if(!user) return;
@@ -397,41 +396,48 @@
           updates.photos   = [up.secure_url];
           $("#avatarPreview").src = up.secure_url;
         }
-        // tente update; si not-found → setDoc (respecte la règle create)
-        try{
-          await updateDoc(doc(db,"users",user.uid), updates);
-        }catch(e1){
-          updates = { ...updates, createdAt: serverTimestamp(), photos: updates.photos || [] };
-          await setDoc(doc(db,"users",user.uid), updates);
-        }
+        try{ await updateDoc(doc(db,"users",user.uid), updates); }
+        catch{ await setDoc(doc(db,"users",user.uid), { ...updates, createdAt: serverTimestamp(), photos: updates.photos||[] }); }
         await updateProfile(user, { displayName: name, photoURL: updates.photoUrl || user.photoURL || null });
         toast("Profil mis à jour");
         loadProfiles();
       }catch(err){ toast(err.message || "Erreur de mise à jour"); }
     });
 
-    /* --- Helper : dernier message entre moi et peer --- */
+    /* ===== OUTILS INDEX/FALLBACK ===== */
+    function isIndexErr(e){
+      return (e && (e.code==='failed-precondition' || (''+e.message).includes('index')));
+    }
+    function hintIndex(whereField, orderField='createdAt'){
+      toast(`⚠️ Crée l’index Firestore: messages(${whereField} ASC, ${orderField} ASC)`);
+    }
+
+    /* ===== Aperçu = dernier message (avec fallback sans index) ===== */
     async function getLastMessageText(peerUid){
-      const me = auth.currentUser;
-      if(!me) return "";
+      const me = auth.currentUser; if(!me) return "";
       const cid = chatIdFor(me.uid, peerUid);
       try{
-        const qLast = query(
-          collection(db, "messages"),
-          where("chatId","==", cid),
+        const qLast = query(collection(db,"messages"),
+          where("chatId","==",cid),
           orderBy("createdAt","desc"),
           limit(1)
         );
         const snap = await getDocs(qLast);
-        if(!snap.empty){
-          const m = snap.docs[0].data();
-          return (m.text || "").slice(0,70);
+        if(!snap.empty) return short(snap.docs[0].data().text||"");
+        return "";
+      }catch(e){
+        if(isIndexErr(e)){
+          hintIndex('chatId');
+          // Fallback sans orderBy → on trie côté client
+          const qNoIdx = query(collection(db,"messages"), where("chatId","==",cid), limit(50));
+          const s2 = await getDocs(qNoIdx);
+          const arr = s2.docs.map(d=>d.data()).sort((a,b)=> (a.createdAt?.seconds||0)-(b.createdAt?.seconds||0));
+          return arr.length ? short(arr[arr.length-1].text||"") : "";
         }
         return "";
-      }catch(e){ console.warn("getLastMessageText", e); return ""; }
+      }
     }
 
-    /* --- PROFILES (patch : aperçu = dernier message, sinon bio) --- */
     async function loadProfiles(){
       const me = auth.currentUser; if(!me) return;
       try{
@@ -448,22 +454,19 @@
             <img src="${u.photoUrl || 'https://placehold.co/80x80?text=👤'}" alt="">
             <div class="grow">
               <div><strong>${u.name || "Sans nom"}</strong> · ${u.age || "?"} ans</div>
-              <div class="muted" id="${previewId}">${(u.bio||"").slice(0,70)}</div>
+              <div class="muted" id="${previewId}">${short(u.bio||"")}</div>
             </div>
             <button data-uid="${d.id}">Message</button>
           `;
           profilesList.appendChild(div);
 
           const last = await getLastMessageText(d.id);
-          if(last){
-            const el = document.getElementById(previewId);
-            if(el) el.textContent = last;
-          }
+          if(last){ const el=document.getElementById(previewId); if(el) el.textContent = last; }
         });
       }catch(err){ console.warn(err); }
     }
 
-    /* --- CHAT PRIVÉ --- */
+    /* ===== CHAT PRIVÉ (avec fallback sans index) ===== */
     let currentPeer = null;
     let unsubMessages = null;
 
@@ -483,30 +486,56 @@
       listenMessages();
     }
 
+    function renderMessages(snap){
+      msgsList.innerHTML = "";
+      snap.forEach(docu=>{
+        const m = docu.data();
+        const div = document.createElement("div");
+        div.className = "msg " + (m.senderId===auth.currentUser.uid ? "me" : "them");
+        div.textContent = m.text;
+        msgsList.appendChild(div);
+      });
+      msgsList.scrollTop = msgsList.scrollHeight;
+    }
+
     function listenMessages(){
       if(unsubMessages){ unsubMessages(); unsubMessages = null; }
       const me = auth.currentUser; if(!me || !currentPeer) return;
       const cid = chatIdFor(me.uid, currentPeer);
 
+      // Essai avec tri par date (meilleur rendu)
       const qMsgs = query(
         collection(db,"messages"),
         where("chatId","==",cid),
         orderBy("createdAt","asc"),
         limit(100)
       );
-      unsubMessages = onSnapshot(qMsgs, (snap)=>{
-        msgsList.innerHTML = "";
-        snap.forEach(docu=>{
-          const m = docu.data();
-          const div = document.createElement("div");
-          div.className = "msg " + (m.senderId===me.uid ? "me" : "them");
-          div.textContent = m.text;
-          msgsList.appendChild(div);
-        });
-        msgsList.scrollTop = msgsList.scrollHeight;
+      unsubMessages = onSnapshot(qMsgs, (snap)=>renderMessages(snap), (err)=>{
+        // Fallback si index manquant
+        if(isIndexErr(err)){
+          hintIndex('chatId');
+          const qNoIdx = query(collection(db,"messages"), where("chatId","==",cid), limit(100));
+          unsubMessages = onSnapshot(qNoIdx, (snap)=>{
+            // trie côté client
+            const arr = snap.docs
+              .map(d=>({id:d.id,...d.data()}))
+              .sort((a,b)=>(a.createdAt?.seconds||0)-(b.createdAt?.seconds||0));
+            msgsList.innerHTML = "";
+            arr.forEach(m=>{
+              const div = document.createElement("div");
+              div.className = "msg " + (m.senderId===me.uid ? "me" : "them");
+              div.textContent = m.text;
+              msgsList.appendChild(div);
+            });
+            msgsList.scrollTop = msgsList.scrollHeight;
+          });
+        }else{
+          console.warn(err); toast("Erreur messages");
+        }
       });
     }
 
+    /* ===== Envoi message ===== */
     sendForm?.addEventListener("submit", async (e)=>{
       e.preventDefault();
       const me = auth.currentUser; if(!me || !currentPeer){ toast("Choisis un profil pour discuter."); return; }
@@ -517,12 +546,54 @@
       await addDoc(collection(db,"messages"), {
         chatId: cid,
         senderId: me.uid,
+        senderName: me.displayName || "",
         receiverId: currentPeer,
         text,
         createdAt: serverTimestamp()
       });
       msgInput.value = "";
     });
+
+    /* ===== Notif globale (nouveau message entrant) ===== */
+    let unsubIncoming = null;
+    function watchIncoming(){
+      if(unsubIncoming){ unsubIncoming(); unsubIncoming=null; }
+      const me = auth.currentUser; if(!me) return;
+
+      // Essai avec index (receiverId + createdAt desc)
+      const qInc = query(
+        collection(db,"messages"),
+        where("receiverId","==",me.uid),
+        orderBy("createdAt","desc"),
+        limit(1)
+      );
+      unsubIncoming = onSnapshot(qInc, (snap)=>{
+        snap.docChanges().forEach(ch=>{
+          if(ch.type==='added'){
+            const m = ch.doc.data();
+            if(document.hidden || (currentPeer && currentPeer!==m.senderId)){
+              notify("Nouveau message", short(m.text||""));
+            }
+          }
+        });
+      }, (err)=>{
+        if(isIndexErr(err)){
+          hintIndex('receiverId');
+          // Fallback sans orderBy
+          const qNoIdx = query(collection(db,"messages"), where("receiverId","==",me.uid), limit(1));
+          unsubIncoming = onSnapshot(qNoIdx, (snap)=>{
+            snap.docChanges().forEach(ch=>{
+              if(ch.type==='added'){
+                const m = ch.doc.data();
+                if(document.hidden || (currentPeer && currentPeer!==m.senderId)){
+                  notify("Nouveau message", short(m.text||""));
+                }
+              }
+            });
+          });
+        }
+      });
+    }
   </script>
 </body>
 </html>
