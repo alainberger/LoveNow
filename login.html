@@ -1,125 +1,156 @@
 <!doctype html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>LoveNow — Connexion / Inscription</title>
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" as="style" onload="this.rel='stylesheet'">
   <style>
-    :root{--ln-bg:#0c0f14;--ln-panel:#111622;--ln-ink:#fff;--ln-soft:#a9b1c3;--ln-accent:#ff3b81;}
-    body{margin:0;background:var(--ln-bg);color:var(--ln-ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial}
-    .container{max-width:900px;margin:auto;padding:16px}
-    .tabs{display:flex;gap:8px;margin:16px 0}
-    .tab{padding:8px 12px;border:1px solid #ffffff30;border-radius:10px;background:#ffffff12;color:#fff;cursor:pointer}
-    .tab[aria-selected="true"]{background:var(--ln-accent);border-color:transparent}
-    .panel{background:var(--ln-panel);border:1px solid #ffffff14;border-radius:14px;padding:16px}
-    .field{margin:8px 0;display:flex;flex-direction:column}
-    input,textarea,select{background:#12192a;border:1px solid #2a3245;color:#fff;border-radius:10px;padding:10px}
-    .ln-btn{border:1px solid #ffffff40;background:#ffffff12;color:#fff;padding:10px 14px;border-radius:10px;cursor:pointer}
-    .ln-btn.primary{background:var(--ln-accent);border-color:transparent}
-    .notice{display:flex;gap:10px;align-items:center;background:#2a2f3d;border-radius:10px;padding:10px;margin:12px 0}
+    body{margin:0;background:#0f1115;color:#e9edf6;font-family:Inter,system-ui}
+    .wrap{max-width:720px;margin:0 auto;padding:20px}
+    .tabs{display:flex;gap:8px;margin:8px 0 16px}
+    .tab{padding:.6rem .9rem;border-radius:.6rem;background:#1a1e2b;border:1px solid #27314a;cursor:pointer}
+    .tab[aria-selected="true"]{background:linear-gradient(135deg,#ff2d55,#7a5cf0);border:none}
+    input{width:100%;padding:.7rem;border-radius:.6rem;background:#0f1115;border:1px solid #2b2f44;color:#e9edf6}
+    label{display:block;margin:10px 0 6px;color:#aab1c3}
+    .btn{display:inline-flex;align-items:center;justify-content:center;padding:.7rem 1rem;border-radius:.6rem;background:#232739;border:1px solid #2b2f44;cursor:pointer}
+    .btn-primary{background:linear-gradient(135deg,#ff2d55,#7a5cf0);border:none}
+    .card{background:#171922;border:1px solid #202334;border-radius:.9rem;padding:16px}
+    .muted{color:#aab1c3}
+    .banner{background:#1a1e2b;border:1px solid #27314a;border-radius:.8rem;padding:.6rem .8rem;margin:12px 0;display:flex;gap:8px;justify-content:space-between;align-items:center}
   </style>
+  <script src="config.js"></script>
+  <script type="module">
+    const cfg = window.APP_CONFIG?.firebase;
+    if(cfg && cfg.apiKey){
+      const { initializeApp } = await import("https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js");
+      const { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, signOut, sendEmailVerification } = await import("https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js");
+      const { getAnalytics } = await import("https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics.js");
+      const app = initializeApp(cfg);
+
+      // App Check (site key seulement)
+      const siteKey = window.APP_CONFIG?.appCheck?.recaptchaV3SiteKey;
+      if(siteKey){
+        const { initializeAppCheck, ReCaptchaV3Provider } = await import("https://www.gstatic.com/firebasejs/9.23.0/firebase-app-check.js");
+        initializeAppCheck(app, { provider: new ReCaptchaV3Provider(siteKey), isTokenAutoRefreshEnabled: true });
+      }
+
+      if(window.APP_CONFIG?.analyticsEnabled && cfg.measurementId){
+        try{ getAnalytics(app); }catch(e){ console.warn("Analytics non initialisé:", e); }
+      }
+
+      const auth = getAuth(app);
+      const $ = s=>document.querySelector(s);
+      const show = (t)=>{ $("#tab-login").ariaSelected=(t==="login"); $("#tab-signup").ariaSelected=(t!=="login"); $("#panel-login").hidden=t!=="login"; $("#panel-signup").hidden=t==="login"; }
+      $("#tab-login").addEventListener("click",()=>show("login"));
+      $("#tab-signup").addEventListener("click",()=>show("signup"));
+      if(location.hash==="#signup") show("signup");
+
+      // Signup
+      $("#signup").addEventListener("submit", async (e)=>{
+        e.preventDefault();
+        const email = $("#suEmail").value.trim();
+        const pass = $("#suPass").value;
+        const name = $("#suName").value.trim();
+        const age = Number($("#suAge").value);
+        const city = $("#suCity").value.trim();
+        const gender = $("#suGender").value;
+        try{
+          const {user} = await createUserWithEmailAndPassword(auth, email, pass);
+          await updateProfile(user, {displayName: name});
+          try{ await sendEmailVerification(user); }catch{}
+          alert("Compte créé. Vérifie ton e-mail pour discuter.");
+          location.href = "/";
+        }catch(err){ console.error(err); alert("Inscription impossible: "+(err?.message||"")); }
+      });
+
+      // Login
+      $("#login").addEventListener("submit", async (e)=>{
+        e.preventDefault();
+        try{
+          await signInWithEmailAndPassword(auth, $("#liEmail").value.trim(), $("#liPass").value);
+          location.href = "/";
+        }catch(err){ console.error(err); alert("Connexion impossible: "+(err?.message||"")); }
+      });
+
+      // Banner
+      onAuthStateChanged(auth, (user)=>{
+        const banner = $("#verifyBanner");
+        if(user && !user.emailVerified){ banner.hidden = false; $("#who").textContent = user.email; }
+        else { banner.hidden = true; $("#who").textContent = ""; }
+      });
+
+      $("#btnResend").addEventListener("click", async ()=>{
+        if(!auth.currentUser){ return alert("Connecte-toi d’abord."); }
+        try{ await sendEmailVerification(auth.currentUser); alert("Lien envoyé ✅"); }catch(e){ alert("Échec envoi lien"); }
+      });
+
+      $("#btnLogout").addEventListener("click", async ()=>{ await signOut(auth); alert("Déconnecté"); location.href="/"; });
+    } else {
+      const $ = s=>document.querySelector(s);
+      const show = (t)=>{ $("#tab-login").ariaSelected=(t==="login"); $("#tab-signup").ariaSelected=(t!=="login"); $("#panel-login").hidden=t!=="login"; $("#panel-signup").hidden=t==="login"; }
+      $("#tab-login").addEventListener("click",()=>show("login"));
+      $("#tab-signup").addEventListener("click",()=>show("signup"));
+      if(location.hash==="#signup") show("signup"); else show("login");
+    }
+  </script>
 </head>
 <body>
-  <div class="container">
+  <div class="wrap">
+    <a class="btn" href="/">← Retour à l’accueil</a>
     <h1>Connexion / Inscription</h1>
-    <div class="tabs" role="tablist">
-      <button id="tabLogin" class="tab" role="tab" aria-selected="true">Connexion</button>
-      <button id="tabSignup" class="tab" role="tab" aria-selected="false">Inscription</button>
+
+    <div class="banner" id="verifyBanner" hidden>
+      <div>E-mail <span id="who" class="muted"></span> non vérifié.</div>
+      <div style="display:flex;gap:8px">
+        <button id="btnResend" class="btn">Envoyer le lien</button>
+        <a class="btn" href="/">Rafraîchir</a>
+      </div>
     </div>
 
-    <section id="panelLogin" class="panel" role="tabpanel" aria-labelledby="tabLogin">
-      <div class="field"><label>Email</label><input id="lEmail" type="email" /></div>
-      <div class="field"><label>Mot de passe</label><input id="lPass" type="password" /></div>
-      <button id="btnLogin" class="ln-btn primary">Se connecter</button>
+    <div class="tabs" role="tablist" aria-label="Choisir une action">
+      <button id="tab-login" role="tab" class="tab" aria-selected="true">Connexion</button>
+      <button id="tab-signup" role="tab" class="tab" aria-selected="false">Inscription</button>
+    </div>
 
-      <div id="verifyBox" class="notice" hidden>
-        <span>Vérifie ton e-mail pour discuter.</span>
-        <button id="sendVerify" class="ln-btn">Envoyer le lien</button>
-        <button id="refreshAuth" class="ln-btn">Rafraîchir</button>
-      </div>
-    </section>
+    <div id="panel-login" role="tabpanel" class="card">
+      <form id="login">
+        <label for="liEmail">Email</label>
+        <input id="liEmail" type="email" required autocomplete="username">
+        <label for="liPass">Mot de passe</label>
+        <input id="liPass" type="password" required autocomplete="current-password" minlength="6">
+        <div style="margin-top:12px;display:flex;gap:8px">
+          <button class="btn btn-primary" type="submit">Se connecter</button>
+          <a class="btn" href="/">Accueil</a>
+        </div>
+      </form>
+    </div>
 
-    <section id="panelSignup" class="panel" role="tabpanel" aria-labelledby="tabSignup" hidden>
-      <div class="field"><label>Email</label><input id="sEmail" type="email" /></div>
-      <div class="field"><label>Mot de passe</label><input id="sPass" type="password" /></div>
-      <div class="field"><label>Nom</label><input id="sName" maxlength="30" /></div>
-      <div class="field"><label>Âge</label><input id="sAge" type="number" min="18" max="99" /></div>
-      <div class="field"><label>Ville</label><input id="sCity" /></div>
-      <div class="field"><label>Genre</label>
-        <select id="sGender"><option value="">—</option><option value="F">Femme</option><option value="M">Homme</option><option value="O">Autre</option></select>
-      </div>
-      <button id="btnSignup" class="ln-btn primary">Créer mon compte</button>
-    </section>
+    <div id="panel-signup" role="tabpanel" class="card" hidden>
+      <form id="signup">
+        <label for="suEmail">Email</label>
+        <input id="suEmail" type="email" required autocomplete="email">
+        <label for="suPass">Mot de passe (≥ 6 caractères)</label>
+        <input id="suPass" type="password" required minlength="6" autocomplete="new-password">
+        <label for="suName">Nom / Pseudo</label>
+        <input id="suName" type="text" required>
+        <label for="suAge">Âge</label>
+        <input id="suAge" type="number" min="18" max="99" required>
+        <label for="suCity">Ville</label>
+        <input id="suCity" type="text" required>
+        <label for="suGender">Genre</label>
+        <select id="suGender"><option value="F">Femme</option><option value="M">Homme</option><option value="O">Autre</option></select>
+        <div style="margin-top:12px;display:flex;gap:8px">
+          <button class="btn btn-primary" type="submit">Créer mon compte</button>
+          <a class="btn" href="/">Accueil</a>
+        </div>
+      </form>
+    </div>
+
+    <div style="margin-top:16px">
+      <button id="btnLogout" class="btn">Se déconnecter</button>
+      <span class="muted">· Astuce : après vérification e-mail, reviens ici puis “Accueil”.</span>
+    </div>
   </div>
-
-  <script>
-    window.firebaseConfig = {
-      apiKey: "AIzaSyB_-cNA8bxqYCYUp3rUZs-VpiP4DX2wn3M",
-      authDomain: "lovenow-officiel.firebaseapp.com",
-      projectId: "lovenow-officiel",
-      storageBucket: "lovenow-officiel.firebasestorage.app",
-      messagingSenderId: "896585801571",
-      appId: "1:896585801571:web:cdde87293291dc1900bd56",
-      measurementId: "G-QGM25ND7LF"
-    };
-  </script>
-
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-analytics.js";
-    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
-    import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
-
-    const app  = initializeApp(window.firebaseConfig);
-    try { getAnalytics(app); } catch(e) {}
-    const auth = getAuth(app);
-    const db   = getFirestore(app);
-
-    const tabLogin  = document.getElementById('tabLogin');
-    const tabSignup = document.getElementById('tabSignup');
-    const panelLogin = document.getElementById('panelLogin');
-    const panelSignup = document.getElementById('panelSignup');
-
-    tabLogin.onclick = ()=>{ tabLogin.setAttribute('aria-selected','true'); tabSignup.setAttribute('aria-selected','false'); panelLogin.hidden=false; panelSignup.hidden=true; };
-    tabSignup.onclick= ()=>{ tabLogin.setAttribute('aria-selected','false'); tabSignup.setAttribute('aria-selected','true'); panelLogin.hidden=true; panelSignup.hidden=false; };
-
-    document.getElementById('btnLogin')?.addEventListener('click', async ()=>{
-      const email = document.getElementById('lEmail').value.trim();
-      const pass  = document.getElementById('lPass').value;
-      try{
-        await signInWithEmailAndPassword(auth, email, pass);
-        location.href='/';
-      }catch(e){ alert(e.message); }
-    });
-
-    document.getElementById('btnSignup')?.addEventListener('click', async ()=>{
-      const email = document.getElementById('sEmail').value.trim();
-      const pass  = document.getElementById('sPass').value;
-      const name  = document.getElementById('sName').value.trim();
-      const age   = Number(document.getElementById('sAge').value);
-      const city  = document.getElementById('sCity').value.trim();
-      const gender= document.getElementById('sGender').value;
-      try{
-        const cred = await createUserWithEmailAndPassword(auth, email, pass);
-        await setDoc(doc(db,'profiles', cred.user.uid), {
-          name: name || null, age: age || null, city: city || null, gender: gender || null,
-          bio: null, photoUrl: null, lastActive: serverTimestamp()
-        });
-        await sendEmailVerification(cred.user);
-        alert('Compte créé. Vérifie ton e-mail pour discuter.');
-        location.href='/';
-      }catch(e){ alert(e.message); }
-    });
-
-    const verifyBox   = document.getElementById('verifyBox');
-    const sendVerify  = document.getElementById('sendVerify');
-    const refreshAuth = document.getElementById('refreshAuth');
-
-    onAuthStateChanged(auth, (user)=>{
-      verifyBox.hidden = !user || user.emailVerified;
-      sendVerify.onclick  = async ()=>{ if(!auth.currentUser) return; await sendEmailVerification(auth.currentUser); alert('E-mail envoyé.'); };
-      refreshAuth.onclick = ()=> location.reload();
-    });
-  </script>
 </body>
 </html>
