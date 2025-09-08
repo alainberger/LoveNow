@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>LoveNow — Rencontres près de chez toi</title>
-  <meta name="description" content="Inscris-toi, découvre des profils réels à proximité et commence à discuter." />
+  <meta name="description" content="Inscris-toi, découvre des profils à proximité et commence à discuter." />
   <style>
     :root{--ln-bg:#0c0f14;--ln-panel:#111622;--ln-ink:#fff;--ln-soft:#a9b1c3;--ln-accent:#ff3b81;}
     body{margin:0;background:var(--ln-bg);color:var(--ln-ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial}
@@ -97,13 +97,13 @@
     <div id="empty" class="empty" hidden>Aucun profil ne correspond à ces critères.</div>
   </main>
 
-  <!-- Firebase config (TA CONFIG) -->
+  <!-- Firebase config -->
   <script>
     window.firebaseConfig = {
       apiKey: "AIzaSyB_-cNA8bxqYCYUp3rUZs-VpiP4DX2wn3M",
       authDomain: "lovenow-officiel.firebaseapp.com",
       projectId: "lovenow-officiel",
-      storageBucket: "lovenow-officiel.firebasestorage.app",
+      storageBucket: "lovenow-officiel.firebasestorage.app", /* si souci d'upload, mets lovenow-officiel.appspot.com */
       messagingSenderId: "896585801571",
       appId: "1:896585801571:web:cdde87293291dc1900bd56",
       measurementId: "G-QGM25ND7LF"
@@ -112,7 +112,7 @@
 
   <!-- App -->
   <script type="module">
-    // Off-canvas
+    // Menu off-canvas
     const sideNav = document.getElementById('sideNav');
     const navToggle = document.getElementById('navToggle');
     const navClose  = document.getElementById('navClose');
@@ -134,10 +134,10 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-analytics.js";
     import { getAuth, onAuthStateChanged, signOut, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
-    import { getFirestore, collection, query, where, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+    import { getFirestore, collection, query, where, orderBy, limit, getDocs, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
 
     const app  = initializeApp(window.firebaseConfig);
-    try { getAnalytics(app); } catch(e) { /* analytics optionnel */ }
+    try { getAnalytics(app); } catch(e) {}
     const auth = getAuth(app);
     const db   = getFirestore(app);
 
@@ -192,6 +192,7 @@
       const filters = [];
       if(fGender.value) filters.push(where('gender','==', fGender.value));
       if(fCity.value.trim()) filters.push(where('city','==', fCity.value.trim()));
+      // NB: l'âge min/max n'est pas utilisé ici → si tu l'ajoutes, on complètera les index
       const q = query(qRef, ...filters, orderBy('lastActive','desc'), limit(24));
       const snap = await getDocs(q);
 
@@ -208,8 +209,25 @@
         card.querySelector('.view')?.addEventListener('click', ()=>{
           location.href = `/profile.html?uid=${encodeURIComponent(uid)}`;
         });
-        card.querySelector('.chat')?.addEventListener('click', ()=>{
-          location.href = `/profile.html?uid=${encodeURIComponent(uid)}#chat`;
+        // Création/ouverture de conversation directe depuis la carte
+        card.querySelector('.chat')?.addEventListener('click', async ()=>{
+          const user = auth.currentUser;
+          if(!user){ location.href = '/login.html'; return; }
+          if(!user.emailVerified){ alert("Valide ton e-mail avant d’envoyer des messages."); return; }
+          if(uid === user.uid){ location.href = `/profile.html?uid=${encodeURIComponent(uid)}`; return; }
+
+          const cid = [user.uid, uid].sort().join('_');
+          const cRef = doc(db,'conversations', cid);
+          const snap = await getDoc(cRef);
+          if(!snap.exists()){
+            await setDoc(cRef, {
+              members:[user.uid, uid],
+              createdAt: serverTimestamp(),
+              lastMessage: null,
+              lastMessageAt: serverTimestamp()
+            });
+          }
+          location.href = `/conversations.html?cid=${cid}`;
         });
       });
     }
