@@ -2,26 +2,16 @@
 <html lang="fr">
 <head>
   <!-- =========================
-       LoveNow — Index complet
+       LoveNow — Index complet (SPA)
        =========================
-       ✅ CHECKLIST DE SETUP (lire une fois)
-       1) Firebase > Authentification > Paramètres > **Domaines autorisés** :
-          - lovenow.netlify.app  (+ ton futur domaine custom si besoin)
-          - localhost (optionnel)
-       2) (Facultatif) Modèles d’e-mail : logo + couleurs
-       3) Ce fichier contient :
-          - Auth Email/MDP + Vérification d’e-mail (bandeau + encart profil)
-          - App Check reCAPTCHA v3
-          - Cloudinary (upload unsigned) pour les photos
-          - Profils, Conversations, Messages (Firestore) + Invitations
-       4) Pour tester la vérification :
-          - Crée un compte ➜ clique “Valider mon e-mail” ➜ ouvre le lien reçu
-          - De retour sur le site, bouton “Rafraîchir” pour mettre à jour l’état
-
-       🔒 IMPORTANT
-       - L’URL de retour utilisée pour l’e-mail = window.location.origin + '/?verified=1'
-         ➜ le domaine doit être dans “Domaines autorisés”, sinon erreur “auth/unauthorized-continue-uri”.
-       - Fallback prévu : si cette erreur arrive, on renvoie la vérification sans actionCodeSettings.
+       ✅ À vérifier une fois (Firebase Console)
+       • Authentification → Paramètres → Domaines autorisés :
+         - lovenow.netlify.app
+         - (ton futur domaine custom si besoin)
+       • Authentification → Modèles d’e-mail : logo & couleurs (optionnel)
+       • Firestore → Règles & Index créés (tu les as déjà faits)
+       • App Check reCAPTCHA v3 : clé site activée
+       • Cloudinary : preset unsigned "profile_pics" + cloud_name "dyqxadd0j"
   -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -29,6 +19,7 @@
   <meta name="description" content="LoveNow : rencontres locales et messagerie privée. 100% gratuit au lancement.">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+
   <style>
     :root{
       --bg:#0d0d10; --card:#151921; --line:#222a35; --txt:#f6f8fa; --muted:#aeb6c2;
@@ -44,7 +35,8 @@
     .row{display:flex;gap:14px;align-items:center;justify-content:space-between}
     .logo{font-weight:800;letter-spacing:.3px;color:var(--acc)}
     .nav-btn{border:1px solid #ffffffaa;padding:8px 14px;border-radius:999px;background:none;color:#fff;cursor:pointer}
-    .nav-btn:hover{background:#fff;color:#000}.nav-btn.danger{border-color:var(--danger)}
+    .nav-btn:hover{background:#fff;color:#000}
+    .nav-btn.danger{border-color:var(--danger)}
     .hero{display:grid;place-items:center;min-height:68vh;text-align:center;padding:30px 18px;
       background:radial-gradient(1000px 500px at 15% 10%,rgba(255,77,109,.2),transparent 60%),
                  radial-gradient(1000px 500px at 85% 10%,rgba(143,81,234,.25),transparent 60%),
@@ -54,8 +46,12 @@
     .cta{display:inline-block;background:#fff;color:#000;font-weight:800;border-radius:999px;padding:14px 28px;border:0;cursor:pointer}
     .uspbar{display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap}
     .pill{border:1px solid #ffffff80;color:#fff;padding:6px 12px;border-radius:999px;font-size:12px;opacity:.9}
-    section{padding:40px 18px} h2{margin:0 0 12px}.muted{color:var(--muted)}
-    .grid{display:grid;gap:16px}.g-2{grid-template-columns:repeat(2,1fr)} @media(max-width:900px){.g-2{grid-template-columns:1fr}}
+    section{padding:40px 18px}
+    h2{margin:0 0 12px}
+    .muted{color:var(--muted)}
+    .grid{display:grid;gap:16px}
+    .g-2{grid-template-columns:repeat(2,1fr)}
+    @media(max-width:900px){.g-2{grid-template-columns:1fr}}
     .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
     .form{display:grid;gap:10px}
     .form input,.form textarea{width:100%;border-radius:10px;border:1px solid var(--line);background:#0f1320;color:#fff;padding:10px}
@@ -66,19 +62,24 @@
     .list{display:grid;gap:8px;max-height:320px;overflow:auto}
     .item{display:flex;align-items:center;gap:10px;border:1px solid var(--line);padding:10px;border-radius:10px}
     .item img{width:44px;height:44px;border-radius:50%;object-fit:cover}
-    .item .grow{flex:1}.item button{padding:8px 10px;border:0;border-radius:999px;background:var(--acc);font-weight:700}
+    .item .grow{flex:1}
+    .item button{padding:8px 10px;border:0;border-radius:999px;background:var(--acc);font-weight:700}
     .divider{height:1px;background:var(--line);margin:12px 0}
-    .chat{display:grid;grid-template-columns:260px 1fr;gap:10px}@media(max-width:900px){.chat{grid-template-columns:1fr}}
+    .chat{display:grid;grid-template-columns:260px 1fr;gap:10px}
+    @media(max-width:900px){.chat{grid-template-columns:1fr}}
     .chat-people{border:1px solid var(--line);border-radius:10px;max-height:360px;overflow:auto}
     .people-item{display:flex;gap:8px;align-items:center;padding:10px;border-bottom:1px solid var(--line);cursor:pointer}
     .people-item .badge{margin-left:auto;background:var(--acc);color:#000;border-radius:999px;font-weight:800;padding:2px 8px;font-size:12px}
-    .people-item small{color:var(--muted)} .people-item.active{background:#0f1320}
+    .people-item small{color:var(--muted)}
+    .people-item.active{background:#0f1320}
     .chat-box{display:grid;grid-template-rows:auto 1fr auto;border:1px solid var(--line);border-radius:10px;min-height:360px}
     .chat-head{display:flex;gap:8px;align-items:center;border-bottom:1px solid var(--line);padding:8px 10px}
     .messages{padding:10px;display:flex;flex-direction:column;gap:6px;max-height:300px;overflow:auto}
     .msg{max-width:80%;padding:8px 10px;border-radius:10px;border:1px solid var(--line)}
-    .me{align-self:flex-end;background:#1c1f27}.them{align-self:flex-start;background:#11141b}
-    .send{display:flex;gap:8px;border-top:1px solid var(--line);padding:8px}.send input{flex:1}
+    .me{align-self:flex-end;background:#1c1f27}
+    .them{align-self:flex-start;background:#11141b}
+    .send{display:flex;gap:8px;border-top:1px solid var(--line);padding:8px}
+    .send input{flex:1}
     .footer{padding:24px 18px;border-top:1px solid var(--line);text-align:center;color:var(--muted);font-size:14px}
     #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:#000d;border:1px solid var(--line);
       padding:10px 14px;border-radius:12px;display:none;z-index:90;min-width:240px;text-align:center}
@@ -89,7 +90,6 @@
     .warnCard{display:none;background:var(--warn-bg);border:1px solid var(--warn-line);color:#ffe58f;padding:8px 10px;border-radius:10px;margin-bottom:10px}
     .warnCard .btn{margin-left:6px;border:0;background:var(--warn);color:#000;border-radius:8px;padding:6px 10px;font-weight:800}
     button[disabled]{opacity:.6;pointer-events:none}
-    @media (prefers-reduced-motion: reduce){*{scroll-behavior:auto} .nav-btn:hover{background:#fff;color:#000}}
   </style>
 </head>
 <body>
@@ -105,7 +105,7 @@
     </div>
     <!-- Bandeau global si e-mail non vérifié -->
     <div id="verifyEmailBar" class="banner" role="status" aria-live="polite">
-      Ton e-mail n’est pas vérifié.
+      Votre e-mail n’est pas vérifié.
       <button id="btnSendVerify" class="btn">Valider mon e-mail</button>
       <button id="btnRefreshVerify" class="btn">Rafraîchir</button>
     </div>
@@ -133,7 +133,7 @@
         <div class="card">
           <!-- Encart vérification AU-DESSUS du profil -->
           <div id="verifyCard" class="warnCard">
-            Ton e-mail n’est pas vérifié.
+            Votre e-mail n’est pas vérifié.
             <button id="btnSendVerify2" class="btn">Valider mon e-mail</button>
             <button id="btnRefreshVerify2" class="btn">Rafraîchir</button>
           </div>
@@ -180,6 +180,7 @@
               </form>
             </div>
           </div>
+
         </div>
       </div>
     </section>
@@ -189,14 +190,16 @@
       <div class="card" style="text-align:center">
         <h2>Prêt·e à tenter ta chance ?</h2>
         <p class="muted">Inscription en 2 minutes. 18+ uniquement.</p>
-        <button class="cta" id="ctaOpenAuth2">Créer un compte</button>
+        <a class="cta" href="cgu.html" style="margin-right:8px">CGU</a>
+        <a class="cta" href="confidentialite.html" style="margin-right:8px">Confidentialité</a>
+        <a class="cta" href="mentions-legales.html">Mentions légales</a>
       </div>
     </section>
   </main>
 
   <footer>
     <div class="wrap footer">
-      © 2025 LoveNow — <a href="#">Mentions légales</a> · <a href="#">Confidentialité</a> · 18+ uniquement
+      © 2025 LoveNow — <a href="mentions-legales.html">Mentions légales</a> · <a href="confidentialite.html">Confidentialité</a> · 18+ uniquement
     </div>
   </footer>
 
@@ -244,7 +247,7 @@
   <!-- TOAST -->
   <div id="toast" role="status" aria-live="polite"></div>
 
-  <!-- ========== JS ========== -->
+  <!-- ========== JS (module) ========== -->
   <script type="module">
     // ---------- Utils ----------
     const $=(s,c=document)=>c.querySelector(s), $$=(s,c=document)=>Array.from(c.querySelectorAll(s));
@@ -254,7 +257,7 @@
     const setLoading=(btn,on,labelBusy="...")=>{
       if(!btn) return;
       if(on){ btn.dataset._label = btn.textContent; btn.textContent = labelBusy; btn.setAttribute("disabled",""); }
-      else{ btn.textContent = btn.dataset._label || btn.textContent; btn.removeAttribute("disabled"); }
+      else { btn.textContent = btn.dataset._label || btn.textContent; btn.removeAttribute("disabled"); }
     };
 
     // ---------- UI modal ----------
@@ -263,12 +266,12 @@
     const closeAuth=()=>{modal.style.display="none"};
     $("#btnOpenAuth")?.addEventListener("click",()=>openAuth("signup"));
     $("#ctaStart")?.addEventListener("click",()=>openAuth("signup"));
-    $("#ctaOpenAuth2")?.addEventListener("click",()=>openAuth("signup"));
     $("#closeAuth")?.addEventListener("click",closeAuth);
     modal.addEventListener("click",e=>{if(e.target===modal)closeAuth();});
     function setTab(which){
       const bSignup = $("[data-tab='signup']"), bLogin=$("[data-tab='login']");
-      bSignup.classList.toggle("active",which==="signup"); bLogin.classList.toggle("active",which==="login");
+      bSignup.classList.toggle("active",which==="signup");
+      bLogin.classList.toggle("active",which==="login");
       $("#paneSignup").style.display = which==="signup" ? "block" : "none";
       $("#paneLogin").style.display  = which==="login"  ? "block" : "none";
     }
@@ -287,16 +290,19 @@
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
     import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check.js";
 
-    // ---------- Cloudinary ----------
-    const CLOUD_NAME="dyqxadd0j";         // ← ton cloud name
-    const UPLOAD_PRESET="profile_pics";    // ← preset unsigned créé
+    // ---------- Cloudinary (unsigned) ----------
+    const CLOUD_NAME="dyqxadd0j";         // ton cloud name
+    const UPLOAD_PRESET="profile_pics";    // preset unsigned créé
     async function uploadImage(file){
-      const fd=new FormData(); fd.append("file",file); fd.append("upload_preset",UPLOAD_PRESET);
+      const fd=new FormData();
+      fd.append("file",file);
+      fd.append("upload_preset",UPLOAD_PRESET);
       const r=await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,{method:"POST",body:fd});
-      if(!r.ok) throw new Error("Upload Cloudinary échoué"); return r.json();
+      if(!r.ok) throw new Error("Upload Cloudinary échoué");
+      return r.json(); // => { secure_url, ... }
     }
 
-    // ---------- Config ----------
+    // ---------- Config Firebase ----------
     const firebaseConfig={
       apiKey:"AIzaSyB_-cNA8bxqYCYUp3rUZs-VpiP4DX2wn3M",
       authDomain:"lovenow-officiel.firebaseapp.com",
@@ -308,10 +314,12 @@
     };
     const RECAPTCHA_SITE_KEY="6LfjpsErAAAAAExN2IvBq-K475TeJooeNzl9liPD";
 
-    const app=initializeApp(firebaseConfig); try{getAnalytics(app)}catch{}
+    const app=initializeApp(firebaseConfig);
+    try{ getAnalytics(app); }catch{}
     initializeAppCheck(app,{provider:new ReCaptchaV3Provider(RECAPTCHA_SITE_KEY),isTokenAutoRefreshEnabled:true});
 
-    const auth=getAuth(app); const db=getFirestore(app);
+    const auth=getAuth(app);
+    const db=getFirestore(app);
 
     // ---------- Refs ----------
     const appWrap=$("#app"), btnLogout=$("#btnLogout"), hiName=$("#hiName");
@@ -322,52 +330,44 @@
     const btnSendVerify=$("#btnSendVerify"), btnRefreshVerify=$("#btnRefreshVerify");
     const btnSendVerify2=$("#btnSendVerify2"), btnRefreshVerify2=$("#btnRefreshVerify2");
 
-    // ---------- Helpers erreurs ----------
+    // ---------- Erreurs lisibles ----------
     const friendlyError=(e)=>{
       const code=e?.code||"";
       if(code.includes("too-many-requests")) return "Trop de tentatives. Réessaie dans une minute.";
       if(code.includes("network-request-failed")) return "Problème réseau. Vérifie ta connexion.";
-      if(code.includes("unauthorized-continue-uri")) return "Domaine de retour non autorisé. Ajoute ton domaine dans Firebase (Domaines autorisés).";
+      if(code.includes("unauthorized-continue-uri")) return "Domaine de retour non autorisé (ajoute le domaine dans Firebase > Auth > Domaines autorisés).";
       return e?.message||"Une erreur est survenue.";
     };
 
     // ---------- Vérification e-mail ----------
-    const actionCodeSettings={
-      url: window.location.origin + '/?verified=1',
-      handleCodeInApp: false
-    };
+    const actionCodeSettings={ url: window.location.origin + '/?verified=1', handleCodeInApp:false };
 
     async function sendVerification(user, btn){
       if(!user) return toast("Connecte-toi d’abord.");
-      setLoading(btn,true,"Envoi…");
+      if(btn) setLoading(btn,true,"Envoi…");
       try{
-        try{
-          await sendEmailVerification(user, actionCodeSettings);
-        }catch(err){
-          // Fallback si domaine non autorisé
+        try{ await sendEmailVerification(user, actionCodeSettings); }
+        catch(err){
           if((err?.code||"").includes("unauthorized-continue-uri")){
-            console.debug("Retry sans actionCodeSettings");
-            await sendEmailVerification(user);
-          }else throw err;
+            await sendEmailVerification(user); // fallback
+          } else { throw err; }
         }
-        toast("E-mail de validation envoyé ✉️ (regarde SPAM si besoin)");
+        toast("E-mail de validation envoyé ✉️ (vérifie SPAM)");
       }catch(e){ console.debug(e); toast(friendlyError(e)); }
-      finally{ setLoading(btn,false); }
+      finally{ if(btn) setLoading(btn,false); }
     }
-
     async function refreshVerification(user, btn){
       if(!user) return;
-      setLoading(btn,true,"Maj…");
+      if(btn) setLoading(btn,true,"Maj…");
       try{ await reload(user); updateVerifyUI(user); }
       catch(e){ console.debug(e); toast(friendlyError(e)); }
-      finally{ setLoading(btn,false); }
+      finally{ if(btn) setLoading(btn,false); }
     }
-
     function wireVerifyButtons(){
-      btnSendVerify?.addEventListener("click",()=>sendVerification(auth.currentUser, btnSendVerify));
-      btnRefreshVerify?.addEventListener("click",()=>refreshVerification(auth.currentUser, btnRefreshVerify));
-      btnSendVerify2?.addEventListener("click",()=>sendVerification(auth.currentUser, btnSendVerify2));
-      btnRefreshVerify2?.addEventListener("click",()=>refreshVerification(auth.currentUser, btnRefreshVerify2));
+      btnSendVerify?.addEventListener("click",()=>sendVerification(auth.currentUser,btnSendVerify));
+      btnRefreshVerify?.addEventListener("click",()=>refreshVerification(auth.currentUser,btnRefreshVerify));
+      btnSendVerify2?.addEventListener("click",()=>sendVerification(auth.currentUser,btnSendVerify2));
+      btnRefreshVerify2?.addEventListener("click",()=>refreshVerification(auth.currentUser,btnRefreshVerify2));
     }
     wireVerifyButtons();
 
@@ -375,169 +375,311 @@
       const verified=!!user?.emailVerified;
       verifyBar.style.display = verified ? "none" : "block";
       verifyCard.style.display = verified ? "none" : "block";
-      $("#msgInput").disabled = !verified; // bloque l’envoi si non vérifié
+      msgInput.disabled = !verified; // bloque l’envoi si non vérifié
     }
 
-    // ---------- Auth: signup ----------
+    // ---------- Auth: inscription ----------
     $("#signupForm")?.addEventListener("submit",async e=>{
       e.preventDefault();
-      const email=$("#suEmail").value.trim(), pass=$("#suPass").value.trim();
+      const email=$("#suEmail").value.trim();
+      const pass=$("#suPass").value.trim();
       const name=sanitize($("#suName").value.trim()).slice(0,30);
-      const age=parseInt($("#suAge").value,10); const bio=sanitize($("#suBio").value.trim()).slice(0,500);
-      const file=$("#suAvatar").files[0]; if(age<18){toast("18+ requis");return;}
+      const age=parseInt($("#suAge").value,10);
+      const bio=sanitize($("#suBio").value.trim()).slice(0,500);
+      const file=$("#suAvatar").files[0];
+      if(age<18){ toast("18+ requis"); return; }
       try{
-        const cred=await createUserWithEmailAndPassword(auth,email,pass); const uid=cred.user.uid;
-        let photoUrl=""; if(file){const up=await uploadImage(file); photoUrl=up.secure_url||"";}
-        await setDoc(doc(db,"users",uid),{name,age,bio,createdAt:serverTimestamp(),photoUrl,photos:photoUrl?[photoUrl]:[]});
+        const cred=await createUserWithEmailAndPassword(auth,email,pass);
+        const uid=cred.user.uid;
+
+        let photoUrl="";
+        if(file){ const up=await uploadImage(file); photoUrl=up.secure_url||""; }
+
+        await setDoc(doc(db,"users",uid),{
+          name, age, bio, createdAt: serverTimestamp(),
+          photoUrl, photos: photoUrl ? [photoUrl] : []
+        });
         await updateProfile(cred.user,{displayName:name,photoURL:photoUrl||null});
-        await sendVerification(cred.user, null);
-        toast("Compte créé. Vérifie ton e-mail ✉️"); closeAuth();
+        // envoi vérification auto
+        await sendVerification(cred.user,null);
+
+        toast("Compte créé — vérifie ton e-mail ✉️");
+        closeAuth();
       }catch(err){
-        if(err.code==="auth/email-already-in-use"){toast("Adresse déjà utilisée — connecte-toi."); setTab("login");}
-        else toast(friendlyError(err));
+        if(err.code==="auth/email-already-in-use"){ toast("Adresse déjà utilisée — connecte-toi."); setTab("login"); }
+        else { toast(friendlyError(err)); }
       }
     });
 
-    // ---------- Auth: login/forgot/logout ----------
+    // ---------- Auth: connexion / reset / logout ----------
     $("#loginForm")?.addEventListener("submit",async e=>{
-      e.preventDefault(); const email=$("#liEmail").value.trim(), pass=$("#liPass").value.trim();
-      try{ await signInWithEmailAndPassword(auth,email,pass); toast("Connecté !"); closeAuth(); }
-      catch(err){ toast(friendlyError(err)); }
+      e.preventDefault();
+      const email=$("#liEmail").value.trim();
+      const pass=$("#liPass").value.trim();
+      try{
+        await signInWithEmailAndPassword(auth,email,pass);
+        toast("Connecté !");
+        closeAuth();
+      }catch(err){ toast(friendlyError(err)); }
     });
     $("#btnForgot")?.addEventListener("click",async ()=>{
-      const email=$("#liEmail").value.trim(); if(!email){toast("Entre d’abord ton e-mail");return;}
+      const email=$("#liEmail").value.trim();
+      if(!email){ toast("Entre d’abord ton e-mail"); return; }
       try{
-        try{
-          await sendPasswordResetEmail(auth,email,actionCodeSettings);
-        }catch(err){
+        try{ await sendPasswordResetEmail(auth,email,actionCodeSettings); }
+        catch(err){
           if((err?.code||"").includes("unauthorized-continue-uri")){
             await sendPasswordResetEmail(auth,email); // fallback
-          }else throw err;
+          } else throw err;
         }
         toast("Lien de réinitialisation envoyé.");
       }catch(e){ toast(friendlyError(e)); }
     });
     btnLogout?.addEventListener("click",async ()=>{ await signOut(auth); });
 
-    // ---------- Auth state ----------
+    // ---------- État auth ----------
     let currentPeer=null, currentConv=null, unsubMessages=null, unsubConversations=null;
 
     onAuthStateChanged(auth, async user=>{
       if(user){
         try{ await reload(user) }catch{}
-        btnLogout.style.display=""; appWrap.style.display=""; $("#btnOpenAuth").style.display="none";
-        hiName.textContent=user.displayName||"toi"; updateVerifyUI(user);
+        $("#btnOpenAuth").style.display="none";
+        btnLogout.style.display="";
+        appWrap.style.display="";
+        hiName.textContent=user.displayName||"toi";
+        updateVerifyUI(user);
 
-        // Si l’URL contient ?verified=1, propose de rafraîchir
+        // Si on revient de l’e-mail (?verified=1) et pas encore rafraîchi
         if(new URLSearchParams(location.search).has("verified") && !user.emailVerified){
-          toast("Clique ‘Rafraîchir’ pour mettre à jour ton statut de vérification.");
+          toast("Clique ‘Rafraîchir’ pour mettre à jour le statut.");
         }
 
         // Charger profil
-        try{ const s=await getDoc(doc(db,"users",user.uid)); if(s.exists()){ const u=s.data();
-          $("#name").value=u.name||""; $("#age").value  =u.age||""; $("#bio").value =u.bio||"";
-          if(u.photoUrl) $("#avatarPreview").src=u.photoUrl; } }catch{}
-        loadProfiles(); listenConversations();
+        try{
+          const s=await getDoc(doc(db,"users",user.uid));
+          if(s.exists()){
+            const u=s.data();
+            $("#name").value=u.name||"";
+            $("#age").value=u.age||"";
+            $("#bio").value=u.bio||"";
+            if(u.photoUrl) $("#avatarPreview").src=u.photoUrl;
+          }
+        }catch{}
+        loadProfiles();
+        listenConversations();
       }else{
-        btnLogout.style.display="none"; appWrap.style.display="none"; $("#btnOpenAuth").style.display="";
-        verifyBar.style.display="none"; verifyCard.style.display="none"; stopListening();
+        $("#btnOpenAuth").style.display="";
+        btnLogout.style.display="none";
+        appWrap.style.display="none";
+        verifyBar.style.display="none";
+        verifyCard.style.display="none";
+        stopListening();
       }
     });
 
-    function stopListening(){ if(unsubMessages){unsubMessages();unsubMessages=null} if(unsubConversations){unsubConversations();unsubConversations=null}
-      msgsList.innerHTML=""; chatTitle.textContent="Aucune conversation"; }
+    function stopListening(){
+      if(unsubMessages){unsubMessages();unsubMessages=null}
+      if(unsubConversations){unsubConversations();unsubConversations=null}
+      msgsList.innerHTML="";
+      chatTitle.textContent="Aucune conversation";
+    }
 
-    // ---------- Profil update ----------
+    // ---------- Mise à jour profil ----------
     $("#editProfileForm")?.addEventListener("submit",async e=>{
-      e.preventDefault(); const user=auth.currentUser;if(!user)return;
-      const name=sanitize($("#name").value.trim()).slice(0,30), age=parseInt($("#age").value,10),
-            bio=sanitize($("#bio").value.trim()).slice(0,500), file=$("#avatarFile").files[0];
+      e.preventDefault();
+      const user=auth.currentUser; if(!user) return;
+      const name=sanitize($("#name").value.trim()).slice(0,30);
+      const age=parseInt($("#age").value,10);
+      const bio=sanitize($("#bio").value.trim()).slice(0,500);
+      const file=$("#avatarFile").files[0];
       try{
-        const upd={name,age,bio}; if(file){const up=await uploadImage(file); upd.photoUrl=up.secure_url; upd.photos=[up.secure_url]; $("#avatarPreview").src=up.secure_url;}
-        await updateDoc(doc(db,"users",user.uid),upd); await updateProfile(user,{displayName:name,photoURL:upd.photoUrl||user.photoURL||null});
-        toast("Profil mis à jour"); loadProfiles();
+        const upd={name,age,bio};
+        if(file){
+          const up=await uploadImage(file);
+          upd.photoUrl=up.secure_url;
+          upd.photos=[up.secure_url];
+          $("#avatarPreview").src=up.secure_url;
+        }
+        await updateDoc(doc(db,"users",user.uid),upd);
+        await updateProfile(user,{displayName:name,photoURL:upd.photoUrl||user.photoURL||null});
+        toast("Profil mis à jour");
+        loadProfiles();
       }catch(err){ toast(friendlyError(err)); }
     });
 
-    // ---------- Profils (liste simple) ----------
+    // ---------- Profils (liste) ----------
     async function loadProfiles(){
       const me=auth.currentUser; if(!me) return;
       try{
         const q=query(collection(db,"users"), orderBy("createdAt","desc"), limit(30));
-        const snap=await getDocs(q); profilesList.innerHTML="";
-        snap.forEach(d=>{ if(d.id===me.uid) return; const u=d.data();
-          const div=document.createElement("div"); div.className="item";
-          div.innerHTML=`<img src="${u.photoUrl||'https://placehold.co/80x80?text=👤'}" alt="">
-            <div class="grow"><div><strong>${u.name||"Sans nom"}</strong> · ${u.age||"?"} ans</div>
-            <div class="muted">${(u.bio||"").slice(0,70)}</div></div>
-            <button data-uid="${d.id}">Message</button>`;
+        const snap=await getDocs(q);
+        profilesList.innerHTML="";
+        snap.forEach(d=>{
+          if(d.id===me.uid) return;
+          const u=d.data();
+          const div=document.createElement("div");
+          div.className="item";
+          div.innerHTML=`
+            <img src="${u.photoUrl||'https://placehold.co/80x80?text=👤'}" alt="">
+            <div class="grow">
+              <div><strong>${u.name||"Sans nom"}</strong> · ${u.age||"?"} ans</div>
+              <div class="muted">${(u.bio||"").slice(0,70)}</div>
+            </div>
+            <button data-uid="${d.id}">Message</button>
+          `;
+          div.querySelector("button").addEventListener("click",()=>openChatWith(d.id));
           profilesList.appendChild(div);
         });
       }catch(e){ console.debug(e); }
     }
-    profilesList.addEventListener("click",async e=>{
-      const btn=e.target.closest("button[data-uid]"); if(!btn) return; await openChatWith(btn.dataset.uid);
-    });
 
     // ---------- Conversations & messages ----------
     function listenConversations(){
-      const me=auth.currentUser; if(!me) return; if(unsubConversations){unsubConversations();unsubConversations=null}
-      const qConv=query(collection(db,"conversations"), where("members","array-contains",me.uid), orderBy("lastAt","desc"));
+      const me=auth.currentUser; if(!me) return;
+      if(unsubConversations){unsubConversations();unsubConversations=null}
+      const qConv=query(collection(db,"conversations"),
+                        where("members","array-contains",me.uid),
+                        orderBy("lastAt","desc"));
       unsubConversations=onSnapshot(qConv,snap=>{
-        convList.innerHTML=""; snap.forEach(c=>{ const data=c.data(); const otherId=data.members.find(x=>x!==me.uid);
-          const item=document.createElement("div"); item.className="people-item";
+        convList.innerHTML="";
+        snap.forEach(c=>{
+          const data=c.data();
+          const otherId=data.members.find(x=>x!==me.uid);
           const unread=(data.unread&&data.unread[me.uid])?data.unread[me.uid]:0;
-          item.innerHTML=`<div><div><strong>${data.lastSenderName||"Conversation"}</strong>
-            <small class="muted">· ${new Date(data.lastAt?.toDate?.()||Date.now()).toLocaleString()}</small></div>
-            <small>${sanitize(data.lastText||"")}</small></div>${unread?`<span class="badge">${unread}</span>`:""}`;
-          item.addEventListener("click",()=>openChatWith(otherId)); convList.appendChild(item);
+          const item=document.createElement("div");
+          item.className="people-item";
+          item.innerHTML=`
+            <div>
+              <div><strong>${data.lastSenderName||"Discussion"}</strong>
+                <small class="muted">· ${new Date(data.lastAt?.toDate?.()||Date.now()).toLocaleString()}</small>
+              </div>
+              <small>${sanitize(data.lastText||"")}</small>
+            </div>
+            ${unread?`<span class="badge">${unread}</span>`:""}
+          `;
+          item.addEventListener("click",()=>openChatWith(otherId));
+          convList.appendChild(item);
         });
-      },err=>{toast("Erreur: conversations");console.debug(err);});
+      },err=>{ console.debug(err); toast("Erreur: conversations"); });
     }
 
     async function ensureConversation(meUid,peerUid){
-      const cid=chatIdFor(meUid,peerUid); const ref=doc(db,"conversations",cid); const s=await getDoc(ref);
+      const cid=chatIdFor(meUid,peerUid);
+      const ref=doc(db,"conversations",cid);
+      const s=await getDoc(ref);
       if(!s.exists()){
-        await setDoc(ref,{members:[meUid,peerUid],status:{[meUid]:"accepted",[peerUid]:"pending"},
-          lastText:"",lastSender:"",lastSenderName:"",lastAt:serverTimestamp(),unread:{[meUid]:0,[peerUid]:0},createdAt:serverTimestamp()});
+        await setDoc(ref,{
+          members:[meUid,peerUid],
+          status:{[meUid]:"accepted",[peerUid]:"pending"}, // invitation
+          lastText:"", lastSender:"", lastSenderName:"",
+          lastAt: serverTimestamp(),
+          unread:{[meUid]:0,[peerUid]:0},
+          createdAt: serverTimestamp()
+        });
       }
       return ref;
     }
 
     async function openChatWith(peerUid){
-      const me=auth.currentUser;if(!me)return; const ref=await ensureConversation(me.uid,peerUid); const cid=chatIdFor(me.uid,peerUid);
-      chatTitle.textContent="Discussion"; inviteBox.style.display="none"; inviteBox.innerHTML="";
-      const cs=await getDoc(ref); if(cs.exists()){ const c=cs.data(); const my=c.status?.[me.uid]||"accepted"; const other=c.status?.[peerUid]||"accepted";
-        if(my==="pending"){ inviteBox.style.display="block"; inviteBox.innerHTML=`<strong>Invitation reçue</strong> — accepter pour discuter ?
-          <div style="margin-top:6px"><button id="btnAccept" class="btn" style="background:#ffd34d;color:#000;border:0;border-radius:8px;padding:6px 10px;font-weight:800">Accepter</button>
-          <button id="btnRefuse" class="btn" style="background:#ff6464;color:#000;border:0;border-radius:8px;padding:6px 10px;font-weight:800">Refuser</button></div>`;
-          $("#btnAccept").onclick=async()=>{await updateDoc(ref,{["status."+me.uid]:"accepted"});inviteBox.style.display="none";toast("Invitation acceptée ✅")};
-          $("#btnRefuse").onclick=async()=>{await updateDoc(ref,{["status."+me.uid]:"blocked"});toast("Conversation bloquée")};
-        } else if(other==="pending"){ inviteBox.style.display="block"; inviteBox.textContent="En attente d’acceptation…"; }
+      const me=auth.currentUser; if(!me) return;
+      const ref=await ensureConversation(me.uid,peerUid);
+      const cid=chatIdFor(me.uid,peerUid);
+      chatTitle.textContent="Discussion";
+      inviteBox.style.display="none"; inviteBox.innerHTML="";
+
+      const cs=await getDoc(ref);
+      if(cs.exists()){
+        const c=cs.data();
+        const my=c.status?.[me.uid]||"accepted";
+        const other=c.status?.[peerUid]||"accepted";
+        if(my==="pending"){
+          inviteBox.style.display="block";
+          inviteBox.innerHTML=`
+            <strong>Invitation reçue</strong> — accepter pour discuter ?
+            <div style="margin-top:6px">
+              <button id="btnAccept" class="btn" style="background:#ffd34d;color:#000;border:0;border-radius:8px;padding:6px 10px;font-weight:800">Accepter</button>
+              <button id="btnRefuse" class="btn" style="background:#ff6464;color:#000;border:0;border-radius:8px;padding:6px 10px;font-weight:800">Refuser</button>
+            </div>`;
+          $("#btnAccept").onclick=async()=>{ await updateDoc(ref,{["status."+me.uid]:"accepted"}); inviteBox.style.display="none"; toast("Invitation acceptée ✅"); };
+          $("#btnRefuse").onclick=async()=>{ await updateDoc(ref,{["status."+me.uid]:"blocked"}); toast("Conversation bloquée"); };
+        } else if(other==="pending"){
+          inviteBox.style.display="block";
+          inviteBox.textContent="En attente d’acceptation…";
+        }
       }
-      currentPeer=peerUid; currentConv=cid; listenMessages(); try{await updateDoc(doc(db,"conversations",cid),{["unread."+me.uid]:0})}catch{}
+
+      currentPeer=peerUid;
+      currentConv=cid;
+      listenMessages();
+      try{ await updateDoc(doc(db,"conversations",cid),{["unread."+me.uid]:0}); }catch{}
     }
 
     function listenMessages(){
       if(unsubMessages){unsubMessages();unsubMessages=null}
-      const me=auth.currentUser;if(!me||!currentPeer)return; const cid=chatIdFor(me.uid,currentPeer);
-      const q=query(collection(db,"messages"), where("chatId","==",cid), orderBy("createdAt","asc"), limit(500));
-      unsubMessages=onSnapshot(q,snap=>{ msgsList.innerHTML=""; snap.forEach(d=>{const m=d.data(); const div=document.createElement("div");
-        div.className="msg "+(m.senderId===me.uid?"me":"them"); div.textContent=m.text; msgsList.appendChild(div);});
-        msgsList.scrollTop=msgsList.scrollHeight;}, err=>{toast("Erreur de lecture des messages.");console.debug(err);});
+      const me=auth.currentUser; if(!me||!currentPeer) return;
+      const cid=chatIdFor(me.uid,currentPeer);
+      const q=query(collection(db,"messages"),
+                    where("chatId","==",cid),
+                    orderBy("createdAt","asc"),
+                    limit(500));
+      unsubMessages=onSnapshot(q,snap=>{
+        msgsList.innerHTML="";
+        snap.forEach(d=>{
+          const m=d.data();
+          const div=document.createElement("div");
+          div.className="msg "+(m.senderId===me.uid?"me":"them");
+          div.textContent=m.text;
+          msgsList.appendChild(div);
+        });
+        msgsList.scrollTop=msgsList.scrollHeight;
+      }, err=>{ console.debug(err); toast("Erreur de lecture des messages."); });
     }
 
     // ---------- Envoi ----------
     sendForm?.addEventListener("submit",async e=>{
-      e.preventDefault(); const me=auth.currentUser; if(!me||!currentPeer){toast("Choisis un profil");return;}
-      if(!me.emailVerified){toast("Valide d’abord ton e-mail ✉️");return;}
-      const text=sanitize(msgInput.value.trim()); if(!text) return; if(text.length>500){toast("500 max");return;}
-      const cid=chatIdFor(me.uid,currentPeer); const ref=doc(db,"conversations",cid); const cSnap=await getDoc(ref); const st=cSnap.data()?.status||{};
-      if(st[me.uid]!=="accepted"||st[currentPeer]==="blocked"){toast("Invitation non acceptée.");return;}
-      await addDoc(collection(db,"messages"),{chatId:cid,senderId:me.uid,receiverId:currentPeer,text,createdAt:serverTimestamp()});
-      try{await updateDoc(ref,{lastText:text,lastSender:me.uid,lastSenderName:me.displayName||"Quelqu’un",lastAt:serverTimestamp(),["unread."+currentPeer]:increment(1)})}catch{}
+      e.preventDefault();
+      const me=auth.currentUser;
+      if(!me||!currentPeer){ toast("Choisis un profil"); return; }
+      if(!me.emailVerified){ toast("Valide d’abord ton e-mail ✉️"); return; }
+
+      const text=sanitize(msgInput.value.trim());
+      if(!text) return;
+      if(text.length>500){ toast("500 caractères max"); return; }
+
+      const cid=chatIdFor(me.uid,currentPeer);
+      const ref=doc(db,"conversations",cid);
+      const cSnap=await getDoc(ref);
+      const st=cSnap.data()?.status||{};
+      if(st[me.uid]!=="accepted"||st[currentPeer]==="blocked"){
+        toast("Invitation non acceptée."); return;
+      }
+
+      await addDoc(collection(db,"messages"),{
+        chatId:cid,
+        senderId:me.uid,
+        receiverId:currentPeer,
+        text,
+        createdAt: serverTimestamp()
+      });
+      try{
+        await updateDoc(ref,{
+          lastText:text,
+          lastSender:me.uid,
+          lastSenderName: me.displayName||"Quelqu’un",
+          lastAt: serverTimestamp(),
+          ["unread."+currentPeer]: increment(1)
+        });
+      }catch{}
       msgInput.value="";
     });
+
+    // ---------- Brancher boutons vérif (header + encart) ----------
+    (function initVerifyButtons(){
+      btnSendVerify?.addEventListener("click",()=>sendVerification(auth.currentUser,btnSendVerify));
+      btnRefreshVerify?.addEventListener("click",()=>refreshVerification(auth.currentUser,btnRefreshVerify));
+      btnSendVerify2?.addEventListener("click",()=>sendVerification(auth.currentUser,btnSendVerify2));
+      btnRefreshVerify2?.addEventListener("click",()=>refreshVerification(auth.currentUser,btnRefreshVerify2));
+    })();
   </script>
 </body>
 </html>
