@@ -4,96 +4,193 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>LoveNow — Mon profil</title>
-  <meta name="description" content="Modifiez votre profil LoveNow.">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
   <style>
-    :root{--bg:#0b0c10;--line:#222a35;--txt:#f6f8fa;--muted:#aeb6c2;--acc:#ff4d6d}
-    *{box-sizing:border-box} html,body{margin:0;background:
-      radial-gradient(900px 450px at 15% 0%,rgba(255,77,109,.18),transparent 60%),
-      radial-gradient(900px 450px at 85% 0%,rgba(143,81,234,.22),transparent 60%),
-      linear-gradient(180deg,#0b0c10,#0d1016);color:var(--txt);font-family:'Poppins',system-ui}
-    .wrap{max-width:820px;margin:0 auto;padding:18px}
-    header{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
-    .logo{font-weight:800;color:var(--acc)} a{color:#ff6bb5;text-decoration:none}
-    .card{background:#151921;border:1px solid var(--line);border-radius:14px;padding:18px;margin-top:18px}
-    .form{display:grid;gap:10px}
-    input,textarea{width:100%;border-radius:10px;border:1px solid var(--line);background:#0f1320;color:#fff;padding:10px}
-    button{border:0;border-radius:10px;padding:12px 16px;background:#fff;color:#000;font-weight:800;cursor:pointer}
-    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-    .file input{display:none}.file span{display:inline-block;border:1px dashed var(--line);padding:10px;border-radius:10px;cursor:pointer}
-    .avatar{width:120px;height:120px;border-radius:50%;object-fit:cover;border:2px solid var(--line)}
-    .muted{color:var(--muted)} #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:#000c;border:1px solid var(--line);padding:10px 14px;border-radius:12px;display:none}
+    :root{--ln-bg:#0c0f14;--ln-panel:#111622;--ln-ink:#fff;--ln-soft:#a9b1c3;--ln-accent:#ff3b81;}
+    body{margin:0;background:var(--ln-bg);color:var(--ln-ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial}
+    .container{max-width:900px;margin:auto;padding:16px}
+    .head{display:flex;align-items:center;gap:16px;margin:18px 0}
+    .back{color:#fff;text-decoration:none;border:1px solid #ffffff30;background:#ffffff12;padding:8px 12px;border-radius:10px}
+    .panel{background:var(--ln-panel);border:1px solid #ffffff14;border-radius:14px;padding:16px}
+    .row{display:grid;grid-template-columns:160px 1fr;gap:16px}
+    .avatar{width:160px;height:160px;object-fit:cover;border-radius:14px;background:#0b0f18}
+    .field{margin:8px 0;display:flex;flex-direction:column}
+    input,textarea,select{background:#12192a;border:1px solid #2a3245;color:#fff;border-radius:10px;padding:10px}
+    .actions{display:flex;gap:10px;margin-top:12px}
+    .ln-btn{border:1px solid #ffffff40;background:#ffffff12;color:#fff;padding:10px 14px;border-radius:10px;cursor:pointer}
+    .ln-btn.primary{background:var(--ln-accent);border-color:transparent}
+    .notice{display:flex;gap:8px;align-items:center;background:#2a2f3d;padding:10px;border-radius:10px;margin:10px 0}
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <div class="logo">💘 LoveNow</div>
-      <nav><a href="index.html">← Retour</a></nav>
-    </header>
-
-    <div class="card">
-      <h2>Mon profil</h2>
-      <div class="row" style="margin:10px 0">
-        <img id="avatar" class="avatar" src="https://placehold.co/120x120?text=%F0%9F%91%A4" alt="">
-        <label class="file"><input type="file" id="avatarFile" accept="image/*"><span>Changer la photo</span></label>
-      </div>
-      <form id="form" class="form">
-        <input id="name" placeholder="Nom (30 max)" maxlength="30" required>
-        <input id="age" type="number" min="18" max="100" placeholder="Âge" required>
-        <textarea id="bio" rows="3" maxlength="500" placeholder="Parlez un peu de vous…"></textarea>
-        <button type="submit">Enregistrer</button>
-      </form>
-      <p class="muted" style="margin-top:8px">Astuce : votre e-mail doit être vérifié pour chatter dans <a href="index.html">index.html</a>.</p>
+  <div class="container">
+    <div class="head">
+      <a id="backLink" href="/" class="back">← Retour</a>
+      <h1 style="margin:0">Profil</h1>
     </div>
+
+    <div id="emailBanner" class="notice" hidden>
+      <span>Ton e-mail n’est pas vérifié.</span>
+      <button id="sendVerify" class="ln-btn">Envoyer le lien</button>
+      <button id="refreshAuth" class="ln-btn">Rafraîchir</button>
+    </div>
+
+    <!-- Edition -->
+    <section id="editSection" class="panel" hidden>
+      <div class="row">
+        <div>
+          <img id="myAvatar" class="avatar" alt="Photo de profil" />
+          <div class="field">
+            <input type="file" id="fileInput" accept="image/*" />
+            <button id="btnUpload" class="ln-btn">Changer la photo</button>
+          </div>
+        </div>
+        <div>
+          <div class="field"><label>Nom</label><input id="nameInput" maxlength="30" /></div>
+          <div class="field"><label>Âge</label><input id="ageInput" type="number" min="18" max="99" /></div>
+          <div class="field">
+            <label>Genre</label>
+            <select id="genderInput"><option value="">—</option><option value="F">Femme</option><option value="M">Homme</option><option value="O">Autre</option></select>
+          </div>
+          <div class="field"><label>Ville</label><input id="cityInput" placeholder="ex. Paris" /></div>
+          <div class="field"><label>Bio</label><textarea id="bioInput" rows="4" placeholder="Parle un peu de toi…"></textarea></div>
+          <div class="actions">
+            <button id="saveBtn" class="ln-btn primary">Enregistrer</button>
+            <a class="ln-btn" href="/conversations.html">Mes conversations</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Public -->
+    <section id="publicSection" class="panel" hidden>
+      <div class="row">
+        <div><img id="pubAvatar" class="avatar" alt="Photo du profil" /></div>
+        <div>
+          <h2 id="publicName" style="margin:0 0 6px">—</h2>
+          <div class="notice" id="pubMeta">Âge <span id="publicAge">—</span> · <span id="publicCity">—</span> · <span id="publicGender">—</span></div>
+          <p id="publicBio">—</p>
+          <div class="actions">
+            <button id="publicMessageBtn" class="ln-btn primary">Message</button>
+          </div>
+        </div>
+      </div>
+    </section>
   </div>
 
-  <div id="toast" role="status" aria-live="polite"></div>
+  <!-- Config -->
+  <script>
+    window.firebaseConfig = {
+      apiKey: "AIzaSyB_-cNA8bxqYCYUp3rUZs-VpiP4DX2wn3M",
+      authDomain: "lovenow-officiel.firebaseapp.com",
+      projectId: "lovenow-officiel",
+      storageBucket: "lovenow-officiel.firebasestorage.app",
+      messagingSenderId: "896585801571",
+      appId: "1:896585801571:web:cdde87293291dc1900bd56",
+      measurementId: "G-QGM25ND7LF"
+    };
+  </script>
 
   <script type="module">
-    const $=s=>document.querySelector(s); const toast=(m,ms=2400)=>{const t=$("#toast");t.textContent=m;t.style.display="block";setTimeout(()=>t.style.display="none",ms)}
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
-    import { getAuth, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-    import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-analytics.js";
+    import { getAuth, onAuthStateChanged, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-storage.js";
 
-    const CLOUD_NAME="dyqxadd0j"; const UPLOAD_PRESET="profile_pics";
-    async function uploadImage(file){ const fd=new FormData(); fd.append("file",file); fd.append("upload_preset",UPLOAD_PRESET);
-      const r=await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,{method:"POST",body:fd});
-      if(!r.ok) throw new Error("Upload échoué"); return r.json(); }
+    const app  = initializeApp(window.firebaseConfig);
+    try { getAnalytics(app); } catch(e) {}
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
+    const st   = getStorage(app);
 
-    const firebaseConfig={
-      apiKey:"AIzaSyB_-cNA8bxqYCYUp3rUZs-VpiP4DX2wn3M",
-      authDomain:"lovenow-officiel.firebaseapp.com",
-      projectId:"lovenow-officiel",
-      storageBucket:"lovenow-officiel.firebasestorage.app",
-      messagingSenderId:"896585801571",
-      appId:"1:896585801571:web:cdde87293291dc1900bd56",
-      measurementId:"G-QGM25ND7LF"
-    };
-    const RECAPTCHA_SITE_KEY="6LfjpsErAAAAAExN2IvBq-K475TeJooeNzl9liPD";
+    document.getElementById('backLink')?.addEventListener('click',(e)=>{
+      e.preventDefault();
+      if(history.length>1) history.back(); else location.href='/';
+    });
 
-    const app=initializeApp(firebaseConfig); try{getAnalytics(app)}catch{}
-    initializeAppCheck(app,{provider:new ReCaptchaV3Provider(RECAPTCHA_SITE_KEY),isTokenAutoRefreshEnabled:true});
-    const auth=getAuth(app); const db=getFirestore(app);
+    const emailBanner = document.getElementById('emailBanner');
+    const sendVerify  = document.getElementById('sendVerify');
+    const refreshAuth = document.getElementById('refreshAuth');
 
-    onAuthStateChanged(auth, async user=>{
-      if(!user){ location.href="login.html"; return; }
-      const snap=await getDoc(doc(db,"users",user.uid)); if(snap.exists()){
-        const u=snap.data(); $("#name").value=u.name||""; $("#age").value=u.age||""; $("#bio").value=u.bio||"";
-        if(u.photoUrl) $("#avatar").src=u.photoUrl;
+    const editSection   = document.getElementById('editSection');
+    const publicSection = document.getElementById('publicSection');
+
+    const params   = new URLSearchParams(location.search);
+    const targetId = params.get('uid');
+
+    onAuthStateChanged(auth, async (user)=>{
+      if(!user){ location.href='/login.html'; return; }
+
+      emailBanner.hidden = user.emailVerified;
+      sendVerify.onclick = async ()=>{ await sendEmailVerification(user); alert('E-mail de vérification envoyé.'); };
+      refreshAuth.onclick = ()=> location.reload();
+
+      const viewingOwn = !targetId || targetId === user.uid;
+      if(viewingOwn){
+        editSection.hidden = false; publicSection.hidden = true;
+        const meRef = doc(db,'profiles', user.uid);
+        const snap  = await getDoc(meRef);
+        const data  = snap.exists() ? snap.data() : {};
+
+        const nameInput = document.getElementById('nameInput');
+        const ageInput  = document.getElementById('ageInput');
+        const bioInput  = document.getElementById('bioInput');
+        const cityInput = document.getElementById('cityInput');
+        const genderInput = document.getElementById('genderInput');
+        const myAvatar = document.getElementById('myAvatar');
+
+        nameInput.value = data.name ?? '';
+        ageInput.value  = data.age ?? '';
+        bioInput.value  = data.bio ?? '';
+        cityInput.value = data.city ?? '';
+        genderInput.value = data.gender ?? '';
+        myAvatar.src = data.photoUrl || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=1200&auto=format&fit=crop';
+
+        document.getElementById('saveBtn')?.addEventListener('click', async ()=>{
+          const payload = {
+            name: nameInput.value.trim() || null,
+            age: ageInput.value ? Number(ageInput.value) : null,
+            bio: bioInput.value.trim() || null,
+            city: cityInput.value.trim() || null,
+            gender: genderInput.value || null,
+            lastActive: serverTimestamp()
+          };
+          if(snap.exists()) await updateDoc(meRef, payload);
+          else await setDoc(meRef, payload);
+          alert('Profil enregistré.');
+        });
+
+        const fileInput = document.getElementById('fileInput');
+        document.getElementById('btnUpload')?.addEventListener('click', async ()=>{
+          const file = fileInput.files?.[0];
+          if(!file){ alert('Choisis une image.'); return; }
+          const storageRef = ref(st, `profilePhotos/${user.uid}.jpg`);
+          await uploadBytes(storageRef, file);
+          const url = await getDownloadURL(storageRef);
+          await setDoc(meRef, { photoUrl: url, lastActive: serverTimestamp() }, { merge:true });
+          myAvatar.src = url;
+          alert('Photo mise à jour.');
+        });
+
+        if(location.hash==='#chat'){ alert("Astuce : choisis un profil dans Découvrir puis clique sur Message pour ouvrir une conversation."); }
+      } else {
+        editSection.hidden = true; publicSection.hidden = false;
+        const pubRef = doc(db,'profiles', targetId);
+        const snap = await getDoc(pubRef);
+        const p = snap.exists() ? snap.data() : {};
+        document.getElementById('pubAvatar').src = p.photoUrl || 'https://images.unsplash.com/photo-1527980965255-d3b416303d12?q=80&w=1200&auto=format&fit=crop';
+        document.getElementById('publicName').textContent = p.name ?? '—';
+        document.getElementById('publicAge').textContent  = p.age ?? '—';
+        document.getElementById('publicCity').textContent = p.city ?? '—';
+        document.getElementById('publicGender').textContent = p.gender ?? '—';
+        document.getElementById('publicBio').textContent  = p.bio ?? '—';
+
+        document.getElementById('publicMessageBtn')?.addEventListener('click', ()=>{
+          if(!auth.currentUser.emailVerified){ alert('Valide ton e-mail pour envoyer des messages.'); return; }
+          const cid = [auth.currentUser.uid, targetId].sort().join('_');
+          location.href = `/conversations.html?cid=${cid}`;
+        });
       }
-      $("#form").addEventListener("submit", async (e)=>{
-        e.preventDefault();
-        const name=$("#name").value.trim().slice(0,30), age=parseInt($("#age").value,10), bio=$("#bio").value.trim().slice(0,500);
-        const file=$("#avatarFile").files[0]; const updates={name,age,bio};
-        if(file){ const up=await uploadImage(file); updates.photoUrl=up.secure_url; $("#avatar").src=up.secure_url; }
-        await updateDoc(doc(db,"users",user.uid),updates);
-        await updateProfile(user,{displayName:name,photoURL:updates.photoUrl||user.photoURL||null});
-        toast("Profil mis à jour");
-      });
     });
   </script>
 </body>
