@@ -3,641 +3,436 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>LoveNow — Rencontres gratuites, proches de toi</title>
-  <meta name="description" content="LoveNow : rencontres gratuites et locales. Inscris-toi en 2 minutes, découvre des profils proches, discute en toute confiance.">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <title>LoveNow — Rencontres près de toi</title>
+  <meta name="description" content="LoveNow : rencontres gratuites et locales. Inscris-toi, découvre des profils proches et discute en toute confiance.">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-
   <style>
-    :root{
-      --bg:#0d0d10; --card:#151921; --line:#222a35; --txt:#f6f8fa; --muted:#aeb6c2;
-      --acc:#ff4d6d; --acc2:#8f51ea; --acc3:#ff6bb5; --ok:#30d158; --danger:#ff6464;
-    }
-    *{box-sizing:border-box}
-    html,body{margin:0;background:var(--bg);color:var(--txt);font-family:'Poppins',system-ui,Segoe UI,Arial,sans-serif}
+    :root{--bg:#0d0d10;--card:#151921;--line:#222a35;--txt:#f6f8fa;--muted:#aeb6c2;--acc:#ff4d6d;--acc2:#8f51ea;--acc3:#ff6bb5;--ok:#30d158;--danger:#ff6464}
+    *{box-sizing:border-box} html,body{margin:0;background:var(--bg);color:var(--txt);font-family:Poppins,system-ui,Segoe UI,Arial,sans-serif}
     a{color:var(--acc3);text-decoration:none}
     .wrap{max-width:1100px;margin:0 auto;padding:16px 18px}
-    header{position:sticky;top:0;z-index:50;backdrop-filter:saturate(140%) blur(8px);
-      background:linear-gradient(180deg,rgba(0,0,0,.7),rgba(0,0,0,.45));border-bottom:1px solid var(--line)}
-    .row{display:flex;gap:14px;align-items:center;justify-content:space-between}
-    .logo{font-weight:800;letter-spacing:.3px;color:var(--acc)}
-    .nav-btn{border:1px solid #ffffffaa;padding:8px 14px;border-radius:999px;background:none;color:#fff;cursor:pointer}
-    .nav-btn:hover{background:#fff;color:#000}
-    .nav-btn.danger{border-color:var(--danger)}
-
-    .hero{display:grid;place-items:center;min-height:70vh;text-align:center;padding:30px 18px;
-      background:radial-gradient(1000px 500px at 15% 10%,rgba(255,77,109,.2),transparent 60%),
-                 radial-gradient(1000px 500px at 85% 10%,rgba(143,81,234,.25),transparent 60%),
-                 linear-gradient(135deg,var(--acc),var(--acc3),var(--acc2))}
-    .hero h1{font-size:clamp(28px,6vw,48px);margin:6px 0 10px;font-weight:800}
-    .hero p{max-width:640px;margin:0 auto 18px;color:#fff;opacity:.95}
+    header{position:sticky;top:0;z-index:20;backdrop-filter:saturate(140%) blur(8px);background:linear-gradient(180deg,rgba(0,0,0,.7),rgba(0,0,0,.45));border-bottom:1px solid var(--line)}
+    .row{display:flex;gap:12px;align-items:center;justify-content:space-between}
+    .logo{font-weight:800;color:var(--acc)}
+    .btn{border:1px solid #ffffffaa;padding:8px 14px;border-radius:999px;background:none;color:#fff;cursor:pointer}
+    .btn:hover{background:#fff;color:#000}
+    .btn.danger{border-color:var(--danger)}
+    .btn.small{font-size:12px;padding:6px 10px}
+    .badge{display:inline-flex;min-width:18px;height:18px;align-items:center;justify-content:center;border-radius:9px;background:var(--acc);color:#000;font-weight:800;font-size:11px;padding:0 6px;margin-left:6px}
+    .pill{border:1px solid #ffffff55;border-radius:999px;padding:3px 8px;font-size:11px;margin-left:8px}
+    .hero{display:grid;place-items:center;min-height:64vh;text-align:center;padding:32px;background:
+      radial-gradient(900px 450px at 15% 10%,rgba(255,77,109,.18),transparent 60%),
+      radial-gradient(900px 450px at 85% 10%,rgba(143,81,234,.22),transparent 60%),
+      linear-gradient(135deg,var(--acc),var(--acc3),var(--acc2))}
     .cta{display:inline-block;background:#fff;color:#000;font-weight:800;border-radius:999px;padding:14px 28px;border:0;cursor:pointer}
-    .uspbar{display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap}
-    .pill{border:1px solid #ffffff80;color:#fff;padding:6px 12px;border-radius:999px;font-size:12px;opacity:.9}
-
-    section{padding:40px 18px}
-    h2{margin:0 0 12px}
-    .muted{color:var(--muted)}
+    section{padding:32px 18px}
     .grid{display:grid;gap:16px}
-    .g-2{grid-template-columns:repeat(2,1fr)}
-    @media(max-width:900px){.g-2{grid-template-columns:1fr}}
-
-    .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+    .g-2{grid-template-columns:340px 1fr} @media(max-width:960px){.g-2{grid-template-columns:1fr}}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
     .form{display:grid;gap:10px}
     .form input,.form textarea{width:100%;border-radius:10px;border:1px solid var(--line);background:#0f1320;color:#fff;padding:10px}
     .form button{border:0;border-radius:10px;padding:12px 16px;background:var(--acc);color:#000;font-weight:800;cursor:pointer}
-    .file input{display:none}
-    .file span{display:inline-block;border:1px dashed var(--line);padding:10px;border-radius:10px;cursor:pointer}
-    .avatar-wrap{margin-top:10px;text-align:center}
-    .avatar-wrap img{width:120px;height:120px;border-radius:50%;object-fit:cover;border:2px solid var(--line)}
-
-    .list{display:grid;gap:8px;max-height:280px;overflow:auto}
+    .file input{display:none}.file span{display:inline-block;border:1px dashed var(--line);padding:10px;border-radius:10px;cursor:pointer}
+    .avatar{width:120px;height:120px;border-radius:50%;object-fit:cover;border:2px solid var(--line);margin-top:8px}
+    .list{display:grid;gap:8px;max-height:320px;overflow:auto}
     .item{display:flex;align-items:center;gap:10px;border:1px solid var(--line);padding:10px;border-radius:10px}
     .item img{width:44px;height:44px;border-radius:50%;object-fit:cover}
-    .item .grow{flex:1}
-    .item button{padding:8px 10px;border:0;border-radius:999px;background:var(--acc);font-weight:700}
-
-    .divider{height:1px;background:var(--line);margin:12px 0}
-
-    .chat{display:grid;grid-template-columns:220px 1fr;gap:10px}
-    @media(max-width:900px){.chat{grid-template-columns:1fr}}
-    .chat-people{border:1px solid var(--line);border-radius:10px;max-height:320px;overflow:auto}
+    .grow{flex:1}.muted{color:var(--muted)}
+    .chat{display:grid;grid-template-columns:260px 1fr;gap:12px} @media(max-width:960px){.chat{grid-template-columns:1fr}}
+    .people{border:1px solid var(--line);border-radius:10px;max-height:480px;overflow:auto}
     .people-item{padding:10px;border-bottom:1px solid var(--line);cursor:pointer}
     .people-item.active{background:#0f1320}
-    .chat-box{display:grid;grid-template-rows:1fr auto;border:1px solid var(--line);border-radius:10px}
-    .messages{padding:10px;display:flex;flex-direction:column;gap:6px;max-height:280px;overflow:auto}
+    .chatbox{display:grid;grid-template-rows:1fr auto;border:1px solid var(--line);border-radius:10px}
+    .messages{padding:10px;display:flex;flex-direction:column;gap:6px;max-height:440px;overflow:auto}
     .msg{max-width:80%;padding:8px 10px;border-radius:10px;border:1px solid var(--line)}
-    .me{align-self:flex-end;background:#1c1f27}
-    .them{align-self:flex-start;background:#11141b}
-    .send{display:flex;gap:8px;border-top:1px solid var(--line);padding:8px}
-    .send input{flex:1}
-
+    .me{align-self:flex-end;background:#1c1f27}.them{align-self:flex-start;background:#11141b}
+    .send{display:flex;gap:8px;border-top:1px solid var(--line);padding:8px}.send input{flex:1}
     .footer{padding:24px 18px;border-top:1px solid var(--line);text-align:center;color:var(--muted);font-size:14px}
-    #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:#000d;border:1px solid var(--line);
-      padding:10px 14px;border-radius:12px;display:none}
-    .sr-only{position:absolute;left:-99999px;top:auto;width:1px;height:1px;overflow:hidden}
-
-    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55);z-index:100}
-    .modal.open{display:flex}
-    .modal-card{min-width:320px;max-width:580px;background:var(--card);border:1px solid var(--line);border-radius:14px}
+    #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:#000d;border:1px solid var(--line);padding:10px 14px;border-radius:12px;display:none;z-index:40}
+    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55);z-index:30}
+    .modal.open{display:flex}.modal-card{min-width:320px;max-width:580px;background:var(--card);border:1px solid var(--line);border-radius:14px}
     .tabs{display:flex;gap:8px;align-items:center;padding:10px}
     .tabs button{background:#0f1320;color:#fff;border:1px solid var(--line);padding:8px 12px;border-radius:8px;cursor:pointer}
-    .tabs button.active{outline:2px solid var(--acc)}
-    .close{margin-left:auto;background:none;border:0;color:#fff;font-size:22px;cursor:pointer}
-    .pane{display:none;padding:10px}
-    .pane.active{display:block}
+    .tabs button.active{outline:2px solid var(--acc)} .close{margin-left:auto;background:none;border:0;color:#fff;font-size:22px;cursor:pointer}
+    .pane{display:none;padding:10px}.pane.active{display:block}
+    .sr-only{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
   </style>
 </head>
 <body>
-  <a class="sr-only" href="#main">Aller au contenu</a>
+<a class="sr-only" href="#main">Aller au contenu</a>
 
-  <header>
-    <div class="wrap row">
-      <div class="logo" aria-label="LoveNow">💘 LoveNow</div>
-      <nav aria-label="Navigation">
-        <button id="btnOpenAuth" class="nav-btn">Connexion</button>
-        <button id="btnLogout" class="nav-btn danger" style="display:none">Se déconnecter</button>
-      </nav>
-    </div>
-  </header>
+<header>
+  <div class="wrap row">
+    <div class="logo">💘 LoveNow</div>
+    <nav>
+      <button id="btnOpenAuth" class="btn">Connexion</button>
+      <button id="btnLogout" class="btn danger" style="display:none">Se déconnecter</button>
+    </nav>
+  </div>
+</header>
 
-  <main id="main">
-    <!-- HERO -->
-    <section class="hero">
+<main id="main">
+  <section class="hero">
+    <div>
       <h1>Rencontre l’amour près de chez toi</h1>
       <p>Inscris-toi en 2 minutes, découvre des profils réels à proximité et commence à discuter. 100% gratuit au lancement.</p>
       <button class="cta" id="ctaStart">Rejoins-nous gratuitement</button>
-      <div class="uspbar">
-        <span class="pill">🔥 Gratuit au départ</span>
-        <span class="pill">📍 Local & rapide</span>
-        <span class="pill">🔒 Sécurité & respect</span>
-      </div>
-    </section>
-
-    <!-- Bandeau vérification e-mail -->
-    <div id="verifyBanner" style="display:none; margin:12px 18px;">
-      <div style="background:#0f1320;border:1px solid var(--line);border-radius:10px;
-                  padding:10px;display:flex;gap:10px;align-items:center;justify-content:space-between;">
-        <span>💌 Confirmez votre e-mail pour activer toutes les fonctions.</span>
-        <div style="display:flex;gap:8px;">
-          <button id="btnResend" class="nav-btn">Renvoyer</button>
-          <button id="btnCheckVerified" class="nav-btn">J’ai confirmé</button>
-        </div>
-      </div>
     </div>
+  </section>
 
-    <!-- APP (après connexion) -->
-    <section id="app" class="wrap" style="display:none">
-      <h2>Bienvenue <span id="hiName"></span> 👋</h2>
-
-      <div class="grid g-2">
-        <!-- PROFIL -->
-        <div class="card">
-          <h3>Mon profil</h3>
-          <form id="editProfileForm" class="form">
-            <label>Nom
-              <input id="name" name="name" maxlength="30" required>
-            </label>
-            <label>Âge
-              <input id="age" name="age" type="number" min="18" max="100" required>
-            </label>
-            <label>Bio (500 max)
-              <textarea id="bio" name="bio" maxlength="500" rows="3" placeholder="Parlez un peu de vous…"></textarea>
-            </label>
-            <div class="row">
-              <label class="file">
-                <input type="file" id="avatarFile" accept="image/*">
-                <span>Ajouter/mettre à jour ma photo</span>
-              </label>
-              <button type="submit">Enregistrer</button>
-            </div>
-          </form>
-          <div class="avatar-wrap">
-            <img id="avatarPreview" alt="Avatar" src="https://placehold.co/120x120?text=👤"/>
-          </div>
-        </div>
-
-        <!-- DÉCOUVERTE + CHAT -->
-        <div class="card">
-          <h3>Profils proches</h3>
-          <div id="profilesList" class="list"></div>
-
-          <div class="divider"></div>
-
-          <h3>Chat</h3>
-          <div class="chat">
-            <div class="chat-people" id="conversationsList"></div>
-            <div class="chat-box">
-              <div id="messagesList" class="messages"></div>
-              <form id="sendMsgForm" class="send">
-                <input id="msgInput" placeholder="Écrire un message…" maxlength="500" />
-                <button type="submit">Envoyer</button>
-              </form>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- CTA FINAL -->
-    <section id="cta" class="wrap">
-      <div class="card" style="text-align:center">
-        <h2>Prêt·e à tenter votre chance ?</h2>
-        <p class="muted">Inscription en 2 minutes. 18+ uniquement.</p>
-        <button class="cta" id="ctaOpenAuth2">Créer un compte</button>
-      </div>
-    </section>
-  </main>
-
-  <footer>
-    <div class="wrap footer">
-      © 2025 LoveNow — <a href="#">Mentions légales</a> · <a href="#">Confidentialité</a> · 18+ uniquement
-    </div>
-  </footer>
-
-  <!-- MODALE AUTH -->
-  <div class="modal" id="modalAuth" aria-hidden="true" role="dialog" aria-label="Authentification">
-    <div class="modal-card">
-      <div class="tabs">
-        <button data-tab="signup" class="active" type="button">Inscription</button>
-        <button data-tab="login" type="button">Connexion</button>
-        <button id="closeAuth" class="close" aria-label="Fermer">×</button>
-      </div>
-
-      <div id="paneSignup" class="pane active">
-        <form id="signupForm" class="form">
-          <label>Email
-            <input id="suEmail" type="email" required autocomplete="email" autocapitalize="none" spellcheck="false">
-          </label>
-          <label>Mot de passe
-            <input id="suPass" type="password" minlength="6" required autocomplete="new-password">
-          </label>
+  <section id="app" class="wrap" style="display:none">
+    <h2>Bienvenue <span id="hiName"></span> 👋</h2>
+    <div class="grid g-2">
+      <div class="card">
+        <h3>Mon profil</h3>
+        <form id="editProfileForm" class="form">
+          <label>Nom <input id="name" maxlength="30" required></label>
+          <label>Âge <input id="age" type="number" min="18" max="100" required></label>
+          <label>Bio (500 max)<textarea id="bio" maxlength="500" rows="3"></textarea></label>
           <div class="row">
-            <label>Nom <input id="suName" maxlength="30" required></label>
-            <label>Âge <input id="suAge" type="number" min="18" max="100" required></label>
+            <label class="file"><input type="file" id="avatarFile" accept="image/*"><span>Ajouter/mettre à jour ma photo</span></label>
+            <button type="submit">Enregistrer</button>
           </div>
-          <label>Bio (500 max)
-            <textarea id="suBio" maxlength="500" rows="3" placeholder="Parlez un peu de vous…"></textarea>
-          </label>
-          <label class="file">
-            <input type="file" id="suAvatar" accept="image/*">
-            <span>Photo de profil (optionnel)</span>
-          </label>
-          <button type="submit">Créer mon compte</button>
         </form>
+        <img id="avatarPreview" class="avatar" alt="Avatar">
       </div>
 
-      <div id="paneLogin" class="pane">
-        <form id="loginForm" class="form">
-          <label>Email
-            <input id="liEmail" type="email" required autocomplete="username" autocapitalize="none" spellcheck="false">
-          </label>
-          <label>Mot de passe
-            <input id="liPass" type="password" minlength="6" required autocomplete="current-password">
-          </label>
-          <div class="row" style="justify-content:space-between;align-items:center">
-            <span class="muted" style="font-size:12px">Mot de passe oublié ?
-              <a href="#" id="btnForgot">Réinitialiser</a>
-            </span>
+      <div class="card">
+        <h3>Profils proches</h3>
+        <div id="profilesList" class="list"></div>
+
+        <h3 style="margin-top:16px">Chat</h3>
+        <div class="chat">
+          <div class="people" id="inbox"></div>
+          <div class="chatbox">
+            <div id="messagesList" class="messages"></div>
+            <form id="sendMsgForm" class="send">
+              <input id="msgInput" placeholder="Écrire un message…" maxlength="500" />
+              <button type="submit">Envoyer</button>
+            </form>
           </div>
-          <button type="submit">Se connecter</button>
-        </form>
+        </div>
       </div>
+    </div>
+  </section>
+
+  <section id="cta" class="wrap">
+    <div class="card" style="text-align:center">
+      <h2>Prêt·e à tenter ta chance ?</h2>
+      <p class="muted">Inscription en 2 minutes. 18+ uniquement.</p>
+      <button class="cta" id="ctaOpenAuth2">Créer un compte</button>
+    </div>
+  </section>
+</main>
+
+<footer><div class="wrap footer">© 2025 LoveNow · Mentions légales · Confidentialité</div></footer>
+
+<!-- Auth modal -->
+<div class="modal" id="modalAuth" aria-hidden="true" role="dialog" aria-label="Authentification">
+  <div class="modal-card">
+    <div class="tabs">
+      <button data-tab="signup" class="active" type="button">Inscription</button>
+      <button data-tab="login" type="button">Connexion</button>
+      <button data-tab="reset" type="button">Mot de passe oublié</button>
+      <button id="closeAuth" class="close" aria-label="Fermer">×</button>
+    </div>
+
+    <div id="paneSignup" class="pane active">
+      <form id="signupForm" class="form">
+        <label>Email <input id="suEmail" type="email" required></label>
+        <label>Mot de passe <input id="suPass" type="password" minlength="6" required></label>
+        <div class="row">
+          <label>Nom <input id="suName" maxlength="30" required></label>
+          <label>Âge <input id="suAge" type="number" min="18" max="100" required></label>
+        </div>
+        <label>Bio (500 max)<textarea id="suBio" maxlength="500" rows="3"></textarea></label>
+        <label class="file"><input type="file" id="suAvatar" accept="image/*"><span>Photo de profil (optionnel)</span></label>
+        <button type="submit">Créer mon compte</button>
+      </form>
+    </div>
+
+    <div id="paneLogin" class="pane">
+      <form id="loginForm" class="form">
+        <label>Email <input id="liEmail" type="email" required></label>
+        <label>Mot de passe <input id="liPass" type="password" minlength="6" required></label>
+        <button type="submit">Se connecter</button>
+      </form>
+    </div>
+
+    <div id="paneReset" class="pane">
+      <form id="resetForm" class="form">
+        <label>Email <input id="reEmail" type="email" required></label>
+        <button type="submit">M’envoyer le lien de réinitialisation</button>
+      </form>
     </div>
   </div>
+</div>
 
-  <!-- TOAST -->
-  <div id="toast" role="status" aria-live="polite"></div>
+<div id="toast" role="status" aria-live="polite"></div>
 
-  <script type="module">
-    /* ===== Helpers ===== */
-    const $  = (sel, ctx=document) => ctx.querySelector(sel);
-    const $$ = (sel, ctx=document) => Array.from(ctx.querySelectorAll(sel));
-    function toast(msg, ms=2400){ const t=$("#toast"); t.textContent=msg; t.style.display="block"; setTimeout(()=>t.style.display="none", ms); }
-    const sanitize = (s="") => s.replace(/[<>]/g,"");
-    const chatIdFor = (a,b)=>[a,b].sort().join("_");
-    const authErrorMessage = (e) => ({
-      "auth/email-already-in-use":"Adresse déjà utilisée.",
-      "auth/invalid-email":"Adresse e-mail invalide.",
-      "auth/invalid-credential":"Email ou mot de passe incorrect.",
-      "auth/wrong-password":"Email ou mot de passe incorrect.",
-      "auth/user-not-found":"Aucun compte avec cet e-mail.",
-      "auth/too-many-requests":"Trop de tentatives — réessayez plus tard.",
-      "auth/network-request-failed":"Problème réseau — réessayez."
-    })[e?.code] || (e?.message || "Erreur");
+<script type="module">
+  // ===== Helpers
+  const $=(s,c=document)=>c.querySelector(s); const $$=(s,c=document)=>Array.from(c.querySelectorAll(s));
+  const toast=(m,ms=2200)=>{const t=$("#toast");t.textContent=m;t.style.display="block";setTimeout(()=>t.style.display="none",ms)};
+  const sanitize=s=> (s||"").replace(/[<>]/g,"");
+  const chatIdFor=(a,b)=> [a,b].sort().join("_");
 
-    /* ===== UI Modale ===== */
-    const modal = $("#modalAuth");
-    function openAuth(which="signup"){ modal.classList.add("open"); setTab(which); }
-    function closeAuth(){ modal.classList.remove("open"); }
-    $("#btnOpenAuth")?.addEventListener("click", ()=> openAuth("signup"));
-    $("#ctaStart")?.addEventListener("click", ()=> openAuth("signup"));
-    $("#ctaOpenAuth2")?.addEventListener("click", ()=> openAuth("signup"));
-    $("#closeAuth")?.addEventListener("click", closeAuth);
-    modal.addEventListener("click", (e)=>{ if(e.target===modal) closeAuth(); });
-    const tabs = $$("#modalAuth .tabs button");
-    function setTab(which){
-      tabs.forEach(b=> b.classList.toggle("active", b.dataset.tab===which));
-      $("#paneSignup").classList.toggle("active", which==="signup");
-      $("#paneLogin").classList.toggle("active", which==="login");
-    }
-    tabs.forEach(b=> b.addEventListener("click", ()=> setTab(b.dataset.tab)));
+  // ===== UI Auth modal
+  const modal=$("#modalAuth");
+  function openAuth(which="signup"){ modal.classList.add("open"); setTab(which); }
+  function closeAuth(){ modal.classList.remove("open"); }
+  $("#btnOpenAuth").onclick=()=>openAuth("signup");
+  $("#ctaStart").onclick=()=>openAuth("signup");
+  $("#ctaOpenAuth2").onclick=()=>openAuth("signup");
+  $("#closeAuth").onclick=closeAuth;
+  modal.addEventListener("click",e=>{ if(e.target===modal) closeAuth(); });
+  const tabs=$$("#modalAuth .tabs button");
+  function setTab(which){
+    tabs.forEach(b=> b.classList.toggle("active", b.dataset.tab===which));
+    $("#paneSignup").classList.toggle("active", which==="signup");
+    $("#paneLogin").classList.toggle("active", which==="login");
+    $("#paneReset").classList.toggle("active", which==="reset");
+  }
+  tabs.forEach(b=> b.addEventListener("click",()=>setTab(b.dataset.tab)));
 
-    /* ===== Firebase (CDN) ===== */
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
-    import {
-      getAuth, onAuthStateChanged, createUserWithEmailAndPassword,
-      signInWithEmailAndPassword, signOut, updateProfile,
-      sendEmailVerification, sendPasswordResetEmail
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import {
-      getFirestore, doc, setDoc, getDoc, updateDoc, addDoc,
-      collection, query, where, orderBy, limit, getDocs, onSnapshot, serverTimestamp
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-    import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check.js";
+  // ===== Firebase (modules)
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
+  import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile, sendPasswordResetEmail, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getFirestore, doc, setDoc, getDoc, updateDoc, addDoc, collection, query, where, orderBy, limit, getDocs, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check.js";
 
-    /* ===== Cloudinary (unsigned) ===== */
-    const CLOUD_NAME    = "dyqxadd0j";       // ⚠️ remplace si besoin
-    const UPLOAD_PRESET = "profile_pics";    // ⚠️ preset unsigned
-    async function uploadImage(file){
-      const url = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`;
-      const fd  = new FormData();
-      fd.append("file", file);
-      fd.append("upload_preset", UPLOAD_PRESET);
-      const r = await fetch(url, { method:"POST", body: fd });
-      if(!r.ok) throw new Error("Upload Cloudinary échoué");
-      return r.json();
-    }
+  // ===== Cloudinary (unsigned)
+  const CLOUD_NAME="dyqxadd0j";
+  const UPLOAD_PRESET="profile_pics";
+  async function uploadImage(file){
+    const url=`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`;
+    const fd=new FormData(); fd.append("file",file); fd.append("upload_preset",UPLOAD_PRESET);
+    const r=await fetch(url,{method:"POST",body:fd}); if(!r.ok) throw new Error("Upload Cloudinary échoué"); return r.json();
+  }
 
-    /* ===== Config Firebase + AppCheck ===== */
-    const firebaseConfig = {
-      apiKey: "AIzaSyB_-cNA8bxqYCYUp3rUZs-VpiP4DX2wn3M",
-      authDomain: "lovenow-officiel.firebaseapp.com",
-      projectId: "lovenow-officiel",
-      storageBucket: "lovenow-officiel.firebasestorage.app",
-      messagingSenderId: "896585801571",
-      appId: "1:896585801571:web:cdde87293291dc1900bd56",
-      measurementId: "G-QGM25ND7LF"
-    };
-    const RECAPTCHA_SITE_KEY = "6LfjpsErAAAAAExN2IvBq-K475TeJooeNzl9liPD";
+  // ===== Firebase config (ton projet)
+  const firebaseConfig={ apiKey:"AIzaSyB_-cNA8bxqYCYUp3rUZs-VpiP4DX2wn3M", authDomain:"lovenow-officiel.firebaseapp.com", projectId:"lovenow-officiel", storageBucket:"lovenow-officiel.firebasestorage.app", messagingSenderId:"896585801571", appId:"1:896585801571:web:cdde87293291dc1900bd56", measurementId:"G-QGM25ND7LF" };
+  const RECAPTCHA_SITE_KEY="6LfjpsErAAAAAExN2IvBq-K475TeJooeNzl9liPD";
 
-    const app = initializeApp(firebaseConfig);
-    try{ getAnalytics(app); }catch{}
-    initializeAppCheck(app, { provider: new ReCaptchaV3Provider(RECAPTCHA_SITE_KEY), isTokenAutoRefreshEnabled: true });
+  const app=initializeApp(firebaseConfig); try{ getAnalytics(app); }catch{}
+  initializeAppCheck(app,{ provider:new ReCaptchaV3Provider(RECAPTCHA_SITE_KEY), isTokenAutoRefreshEnabled:true });
+  const auth=getAuth(app); const db=getFirestore(app);
 
-    const auth = getAuth(app);
-    const db   = getFirestore(app);
+  // ===== Refs
+  const appWrap=$("#app"), btnLogout=$("#btnLogout"), hiName=$("#hiName");
+  const profilesList=$("#profilesList"), inbox=$("#inbox"), msgsList=$("#messagesList");
+  const sendForm=$("#sendMsgForm"), msgInput=$("#msgInput");
+  let currentPeer=null, unsubMessages=null, unsubInbox=null;
 
-    /* ===== Réfs UI ===== */
-    const appWrap   = $("#app");
-    const btnLogout = $("#btnLogout");
-    const hiName    = $("#hiName");
-    const verifyBanner = $("#verifyBanner");
-    const btnResend = $("#btnResend");
-    const profilesList = $("#profilesList");
-    const convList  = $("#conversationsList");
-    const msgsList  = $("#messagesList");
-    const sendForm  = $("#sendMsgForm");
-    const msgInput  = $("#msgInput");
+  // ===== Sign up
+  $("#signupForm").addEventListener("submit", async e=>{
+    e.preventDefault();
+    const email=$("#suEmail").value.trim(), pass=$("#suPass").value.trim();
+    const name=sanitize($("#suName").value.trim()).slice(0,30);
+    const age=parseInt($("#suAge").value,10);
+    const bio=sanitize($("#suBio").value.trim()).slice(0,500);
+    if(age<18){ toast("18+ requis"); return; }
+    const file=$("#suAvatar").files[0];
+    try{
+      const cred=await createUserWithEmailAndPassword(auth,email,pass);
+      const uid=cred.user.uid;
+      let photoUrl=""; if(file){ const up=await uploadImage(file); photoUrl=up.secure_url||""; }
+      await setDoc(doc(db,"users",uid),{ name,age,bio,createdAt:serverTimestamp(), photoUrl, photos: photoUrl?[photoUrl]:[] });
+      await updateProfile(cred.user,{ displayName:name, photoURL:photoUrl||null });
+      try{ await sendEmailVerification(cred.user); toast("Vérifie ton email (lien envoyé)"); }catch{}
+      toast("Compte créé !");
+      closeAuth();
+    }catch(err){ toast(err.message || "Erreur d’inscription"); }
+  });
 
-    /* ===== Bandeau vérif e-mail ===== */
-    function toggleVerifyBanner(user){
-      if(!user){ verifyBanner.style.display="none"; return; }
-      verifyBanner.style.display = user.emailVerified ? "none" : "";
-    }
-    btnResend?.addEventListener("click", async ()=>{
-      const u = auth.currentUser;
-      if(!u){ toast("Pas connecté."); return; }
-      try{
-        await u.reload();
-        if(u.emailVerified){
-          toggleVerifyBanner(u);
-          toast("Adresse déjà vérifiée ✅");
-          return;
-        }
-        await sendEmailVerification(u);
-        toast("E-mail de vérification envoyé ✅ (vérifiez vos spams)");
-      }catch(err){
-        if(err.code === "auth/too-many-requests"){
-          toast("Trop d’envois — réessayez dans quelques minutes.");
-        }else{
-          toast(authErrorMessage(err));
-        }
+  // ===== Login / logout / reset
+  $("#loginForm").addEventListener("submit", async e=>{
+    e.preventDefault();
+    try{ await signInWithEmailAndPassword(auth,$("#liEmail").value.trim(),$("#liPass").value.trim()); closeAuth(); }
+    catch(err){ toast(err.message || "Erreur de connexion"); }
+  });
+  $("#resetForm").addEventListener("submit", async e=>{
+    e.preventDefault();
+    try{ await sendPasswordResetEmail(auth,$("#reEmail").value.trim()); toast("Email de réinitialisation envoyé"); }
+    catch(err){ toast(err.message || "Impossible d’envoyer l’email"); }
+  });
+  btnLogout.onclick=()=>signOut(auth);
+
+  // ===== State
+  onAuthStateChanged(auth, async user=>{
+    if(user){
+      btnLogout.style.display=""; appWrap.style.display=""; $("#btnOpenAuth").style.display="none";
+      hiName.textContent=user.displayName||"toi";
+      const snap=await getDoc(doc(db,"users",user.uid));
+      if(snap.exists()){
+        const u=snap.data(); $("#name").value=u.name||""; $("#age").value=u.age||""; $("#bio").value=u.bio||"";
+        if(u.photoUrl) $("#avatarPreview").src=u.photoUrl;
       }
-    });
-    $("#btnCheckVerified")?.addEventListener("click", async ()=>{
-      const u = auth.currentUser; if(!u) return;
-      await u.reload();
-      toggleVerifyBanner(auth.currentUser);
-      if(auth.currentUser.emailVerified) toast("Merci, e-mail confirmé ✅");
-      else toast("Toujours pas confirmé. Regardez vos spams 😉");
-    });
-
-    /* ===== INSCRIPTION ===== */
-    $("#signupForm")?.addEventListener("submit", async (e)=>{
-      e.preventDefault();
-      const email = $("#suEmail").value.trim();
-      const pass  = $("#suPass").value.trim();
-      const name  = sanitize($("#suName").value.trim()).slice(0,30);
-      const age   = parseInt($("#suAge").value,10);
-      const bio   = sanitize($("#suBio").value.trim()).slice(0,500);
-      const file  = $("#suAvatar").files[0];
-      if(age < 18){ toast("18+ requis"); return; }
-      try{
-        const cred = await createUserWithEmailAndPassword(auth, email, pass);
-        const uid = cred.user.uid;
-
-        let photoUrl = "";
-        if(file){ const up = await uploadImage(file); photoUrl = up.secure_url || ""; }
-
-        await setDoc(doc(db,"users",uid), {
-          name, age, bio, createdAt: serverTimestamp(),
-          photoUrl, photos: photoUrl ? [photoUrl] : []
-        });
-
-        await updateProfile(cred.user, { displayName: name, photoURL: photoUrl || null });
-
-        await sendEmailVerification(cred.user);
-        toast("Compte créé ! Vérifiez votre e-mail ✉️");
-        closeAuth();
-      }catch(err){
-        if(err.code === "auth/email-already-in-use"){
-          toast("Adresse déjà utilisée — connectez-vous.");
-          setTab("login");
-        }else{
-          toast(authErrorMessage(err));
-        }
-      }
-    });
-
-    /* ===== CONNEXION ===== */
-    $("#loginForm")?.addEventListener("submit", async (e)=>{
-      e.preventDefault();
-      const email = $("#liEmail").value.trim();
-      const pass  = $("#liPass").value.trim();
-      try{
-        await signInWithEmailAndPassword(auth, email, pass);
-        toast("Connecté !");
-        closeAuth();
-      }catch(err){ toast(authErrorMessage(err)); }
-    });
-
-    /* ===== Mot de passe oublié ===== */
-    $("#btnForgot")?.addEventListener("click", async (e)=>{
-      e.preventDefault();
-      const email = prompt("Adresse e-mail :", $("#liEmail").value.trim() || "");
-      if(!email) return;
-      try{
-        await sendPasswordResetEmail(auth, email);
-        toast("E-mail de réinitialisation envoyé ✅");
-      }catch(err){ toast(authErrorMessage(err)); }
-    });
-
-    /* ===== DÉCONNEXION ===== */
-    btnLogout?.addEventListener("click", async ()=>{ await signOut(auth); });
-
-    /* ===== ÉTAT AUTH + mini notif nouveaux messages ===== */
-    let unsubGlobalInbox = null;
-    let lastInboxTs = 0;
-
-    onAuthStateChanged(auth, async (user)=>{
-      toggleVerifyBanner(user);
-
-      if(user){
-        btnLogout.style.display = "";
-        appWrap.style.display = user.emailVerified ? "" : "none";
-        $("#btnOpenAuth").style.display = "none";
-        hiName.textContent = user.displayName || "vous";
-
-        // Préremplir profil
-        try{
-          const snap = await getDoc(doc(db,"users",user.uid));
-          if(snap.exists()){
-            const u = snap.data();
-            $("#name").value = u.name || "";
-            $("#age").value  = u.age || "";
-            $("#bio").value  = u.bio || "";
-            if(u.photoUrl) $("#avatarPreview").src = u.photoUrl;
-          }
-        }catch{}
-
-        if(user.emailVerified){
-          loadProfiles();
-
-          // Notifs: dernier message reçu
-          if(unsubGlobalInbox) unsubGlobalInbox();
-          const qInbox = query(
-            collection(db,"messages"),
-            where("receiverId","==",user.uid),
-            orderBy("createdAt","desc"),
-            limit(1)
-          );
-          unsubGlobalInbox = onSnapshot(qInbox, async (snap)=>{
-            const docu = snap.docs[0]; if(!docu) return;
-            const m = docu.data();
-            const ts = m.createdAt?.seconds || 0;
-            if(ts > lastInboxTs){ lastInboxTs = ts;
-              if(m.senderId !== user.uid){
-                try{
-                  const s = await getDoc(doc(db,"users",m.senderId));
-                  const n = s.exists() ? (s.data().name || "Quelqu’un") : "Quelqu’un";
-                  toast(`🔔 Nouveau message de ${n}`);
-                }catch{ toast("🔔 Nouveau message"); }
-              }
-            }
-          });
-        }
-      }else{
-        btnLogout.style.display = "none";
-        appWrap.style.display = "none";
-        $("#btnOpenAuth").style.display = "";
-        if(unsubGlobalInbox){ unsubGlobalInbox(); unsubGlobalInbox=null; }
-      }
-    });
-
-    /* ===== MÀJ PROFIL ===== */
-    $("#editProfileForm")?.addEventListener("submit", async (e)=>{
-      e.preventDefault();
-      const user = auth.currentUser; if(!user) return;
-      const name = sanitize($("#name").value.trim()).slice(0,30);
-      const age  = parseInt($("#age").value,10);
-      const bio  = sanitize($("#bio").value.trim()).slice(0,500);
-      const file = $("#avatarFile").files[0];
-      try{
-        const updates = { name, age, bio };
-        if(file){
-          const up = await uploadImage(file);
-          updates.photoUrl = up.secure_url;
-          updates.photos   = [up.secure_url];
-          $("#avatarPreview").src = up.secure_url;
-        }
-        await updateDoc(doc(db,"users",user.uid), updates);
-        await updateProfile(user, { displayName: name, photoURL: updates.photoUrl || user.photoURL || null });
-        toast("Profil mis à jour");
-        loadProfiles();
-      }catch(err){ toast(authErrorMessage(err)); }
-    });
-
-    /* ===== PROFILS ===== */
-    async function loadProfiles(){
-      const me = auth.currentUser; if(!me) return;
-      try{
-        const qy = query(collection(db,"users"), orderBy("createdAt","desc"), limit(30));
-        const snap = await getDocs(qy);
-        profilesList.innerHTML = "";
-        snap.forEach(d=>{
-          if(d.id === me.uid) return;
-          const u = d.data();
-          const div = document.createElement("div");
-          div.className = "item";
-          div.innerHTML = `
-            <img src="${u.photoUrl || 'https://placehold.co/80x80?text=👤'}" alt="">
-            <div class="grow">
-              <div><strong>${u.name || "Sans nom"}</strong> · ${u.age || "?"} ans</div>
-              <div class="muted">${(u.bio||"").slice(0,70)}</div>
-            </div>
-            <button data-uid="${d.id}">Message</button>
-          `;
-          profilesList.appendChild(div);
-        });
-      }catch(err){ console.warn(err); }
+      await loadProfiles(); watchInbox();
+    }else{
+      btnLogout.style.display="none"; appWrap.style.display="none"; $("#btnOpenAuth").style.display="";
+      stopInbox(); stopMessages();
     }
+  });
 
-    /* ===== CHAT ===== */
-    let currentPeer = null;
-    let unsubMessages = null;
+  // ===== Update profile
+  $("#editProfileForm").addEventListener("submit", async e=>{
+    e.preventDefault();
+    const user=auth.currentUser; if(!user) return;
+    const name=sanitize($("#name").value.trim()).slice(0,30);
+    const age=parseInt($("#age").value,10);
+    const bio=sanitize($("#bio").value.trim()).slice(0,500);
+    const file=$("#avatarFile").files[0];
+    try{
+      const data={ name,age,bio };
+      if(file){ const up=await uploadImage(file); data.photoUrl=up.secure_url; data.photos=[up.secure_url]; $("#avatarPreview").src=up.secure_url; }
+      await updateDoc(doc(db,"users",user.uid),data);
+      await updateProfile(user,{ displayName:name, photoURL:data.photoUrl||user.photoURL||null });
+      toast("Profil mis à jour"); loadProfiles();
+    }catch(err){ toast(err.message || "Erreur de mise à jour"); }
+  });
 
-    profilesList.addEventListener("click", (e)=>{
-      const btn = e.target.closest("button[data-uid]");
-      if(!btn) return;
-      openChatWith(btn.dataset.uid);
-    });
-
-    function openChatWith(peerUid){
-      currentPeer = peerUid;
-      convList.innerHTML = "";
-      const you = document.createElement("div");
-      you.className = "people-item active";
-      you.textContent = "Discussion ouverte";
-      convList.appendChild(you);
-      listenMessages();
-    }
-
-    function listenMessages(){
-      if(unsubMessages){ unsubMessages(); unsubMessages = null; }
-      const me = auth.currentUser; if(!me || !currentPeer) return;
-      const cid = chatIdFor(me.uid, currentPeer);
-
-      const q = query(
-        collection(db,"messages"),
-        where("chatId","==",cid),
-        orderBy("createdAt","asc"),
-        limit(200)
-      );
-      unsubMessages = onSnapshot(q, (snap)=>{
-        msgsList.innerHTML = "";
-        snap.forEach(docu=>{
-          const m = docu.data();
-          const div = document.createElement("div");
-          div.className = "msg " + (m.senderId===me.uid ? "me" : "them");
-          div.textContent = m.text;
-          msgsList.appendChild(div);
-        });
-        msgsList.scrollTop = msgsList.scrollHeight;
-      }, (err)=>{
-        if((err?.code||"").includes("failed-precondition")){
-          toast("Crée l’index Firestore: messages(chatId ASC, createdAt ASC).");
-        }else{
-          toast("Erreur de lecture des messages.");
-        }
+  // ===== Découverte profils
+  async function loadProfiles(){
+    const me=auth.currentUser; if(!me) return;
+    try{
+      const q=query(collection(db,"users"), orderBy("createdAt","desc"), limit(30));
+      const snap=await getDocs(q);
+      profilesList.innerHTML="";
+      snap.forEach(d=>{
+        if(d.id===me.uid) return;
+        const u=d.data();
+        const div=document.createElement("div"); div.className="item";
+        div.innerHTML=`
+          <img src="${u.photoUrl || 'https://placehold.co/80x80?text=👤'}" alt="">
+          <div class="grow"><div><strong>${u.name||'Sans nom'}</strong> · ${u.age||'?'} ans</div>
+          <div class="muted">${(u.bio||'').slice(0,70)}</div></div>
+          <button class="btn small" data-msg="${d.id}">Message</button>`;
+        profilesList.appendChild(div);
       });
+    }catch(e){ console.warn(e); }
+  }
+  profilesList.addEventListener("click", async e=>{
+    const btn=e.target.closest("button[data-msg]"); if(!btn) return;
+    openChatWith(btn.dataset.msg);
+  });
+
+  // ===== Conversations (invitation) + Inbox + Unread
+  function stopInbox(){ if(unsubInbox){unsubInbox();unsubInbox=null;} }
+  async function ensureConversation(peerUid){
+    const me=auth.currentUser; if(!me) return null;
+    const cid=chatIdFor(me.uid,peerUid); const ref=doc(db,"conversations",cid);
+    const s=await getDoc(ref);
+    if(!s.exists()){
+      // Récupérer noms pour un affichage sympa dans l’inbox
+      const meUser=(await getDoc(doc(db,"users",me.uid))).data()||{};
+      const other=(await getDoc(doc(db,"users",peerUid))).data()||{};
+      await setDoc(ref,{
+        members:[me.uid,peerUid],
+        lastAt:serverTimestamp(),
+        lastMsg:"",
+        lastSenderId:"",
+        unread:{ [me.uid]:0, [peerUid]:0 },
+        pendingFor: peerUid,             // <- invitation envoyée
+        names:{ [me.uid]:meUser.name||"", [peerUid]:other.name||"" },
+        photos:{ [me.uid]:meUser.photoUrl||"", [peerUid]:other.photoUrl||"" }
+      });
+      toast("Invitation envoyée ✉️");
     }
-
-    // ===== Envoi message (robuste)
-    sendForm?.addEventListener("submit", async (e)=>{
-      e.preventDefault();
-      const me = auth.currentUser;
-
-      if(!me){ toast("Connectez-vous."); return; }
-      if(!currentPeer){ toast("Choisissez un profil pour discuter."); return; }
-
-      if(!me.emailVerified){
-        toggleVerifyBanner(me);
-        toast("Vérifiez votre e-mail avant d’envoyer un message.");
-        return;
-      }
-
-      const text = sanitize(msgInput.value.trim());
-      if(!text) return;
-      if(text.length>500){ toast("500 caractères max"); return; }
-
-      const btn = sendForm.querySelector("button[type=submit]");
-      btn.disabled = true;
-
-      try{
-        const cid = chatIdFor(me.uid, currentPeer);
-        await addDoc(collection(db,"messages"), {
-          chatId: cid,
-          senderId: me.uid,
-          receiverId: currentPeer,
-          text,
-          createdAt: serverTimestamp()
-        });
-        msgInput.value = "";
-      }catch(err){
-        if(err.code === "permission-denied"){
-          toast("Permissions Firestore insuffisantes (règles).");
-        }else if(err.code === "failed-precondition"){
-          toast("Index requis: messages(chatId ASC, createdAt ASC).");
-        }else{
-          toast(authErrorMessage(err));
+    return cid;
+  }
+  async function openChatWith(peerUid){
+    currentPeer=peerUid;
+    const cid=await ensureConversation(peerUid);
+    listenMessages(cid);
+  }
+  function watchInbox(){
+    stopInbox();
+    const me=auth.currentUser; if(!me) return;
+    const qy=query(collection(db,"conversations"),
+      where("members","array-contains",me.uid),
+      orderBy("lastAt","desc"),
+      limit(50));
+    unsubInbox=onSnapshot(qy,(snap)=>{
+      inbox.innerHTML="";
+      snap.forEach(d=>{
+        const c=d.data(); const other=c.members.find(x=>x!==me.uid);
+        const unread=(c.unread&&c.unread[me.uid])||0;
+        const pending=(c.pendingFor && c.pendingFor===me.uid);
+        const name=c.names?.[other] || "Inconnu";
+        const photo=c.photos?.[other] || "https://placehold.co/40x40?text=👤";
+        const div=document.createElement("div");
+        div.className="people-item"+(currentPeer===other?" active":"");
+        div.dataset.uid=other; div.dataset.cid=d.id;
+        div.innerHTML=`
+          <div style="display:flex;gap:8px;align-items:center">
+            <img src="${photo}" style="width:28px;height:28px;border-radius:50%">
+            <strong>${name}</strong>
+            ${ pending ? '<span class="pill">Invitation</span>' : '' }
+            ${ unread ? `<span class="badge">${unread}</span>` : '' }
+          </div>
+          <div class="muted">${sanitize(c.lastMsg|| (pending?'Accepter pour discuter':'')).slice(0,60)}</div>
+        `;
+        if(pending){
+          const row=document.createElement("div");
+          row.style.marginTop="6px";
+          row.innerHTML=`<button class="btn small" data-accept="${d.id}">Accepter</button>
+                         <button class="btn small danger" data-refuse="${d.id}">Refuser</button>`;
+          div.appendChild(row);
         }
-        console.error(err);
-      }finally{
-        btn.disabled = false;
-      }
+        inbox.appendChild(div);
+      });
+    },err=>toast(err.message||"Erreur inbox"));
+  }
+  inbox.addEventListener("click", async e=>{
+    const cidAcc=e.target.dataset.accept, cidRef=e.target.dataset.refuse;
+    const item=e.target.closest(".people-item");
+    if(cidAcc){ await updateDoc(doc(db,"conversations",cidAcc),{ pendingFor:"", lastAt:serverTimestamp() }); toast("Invitation acceptée ✅"); return; }
+    if(cidRef){ await updateDoc(doc(db,"conversations",cidRef),{ pendingFor:"", refusedBy:auth.currentUser.uid }); toast("Invitation refusée"); return; }
+    if(item){ currentPeer=item.dataset.uid; listenMessages(item.dataset.cid); }
+  });
+
+  // ===== Messages temps réel
+  function stopMessages(){ if(unsubMessages){unsubMessages();unsubMessages=null;} }
+  function listenMessages(cid){
+    stopMessages(); msgsList.innerHTML="";
+    if(!cid){ toast("Erreur : pas de conversation"); return; }
+    const me=auth.currentUser; if(!me) return;
+
+    const msgsRef=collection(db,"conversations",cid,"messages");
+    const qy=query(msgsRef, orderBy("createdAt","asc"), limit(200));
+    unsubMessages=onSnapshot(qy, async (snap)=>{
+      msgsList.innerHTML="";
+      snap.forEach(d=>{
+        const m=d.data();
+        const div=document.createElement("div");
+        div.className="msg "+(m.senderId===me.uid?"me":"them");
+        div.textContent=m.text; msgsList.appendChild(div);
+      });
+      msgsList.scrollTop=msgsList.scrollHeight;
+      // Remettre le compteur à 0 pour moi
+      await updateDoc(doc(db,"conversations",cid),{ [`unread.${me.uid}`]:0 });
+    },err=>toast("Erreur de lecture des messages."));
+  }
+
+  // ===== Envoi
+  sendForm.addEventListener("submit", async e=>{
+    e.preventDefault();
+    const me=auth.currentUser; if(!me || !currentPeer){ toast("Choisis un profil."); return; }
+    const cid=chatIdFor(me.uid,currentPeer);
+    const convSnap=await getDoc(doc(db,"conversations",cid));
+    if(!convSnap.exists()){ toast("Invitation envoyée. En attente d’acceptation."); await ensureConversation(currentPeer); return; }
+    const conv=convSnap.data();
+    if(conv.pendingFor && conv.pendingFor!==""){ toast("En attente d’acceptation"); return; }
+    const text=sanitize(msgInput.value.trim()); if(!text) return;
+    await addDoc(collection(db,"conversations",cid,"messages"),{ senderId:me.uid, text, createdAt:serverTimestamp() });
+    await updateDoc(doc(db,"conversations",cid),{
+      lastMsg:text, lastAt:serverTimestamp(), lastSenderId:me.uid,
+      [`unread.${currentPeer}`]:(conv.unread?.[currentPeer]||0)+1
     });
-  </script>
+    msgInput.value="";
+  });
+</script>
 </body>
 </html>
