@@ -4,9 +4,10 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>LoveNow — Rencontres gratuites, proches de toi</title>
-  <meta name="description" content="LoveNow : rencontres gratuites et locales. Inscris-toi en 2 minutes, découvre des profils proches, discute en toute confiance.">
+  <meta name="description" content="LoveNow : rencontres gratuites et locales. Inscris-toi, découvre des profils proches et discute en toute confiance.">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+
   <style>
     :root{
       --bg:#0d0d10; --card:#151921; --line:#222a35; --txt:#f6f8fa; --muted:#aeb6c2;
@@ -30,6 +31,8 @@
     .hero h1{font-size:clamp(28px,6vw,48px);margin:6px 0 10px;font-weight:800}
     .hero p{max-width:640px;margin:0 auto 18px;color:#fff;opacity:.95}
     .cta{display:inline-block;background:#fff;color:#000;font-weight:800;border-radius:999px;padding:14px 28px;border:0;cursor:pointer}
+    .uspbar{display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+    .pill{border:1px solid #ffffff80;color:#fff;padding:6px 12px;border-radius:999px;font-size:12px;opacity:.9}
     section{padding:40px 18px}
     h2{margin:0 0 12px}
     .muted{color:var(--muted)}
@@ -66,6 +69,7 @@
     #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:#000d;border:1px solid var(--line);
       padding:10px 14px;border-radius:12px;display:none}
     .sr-only{position:absolute;left:-99999px;top:auto;width:1px;height:1px;overflow:hidden}
+
     .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55);z-index:100}
     .modal.open{display:flex}
     .modal-card{min-width:320px;max-width:580px;background:var(--card);border:1px solid var(--line);border-radius:14px}
@@ -91,13 +95,31 @@
   </header>
 
   <main id="main">
+    <!-- HERO -->
     <section class="hero">
       <h1>Rencontre l’amour près de chez toi</h1>
       <p>Inscris-toi en 2 minutes, découvre des profils réels à proximité et commence à discuter. 100% gratuit au lancement.</p>
       <button class="cta" id="ctaStart">Rejoins-nous gratuitement</button>
-      <div class="muted" style="margin-top:10px">Conversations privées, photos via Cloudinary, sécurité reCAPTCHA.</div>
+      <div class="uspbar">
+        <span class="pill">🔥 Gratuit au départ</span>
+        <span class="pill">📍 Local & rapide</span>
+        <span class="pill">🔒 Sécurité & respect</span>
+      </div>
     </section>
 
+    <!-- Bandeau vérification e-mail -->
+    <div id="verifyBanner" style="display:none; margin:12px 18px;">
+      <div style="background:#0f1320;border:1px solid var(--line);border-radius:10px;
+                  padding:10px;display:flex;gap:10px;align-items:center;justify-content:space-between;">
+        <span>💌 Confirme ton e-mail pour activer toutes les fonctions.</span>
+        <div style="display:flex;gap:8px;">
+          <button id="btnResend" class="nav-btn">Renvoyer</button>
+          <button id="btnCheckVerified" class="nav-btn">J’ai confirmé</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- APP (après connexion) -->
     <section id="app" class="wrap" style="display:none">
       <h2>Bienvenue <span id="hiName"></span> 👋</h2>
 
@@ -106,10 +128,14 @@
         <div class="card">
           <h3>Mon profil</h3>
           <form id="editProfileForm" class="form">
-            <label>Nom <input id="name" maxlength="30" required></label>
-            <label>Âge <input id="age" type="number" min="18" max="100" required></label>
+            <label>Nom
+              <input id="name" name="name" maxlength="30" required>
+            </label>
+            <label>Âge
+              <input id="age" name="age" type="number" min="18" max="100" required>
+            </label>
             <label>Bio (500 max)
-              <textarea id="bio" maxlength="500" rows="3" placeholder="Parle un peu de toi…"></textarea>
+              <textarea id="bio" name="bio" maxlength="500" rows="3" placeholder="Parle un peu de toi…"></textarea>
             </label>
             <div class="row">
               <label class="file">
@@ -120,7 +146,7 @@
             </div>
           </form>
           <div class="avatar-wrap">
-            <img id="avatarPreview" alt="Avatar" src="https://placehold.co/120x120?text=👤" />
+            <img id="avatarPreview" alt="Avatar" />
           </div>
         </div>
 
@@ -146,6 +172,7 @@
       </div>
     </section>
 
+    <!-- CTA FINAL -->
     <section id="cta" class="wrap">
       <div class="card" style="text-align:center">
         <h2>Prêt·e à tenter ta chance ?</h2>
@@ -193,56 +220,71 @@
         <form id="loginForm" class="form">
           <label>Email <input id="liEmail" type="email" required autocomplete="email"></label>
           <label>Mot de passe <input id="liPass" type="password" minlength="6" required autocomplete="current-password"></label>
+          <div class="row" style="justify-content:space-between;align-items:center">
+            <span class="muted" style="font-size:12px">Mot de passe oublié ?
+              <a href="#" id="btnForgot">Réinitialiser</a>
+            </span>
+          </div>
           <button type="submit">Se connecter</button>
         </form>
       </div>
     </div>
   </div>
 
+  <!-- TOAST -->
   <div id="toast" role="status" aria-live="polite"></div>
 
   <script type="module">
-    /* ===== Helpers ===== */
+    // ===== Helpers
     const $  = (sel, ctx=document) => ctx.querySelector(sel);
     const $$ = (sel, ctx=document) => Array.from(ctx.querySelectorAll(sel));
+    function toast(msg, ms=2200){ const t=$("#toast"); t.textContent=msg; t.style.display="block"; setTimeout(()=>t.style.display="none", ms); }
     const sanitize = (s="") => s.replace(/[<>]/g,"");
-    const chatIdFor = (a,b)=>[a,b].sort().join("_");
-    function toast(msg, ms=2500){ const t=$("#toast"); t.textContent=msg; t.style.display="block"; setTimeout(()=>t.style.display="none", ms); }
-    function short(s="",n=70){ return s.length>n ? s.slice(0,n-1)+"…" : s; }
+    const chatIdFor = (a,b) => [a,b].sort().join("_");
+    const authErrorMessage = (e) => ({
+      "auth/email-already-in-use":"Adresse déjà utilisée.",
+      "auth/invalid-email":"Adresse e-mail invalide.",
+      "auth/invalid-credential":"Email ou mot de passe incorrect.",
+      "auth/too-many-requests":"Trop de tentatives — réessaie plus tard.",
+      "auth/network-request-failed":"Problème réseau — réessaie."
+    })[e?.code] || (e?.message || "Erreur");
 
-    /* ===== UI Modale ===== */
+    // ===== UI Auth modal
     const modal = $("#modalAuth");
-    const tabs  = $$("#modalAuth .tabs button");
     function openAuth(which="signup"){ modal.classList.add("open"); setTab(which); }
     function closeAuth(){ modal.classList.remove("open"); }
-    function setTab(which){
-      tabs.forEach(b=> b.classList.toggle("active", b.dataset.tab===which));
-      $("#paneSignup").classList.toggle("active", which==="signup");
-      $("#paneLogin").classList.toggle("active", which==="login");
-    }
     $("#btnOpenAuth")?.addEventListener("click", ()=> openAuth("signup"));
     $("#ctaStart")?.addEventListener("click", ()=> openAuth("signup"));
     $("#ctaOpenAuth2")?.addEventListener("click", ()=> openAuth("signup"));
     $("#closeAuth")?.addEventListener("click", closeAuth);
     modal.addEventListener("click", (e)=>{ if(e.target===modal) closeAuth(); });
+    const tabs = $$("#modalAuth .tabs button");
+    function setTab(which){
+      tabs.forEach(b=> b.classList.toggle("active", b.dataset.tab===which));
+      $("#paneSignup").classList.toggle("active", which==="signup");
+      $("#paneLogin").classList.toggle("active", which==="login");
+    }
     tabs.forEach(b=> b.addEventListener("click", ()=> setTab(b.dataset.tab)));
 
-    /* ===== Firebase (CDN) ===== */
+    // ===== Firebase (CDN)
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
     import {
       getAuth, onAuthStateChanged, createUserWithEmailAndPassword,
-      signInWithEmailAndPassword, signOut, updateProfile
+      signInWithEmailAndPassword, signOut, updateProfile,
+      sendEmailVerification, sendPasswordResetEmail
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import {
       getFirestore, doc, setDoc, getDoc, updateDoc, addDoc,
       collection, query, where, orderBy, limit, getDocs, onSnapshot, serverTimestamp
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-    import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check.js";
+    import {
+      initializeAppCheck, ReCaptchaV3Provider
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check.js";
 
-    /* ===== Cloudinary (unsigned) ===== */
-    const CLOUD_NAME   = "dyqxadd0j";
-    const UPLOAD_PRESET= "profile_pics";
+    // ===== Cloudinary (unsigned)
+    const CLOUD_NAME = "dyqxadd0j";          // <- adapte si besoin
+    const UPLOAD_PRESET = "profile_pics";    // <- preset unsigned
     async function uploadImage(file){
       const url = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`;
       const fd  = new FormData();
@@ -250,10 +292,10 @@
       fd.append("upload_preset", UPLOAD_PRESET);
       const r = await fetch(url, { method:"POST", body: fd });
       if(!r.ok) throw new Error("Upload Cloudinary échoué");
-      return r.json();
+      return r.json(); // { secure_url, ... }
     }
 
-    /* ===== Config Firebase + AppCheck (reCAPTCHA v3) ===== */
+    // ===== Config Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyB_-cNA8bxqYCYUp3rUZs-VpiP4DX2wn3M",
       authDomain: "lovenow-officiel.firebaseapp.com",
@@ -267,15 +309,12 @@
 
     const app = initializeApp(firebaseConfig);
     try{ getAnalytics(app); }catch{}
-    initializeAppCheck(app, {
-      provider: new ReCaptchaV3Provider(RECAPTCHA_SITE_KEY),
-      isTokenAutoRefreshEnabled: true
-    });
+    initializeAppCheck(app, { provider: new ReCaptchaV3Provider(RECAPTCHA_SITE_KEY), isTokenAutoRefreshEnabled: true });
 
     const auth = getAuth(app);
     const db   = getFirestore(app);
 
-    /* ===== Refs UI ===== */
+    // ===== Réfs UI
     const appWrap   = $("#app");
     const btnLogout = $("#btnLogout");
     const hiName    = $("#hiName");
@@ -285,23 +324,26 @@
     const sendForm  = $("#sendMsgForm");
     const msgInput  = $("#msgInput");
 
-    /* ===== Notifications navigateur (optionnel) ===== */
-    function askNotifOnce(){
-      if('Notification' in window && Notification.permission==='default'){
-        Notification.requestPermission().catch(()=>{});
-      }
+    // ===== Email verification banner
+    function toggleVerifyBanner(user){
+      const b = $("#verifyBanner");
+      if (!user) { b.style.display="none"; return; }
+      b.style.display = user.emailVerified ? "none" : "";
     }
-    function notify(title, body){
-      try{
-        if('Notification' in window && Notification.permission==='granted'){
-          new Notification(title, { body });
-        }else{
-          toast(`${title} — ${body}`);
-        }
-      }catch{ toast(`${title} — ${body}`); }
-    }
+    $("#btnResend")?.addEventListener("click", async ()=>{
+      const u = auth.currentUser; if(!u){ toast("Pas connecté."); return; }
+      try{ await sendEmailVerification(u); toast("E-mail envoyé ✅"); }
+      catch(err){ toast(authErrorMessage(err)); }
+    });
+    $("#btnCheckVerified")?.addEventListener("click", async ()=>{
+      const u = auth.currentUser; if(!u) return;
+      await u.reload();
+      toggleVerifyBanner(auth.currentUser);
+      if(auth.currentUser.emailVerified) toast("Merci, e-mail confirmé ✅");
+      else toast("Toujours pas confirmé. Regarde tes spams 😉");
+    });
 
-    /* ===== INSCRIPTION ===== */
+    // ===== INSCRIPTION
     $("#signupForm")?.addEventListener("submit", async (e)=>{
       e.preventDefault();
       const email = $("#suEmail").value.trim();
@@ -314,6 +356,7 @@
       try{
         const cred = await createUserWithEmailAndPassword(auth, email, pass);
         const uid = cred.user.uid;
+
         let photoUrl = "";
         if(file){ const up = await uploadImage(file); photoUrl = up.secure_url || ""; }
 
@@ -323,19 +366,22 @@
         });
 
         await updateProfile(cred.user, { displayName: name, photoURL: photoUrl || null });
-        toast("Compte créé !");
+
+        // email de vérification automatique
+        await sendEmailVerification(cred.user);
+        toast("Compte créé ! Vérifie ta boîte mail ✉️");
         closeAuth();
       }catch(err){
         if(err.code === "auth/email-already-in-use"){
           toast("Adresse déjà utilisée — connecte-toi.");
           setTab("login");
         }else{
-          toast(err.message || "Erreur d’inscription");
+          toast(authErrorMessage(err));
         }
       }
     });
 
-    /* ===== CONNEXION ===== */
+    // ===== CONNEXION
     $("#loginForm")?.addEventListener("submit", async (e)=>{
       e.preventDefault();
       const email = $("#liEmail").value.trim();
@@ -344,20 +390,35 @@
         await signInWithEmailAndPassword(auth, email, pass);
         toast("Connecté !");
         closeAuth();
-      }catch(err){ toast(err.message || "Erreur de connexion"); }
+      }catch(err){ toast(authErrorMessage(err)); }
     });
 
-    /* ===== DÉCONNEXION ===== */
+    // ===== Mot de passe oublié
+    $("#btnForgot")?.addEventListener("click", async (e)=>{
+      e.preventDefault();
+      const email = prompt("Adresse e-mail :", $("#liEmail").value.trim() || "");
+      if(!email) return;
+      try{
+        await sendPasswordResetEmail(auth, email);
+        toast("E-mail de réinitialisation envoyé ✅");
+      }catch(err){ toast(authErrorMessage(err)); }
+    });
+
+    // ===== DÉCONNEXION
     btnLogout?.addEventListener("click", async ()=>{ await signOut(auth); });
 
-    /* ===== STATE ===== */
+    // ===== ÉTAT AUTH + mini notif nouveaux messages
+    let unsubGlobalInbox = null;
+    let lastInboxTs = 0;
+
     onAuthStateChanged(auth, async (user)=>{
+      toggleVerifyBanner(user);
+
       if(user){
         btnLogout.style.display = "";
         appWrap.style.display = "";
         $("#btnOpenAuth").style.display = "none";
         hiName.textContent = user.displayName || "toi";
-        askNotifOnce();
 
         // Préremplir profil
         try{
@@ -371,15 +432,40 @@
           }
         }catch{}
         loadProfiles();
-        watchIncoming();  // notifier si un nouveau message arrive (global)
+
+        // Notifs : dernier message reçu
+        if(unsubGlobalInbox) unsubGlobalInbox();
+        const qInbox = query(
+          collection(db,"messages"),
+          where("receiverId","==",user.uid),
+          orderBy("createdAt","desc"),
+          limit(1)
+        );
+        unsubGlobalInbox = onSnapshot(qInbox, async (snap)=>{
+          const docu = snap.docs[0]; if(!docu) return;
+          const m = docu.data();
+          const ts = m.createdAt?.seconds || 0;
+          if(ts > lastInboxTs){ lastInboxTs = ts;
+            if(m.senderId !== user.uid){
+              // récupère le nom de l’expéditeur
+              try{
+                const s = await getDoc(doc(db,"users",m.senderId));
+                const n = s.exists() ? (s.data().name || "Quelqu’un") : "Quelqu’un";
+                toast(`🔔 Nouveau message de ${n}`);
+              }catch{ toast("🔔 Nouveau message"); }
+            }
+          }
+        });
+
       }else{
         btnLogout.style.display = "none";
         appWrap.style.display = "none";
         $("#btnOpenAuth").style.display = "";
+        if(unsubGlobalInbox){ unsubGlobalInbox(); unsubGlobalInbox=null; }
       }
     });
 
-    /* ===== PROFIL : update + upsert ===== */
+    // ===== MÀJ PROFIL
     $("#editProfileForm")?.addEventListener("submit", async (e)=>{
       e.preventDefault();
       const user = auth.currentUser; if(!user) return;
@@ -387,86 +473,47 @@
       const age  = parseInt($("#age").value,10);
       const bio  = sanitize($("#bio").value.trim()).slice(0,500);
       const file = $("#avatarFile").files[0];
-
       try{
-        let updates = { name, age, bio };
+        const updates = { name, age, bio };
         if(file){
           const up = await uploadImage(file);
           updates.photoUrl = up.secure_url;
           updates.photos   = [up.secure_url];
           $("#avatarPreview").src = up.secure_url;
         }
-        try{ await updateDoc(doc(db,"users",user.uid), updates); }
-        catch{ await setDoc(doc(db,"users",user.uid), { ...updates, createdAt: serverTimestamp(), photos: updates.photos||[] }); }
+        await updateDoc(doc(db,"users",user.uid), updates);
         await updateProfile(user, { displayName: name, photoURL: updates.photoUrl || user.photoURL || null });
         toast("Profil mis à jour");
         loadProfiles();
-      }catch(err){ toast(err.message || "Erreur de mise à jour"); }
+      }catch(err){ toast(authErrorMessage(err)); }
     });
 
-    /* ===== OUTILS INDEX/FALLBACK ===== */
-    function isIndexErr(e){
-      return (e && (e.code==='failed-precondition' || (''+e.message).includes('index')));
-    }
-    function hintIndex(whereField, orderField='createdAt'){
-      toast(`⚠️ Crée l’index Firestore: messages(${whereField} ASC, ${orderField} ASC)`);
-    }
-
-    /* ===== Aperçu = dernier message (avec fallback sans index) ===== */
-    async function getLastMessageText(peerUid){
-      const me = auth.currentUser; if(!me) return "";
-      const cid = chatIdFor(me.uid, peerUid);
-      try{
-        const qLast = query(collection(db,"messages"),
-          where("chatId","==",cid),
-          orderBy("createdAt","desc"),
-          limit(1)
-        );
-        const snap = await getDocs(qLast);
-        if(!snap.empty) return short(snap.docs[0].data().text||"");
-        return "";
-      }catch(e){
-        if(isIndexErr(e)){
-          hintIndex('chatId');
-          // Fallback sans orderBy → on trie côté client
-          const qNoIdx = query(collection(db,"messages"), where("chatId","==",cid), limit(50));
-          const s2 = await getDocs(qNoIdx);
-          const arr = s2.docs.map(d=>d.data()).sort((a,b)=> (a.createdAt?.seconds||0)-(b.createdAt?.seconds||0));
-          return arr.length ? short(arr[arr.length-1].text||"") : "";
-        }
-        return "";
-      }
-    }
-
+    // ===== PROFILS
     async function loadProfiles(){
       const me = auth.currentUser; if(!me) return;
       try{
-        const qy = query(collection(db,"users"), orderBy("createdAt","desc"), limit(30));
-        const snap = await getDocs(qy);
+        const q = query(collection(db,"users"), orderBy("createdAt","desc"), limit(30));
+        const snap = await getDocs(q);
         profilesList.innerHTML = "";
-        snap.forEach(async d=>{
+        snap.forEach(d=>{
           if(d.id === me.uid) return;
           const u = d.data();
-          const previewId = `pv_${d.id}`;
           const div = document.createElement("div");
           div.className = "item";
           div.innerHTML = `
             <img src="${u.photoUrl || 'https://placehold.co/80x80?text=👤'}" alt="">
             <div class="grow">
               <div><strong>${u.name || "Sans nom"}</strong> · ${u.age || "?"} ans</div>
-              <div class="muted" id="${previewId}">${short(u.bio||"")}</div>
+              <div class="muted">${(u.bio||"").slice(0,70)}</div>
             </div>
             <button data-uid="${d.id}">Message</button>
           `;
           profilesList.appendChild(div);
-
-          const last = await getLastMessageText(d.id);
-          if(last){ const el=document.getElementById(previewId); if(el) el.textContent = last; }
         });
       }catch(err){ console.warn(err); }
     }
 
-    /* ===== CHAT PRIVÉ (avec fallback sans index) ===== */
+    // ===== CHAT
     let currentPeer = null;
     let unsubMessages = null;
 
@@ -486,56 +533,30 @@
       listenMessages();
     }
 
-    function renderMessages(snap){
-      msgsList.innerHTML = "";
-      snap.forEach(docu=>{
-        const m = docu.data();
-        const div = document.createElement("div");
-        div.className = "msg " + (m.senderId===auth.currentUser.uid ? "me" : "them");
-        div.textContent = m.text;
-        msgsList.appendChild(div);
-      });
-      msgsList.scrollTop = msgsList.scrollHeight;
-    }
-
     function listenMessages(){
       if(unsubMessages){ unsubMessages(); unsubMessages = null; }
       const me = auth.currentUser; if(!me || !currentPeer) return;
       const cid = chatIdFor(me.uid, currentPeer);
 
-      // Essai avec tri par date (meilleur rendu)
-      const qMsgs = query(
+      const q = query(
         collection(db,"messages"),
         where("chatId","==",cid),
         orderBy("createdAt","asc"),
-        limit(100)
+        limit(200)
       );
-      unsubMessages = onSnapshot(qMsgs, (snap)=>renderMessages(snap), (err)=>{
-        // Fallback si index manquant
-        if(isIndexErr(err)){
-          hintIndex('chatId');
-          const qNoIdx = query(collection(db,"messages"), where("chatId","==",cid), limit(100));
-          unsubMessages = onSnapshot(qNoIdx, (snap)=>{
-            // trie côté client
-            const arr = snap.docs
-              .map(d=>({id:d.id,...d.data()}))
-              .sort((a,b)=>(a.createdAt?.seconds||0)-(b.createdAt?.seconds||0));
-            msgsList.innerHTML = "";
-            arr.forEach(m=>{
-              const div = document.createElement("div");
-              div.className = "msg " + (m.senderId===me.uid ? "me" : "them");
-              div.textContent = m.text;
-              msgsList.appendChild(div);
-            });
-            msgsList.scrollTop = msgsList.scrollHeight;
-          });
-        }else{
-          console.warn(err); toast("Erreur messages");
-        }
+      unsubMessages = onSnapshot(q, (snap)=>{
+        msgsList.innerHTML = "";
+        snap.forEach(docu=>{
+          const m = docu.data();
+          const div = document.createElement("div");
+          div.className = "msg " + (m.senderId===me.uid ? "me" : "them");
+          div.textContent = m.text;
+          msgsList.appendChild(div);
+        });
+        msgsList.scrollTop = msgsList.scrollHeight;
       });
     }
 
-    /* ===== Envoi message ===== */
     sendForm?.addEventListener("submit", async (e)=>{
       e.preventDefault();
       const me = auth.currentUser; if(!me || !currentPeer){ toast("Choisis un profil pour discuter."); return; }
@@ -546,54 +567,12 @@
       await addDoc(collection(db,"messages"), {
         chatId: cid,
         senderId: me.uid,
-        senderName: me.displayName || "",
         receiverId: currentPeer,
         text,
         createdAt: serverTimestamp()
       });
       msgInput.value = "";
     });
-
-    /* ===== Notif globale (nouveau message entrant) ===== */
-    let unsubIncoming = null;
-    function watchIncoming(){
-      if(unsubIncoming){ unsubIncoming(); unsubIncoming=null; }
-      const me = auth.currentUser; if(!me) return;
-
-      // Essai avec index (receiverId + createdAt desc)
-      const qInc = query(
-        collection(db,"messages"),
-        where("receiverId","==",me.uid),
-        orderBy("createdAt","desc"),
-        limit(1)
-      );
-      unsubIncoming = onSnapshot(qInc, (snap)=>{
-        snap.docChanges().forEach(ch=>{
-          if(ch.type==='added'){
-            const m = ch.doc.data();
-            if(document.hidden || (currentPeer && currentPeer!==m.senderId)){
-              notify("Nouveau message", short(m.text||""));
-            }
-          }
-        });
-      }, (err)=>{
-        if(isIndexErr(err)){
-          hintIndex('receiverId');
-          // Fallback sans orderBy
-          const qNoIdx = query(collection(db,"messages"), where("receiverId","==",me.uid), limit(1));
-          unsubIncoming = onSnapshot(qNoIdx, (snap)=>{
-            snap.docChanges().forEach(ch=>{
-              if(ch.type==='added'){
-                const m = ch.doc.data();
-                if(document.hidden || (currentPeer && currentPeer!==m.senderId)){
-                  notify("Nouveau message", short(m.text||""));
-                }
-              }
-            });
-          });
-        }
-      });
-    }
   </script>
 </body>
 </html>
