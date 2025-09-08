@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>LoveNow — Connexion / Inscription</title>
+  <style>
+    :root{--ln-bg:#0c0f14;--ln-panel:#111622;--ln-ink:#fff;--ln-soft:#a9b1c3;--ln-accent:#ff3b81;}
+    body{margin:0;background:var(--ln-bg);color:var(--ln-ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial}
+    .container{max-width:900px;margin:auto;padding:16px}
+    .tabs{display:flex;gap:8px;margin:16px 0}
+    .tab{padding:8px 12px;border:1px solid #ffffff30;border-radius:10px;background:#ffffff12;color:#fff;cursor:pointer}
+    .tab[aria-selected="true"]{background:var(--ln-accent);border-color:transparent}
+    .panel{background:var(--ln-panel);border:1px solid #ffffff14;border-radius:14px;padding:16px}
+    .field{margin:8px 0;display:flex;flex-direction:column}
+    input,textarea,select{background:#12192a;border:1px solid #2a3245;color:#fff;border-radius:10px;padding:10px}
+    .ln-btn{border:1px solid #ffffff40;background:#ffffff12;color:#fff;padding:10px 14px;border-radius:10px;cursor:pointer}
+    .ln-btn.primary{background:var(--ln-accent);border-color:transparent}
+    .notice{display:flex;gap:10px;align-items:center;background:#2a2f3d;border-radius:10px;padding:10px;margin:12px 0}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Connexion / Inscription</h1>
+    <div class="tabs" role="tablist">
+      <button id="tabLogin" class="tab" role="tab" aria-selected="true">Connexion</button>
+      <button id="tabSignup" class="tab" role="tab" aria-selected="false">Inscription</button>
+    </div>
+
+    <section id="panelLogin" class="panel" role="tabpanel" aria-labelledby="tabLogin">
+      <div class="field"><label>Email</label><input id="lEmail" type="email" /></div>
+      <div class="field"><label>Mot de passe</label><input id="lPass" type="password" /></div>
+      <button id="btnLogin" class="ln-btn primary">Se connecter</button>
+
+      <div id="verifyBox" class="notice" hidden>
+        <span>Vérifie ton e-mail pour discuter.</span>
+        <button id="sendVerify" class="ln-btn">Envoyer le lien</button>
+        <button id="refreshAuth" class="ln-btn">Rafraîchir</button>
+      </div>
+    </section>
+
+    <section id="panelSignup" class="panel" role="tabpanel" aria-labelledby="tabSignup" hidden>
+      <div class="field"><label>Email</label><input id="sEmail" type="email" /></div>
+      <div class="field"><label>Mot de passe</label><input id="sPass" type="password" /></div>
+      <div class="field"><label>Nom</label><input id="sName" maxlength="30" /></div>
+      <div class="field"><label>Âge</label><input id="sAge" type="number" min="18" max="99" /></div>
+      <div class="field"><label>Ville</label><input id="sCity" /></div>
+      <div class="field"><label>Genre</label>
+        <select id="sGender"><option value="">—</option><option value="F">Femme</option><option value="M">Homme</option><option value="O">Autre</option></select>
+      </div>
+      <button id="btnSignup" class="ln-btn primary">Créer mon compte</button>
+    </section>
+  </div>
+
+  <script>
+    window.firebaseConfig = {
+      apiKey: "AIzaSyB_-cNA8bxqYCYUp3rUZs-VpiP4DX2wn3M",
+      authDomain: "lovenow-officiel.firebaseapp.com",
+      projectId: "lovenow-officiel",
+      storageBucket: "lovenow-officiel.firebasestorage.app",
+      messagingSenderId: "896585801571",
+      appId: "1:896585801571:web:cdde87293291dc1900bd56",
+      measurementId: "G-QGM25ND7LF"
+    };
+  </script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-analytics.js";
+    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+    import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+
+    const app  = initializeApp(window.firebaseConfig);
+    try { getAnalytics(app); } catch(e) {}
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
+
+    const tabLogin  = document.getElementById('tabLogin');
+    const tabSignup = document.getElementById('tabSignup');
+    const panelLogin = document.getElementById('panelLogin');
+    const panelSignup = document.getElementById('panelSignup');
+
+    tabLogin.onclick = ()=>{ tabLogin.setAttribute('aria-selected','true'); tabSignup.setAttribute('aria-selected','false'); panelLogin.hidden=false; panelSignup.hidden=true; };
+    tabSignup.onclick= ()=>{ tabLogin.setAttribute('aria-selected','false'); tabSignup.setAttribute('aria-selected','true'); panelLogin.hidden=true; panelSignup.hidden=false; };
+
+    document.getElementById('btnLogin')?.addEventListener('click', async ()=>{
+      const email = document.getElementById('lEmail').value.trim();
+      const pass  = document.getElementById('lPass').value;
+      try{
+        await signInWithEmailAndPassword(auth, email, pass);
+        location.href='/';
+      }catch(e){ alert(e.message); }
+    });
+
+    document.getElementById('btnSignup')?.addEventListener('click', async ()=>{
+      const email = document.getElementById('sEmail').value.trim();
+      const pass  = document.getElementById('sPass').value;
+      const name  = document.getElementById('sName').value.trim();
+      const age   = Number(document.getElementById('sAge').value);
+      const city  = document.getElementById('sCity').value.trim();
+      const gender= document.getElementById('sGender').value;
+      try{
+        const cred = await createUserWithEmailAndPassword(auth, email, pass);
+        await setDoc(doc(db,'profiles', cred.user.uid), {
+          name: name || null, age: age || null, city: city || null, gender: gender || null,
+          bio: null, photoUrl: null, lastActive: serverTimestamp()
+        });
+        await sendEmailVerification(cred.user);
+        alert('Compte créé. Vérifie ton e-mail pour discuter.');
+        location.href='/';
+      }catch(e){ alert(e.message); }
+    });
+
+    const verifyBox   = document.getElementById('verifyBox');
+    const sendVerify  = document.getElementById('sendVerify');
+    const refreshAuth = document.getElementById('refreshAuth');
+
+    onAuthStateChanged(auth, (user)=>{
+      verifyBox.hidden = !user || user.emailVerified;
+      sendVerify.onclick  = async ()=>{ if(!auth.currentUser) return; await sendEmailVerification(auth.currentUser); alert('E-mail envoyé.'); };
+      refreshAuth.onclick = ()=> location.reload();
+    });
+  </script>
+</body>
+</html>
