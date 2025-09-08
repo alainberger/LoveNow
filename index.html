@@ -3,461 +3,223 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>LoveNow — Rencontres proches de toi</title>
-  <meta name="description" content="LoveNow : rencontres locales et messagerie privée. 100% gratuit au lancement.">
-
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-
+  <title>LoveNow — Rencontres près de chez toi</title>
+  <meta name="description" content="Inscris-toi, découvre des profils réels à proximité et commence à discuter." />
   <style>
-    :root{
-      --bg:#0d0d10; --card:#151921; --line:#232b36; --txt:#f6f8fa; --muted:#aeb6c2;
-      --acc:#ff4d6d; --acc2:#8f51ea; --acc3:#ff6bb5; --ok:#30d158; --danger:#ff6464;
-      --warn:#ffcf40; --warn-bg:#201a00; --warn-line:#665500;
-    }
-    *{box-sizing:border-box}
-    html,body{margin:0;background:var(--bg);color:var(--txt);font-family:'Poppins',system-ui,Segoe UI,Arial,sans-serif}
-    a{color:#fff;text-decoration:none}
-    img{max-width:100%;display:block}
-
-    .wrap{max-width:1120px;margin:0 auto;padding:16px 20px}
-
-    /* Header + nav */
-    header{position:sticky;top:0;z-index:50;backdrop-filter:saturate(140%) blur(8px);
-      background:linear-gradient(180deg,rgba(0,0,0,.75),rgba(0,0,0,.45));
-      border-bottom:1px solid var(--line)}
-    .row{display:flex;gap:14px;align-items:center;justify-content:space-between}
-    .logo{font-weight:800;letter-spacing:.3px;color:var(--acc)}
-    .nav-desktop{display:flex;gap:18px;align-items:center}
-    .nav-desktop a{opacity:.9}
-    .nav-desktop a:hover{opacity:1}
-    .burger{display:none;border:1px solid #ffffffaa;padding:8px 12px;border-radius:10px;background:none;color:#fff;cursor:pointer}
-
-    .nav-mobile{position:fixed;inset:0;z-index:60;background:#000a;display:flex;justify-content:flex-end}
-    .nav-panel{width:min(84vw,360px);background:#0e131b;border-left:1px solid var(--line);padding:14px 16px;display:flex;flex-direction:column;gap:10px}
-    .nav-panel a{padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#121826}
-
-    .btn{display:inline-block;background:var(--acc);color:#000;font-weight:800;border-radius:10px;padding:10px 16px;border:0;cursor:pointer}
-    .btn.alt{background:#fff;color:#000}
-    .btn.ghost{background:none;border:1px solid #ffffffaa;color:#fff}
-
-    /* Vérification e-mail (bandeau) */
-    .banner{display:none;background:var(--warn-bg);color:#ffe58f;border-bottom:1px solid var(--warn-line);padding:10px}
-    .banner .btn{margin-left:8px;background:var(--warn);color:#000}
-
-    /* Hero */
-    .hero{display:grid;place-items:center;min-height:66vh;text-align:center;padding:30px 18px;
-      background:
-        radial-gradient(900px 480px at 15% 8%,rgba(255,77,109,.18),transparent 60%),
-        radial-gradient(1000px 520px at 85% 10%,rgba(143,81,234,.22),transparent 60%),
-        linear-gradient(135deg,var(--acc),var(--acc3),var(--acc2))}
-    .hero h1{font-size:clamp(28px,6vw,48px);margin:6px 0 10px;font-weight:800}
-    .hero p{max-width:640px;margin:0 auto 18px;color:#fff;opacity:.95}
-    .cta{display:inline-block;background:#fff;color:#000;font-weight:800;border-radius:999px;padding:14px 28px;border:0;cursor:pointer}
-    .uspbar{display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap}
-    .pill{border:1px solid #ffffff80;color:#fff;padding:6px 12px;border-radius:999px;font-size:12px;opacity:.9}
-
-    /* Discover */
-    section{padding:40px 18px}
-    h2{margin:0 0 12px}
-    .muted{color:var(--muted)}
-
-    .filters{display:grid;grid-template-columns:repeat(12,1fr);gap:10px;align-items:end;background:var(--card);border:1px solid var(--line);padding:12px;border-radius:12px}
-    .filters .cell{grid-column:span 3}
-    .filters .cell.w2{grid-column:span 2}
-    .filters .cell.w4{grid-column:span 4}
-    .filters .cell.w6{grid-column:span 6}
-    .filters label{display:block;font-size:13px;margin:0 0 6px}
-    .filters input,.filters select{width:100%;border-radius:10px;border:1px solid var(--line);background:#0f1320;color:#fff;padding:10px}
-    .filters fieldset{border:1px solid var(--line);border-radius:10px;padding:8px 10px}
-    .filters legend{color:var(--muted);font-size:12px;padding:0 6px}
-    .filters .actions{display:flex;gap:10px;justify-content:flex-end}
-
-    @media(max-width:980px){
-      .filters .cell{grid-column:span 6}
-      .nav-desktop{display:none}
-      .burger{display:block}
-    }
-    @media(max-width:560px){
-      .filters{grid-template-columns:repeat(6,1fr)}
-      .filters .cell{grid-column:span 6}
-    }
-
-    .grid{display:grid;gap:16px;grid-template-columns:repeat(3,1fr)}
-    @media(max-width:980px){.grid{grid-template-columns:repeat(2,1fr)}}
-    @media(max-width:560px){.grid{grid-template-columns:1fr}}
-
-    .card{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
-    .p-card img{aspect-ratio:4/5;object-fit:cover;background:#0e121a}
-    .p-body{padding:12px}
-    .p-title{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin-bottom:6px}
-    .v-badge{background:#133016;color:#a7f3a7;border:1px solid #2d5f2d;border-radius:8px;padding:2px 6px;font-size:12px}
-    .p-body p{color:var(--muted);margin:0 0 10px}
-    .p-actions{display:flex;gap:10px}
-    .loadmore{display:flex;justify-content:center;margin-top:14px}
-
-    .footer{padding:24px 18px;border-top:1px solid var(--line);text-align:center;color:var(--muted);font-size:14px}
-    #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:#000d;border:1px solid var(--line);
-      padding:10px 14px;border-radius:12px;display:none;z-index:90;min-width:240px;text-align:center}
-
-    .sr-only{position:absolute;left:-99999px;top:auto;width:1px;height:1px;overflow:hidden}
-    button[disabled]{opacity:.6;pointer-events:none}
+    :root{--ln-bg:#0c0f14;--ln-panel:#111622;--ln-ink:#fff;--ln-soft:#a9b1c3;--ln-accent:#ff3b81;}
+    body{margin:0;background:var(--ln-bg);color:var(--ln-ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial}
+    .container{max-width:1100px;margin:auto;padding:16px}
+    .hero{padding:64px 16px;background:linear-gradient(135deg,#ff3b81 0%,#7a5cf0 100%);color:#fff;text-align:center;border-bottom:1px solid #0003}
+    .hero h1{margin:0 0 8px;font-size:clamp(28px,5vw,44px)}
+    .ln-btn{border:1px solid #ffffff40;background:#ffffff12;color:#fff;padding:10px 14px;border-radius:10px;cursor:pointer}
+    .ln-btn.primary{background:var(--ln-accent);border-color:transparent}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
+    .card{background:var(--ln-panel);border:1px solid #ffffff14;border-radius:14px;overflow:hidden}
+    .card img{width:100%;height:180px;object-fit:cover;background:#0b0f18}
+    .card .p{padding:12px}
+    .meta{display:flex;gap:8px;align-items:center;color:var(--ln-soft);font-size:14px}
+    .actions{display:flex;gap:8px;margin-top:10px}
+    .pill{display:inline-flex;gap:8px;align-items:center;padding:4px 10px;border-radius:999px;background:#ffffff10;border:1px solid #ffffff14}
+    .notice{display:flex;gap:12px;align-items:center;justify-content:center;background:#2a2f3d;color:#fff;padding:10px;border-bottom:1px solid #0006}
+    .btn-nav{position:fixed;top:10px;left:12px;z-index:10001;background:#ffffff18;border:1px solid #ffffff30;color:#fff;border-radius:8px;padding:8px 10px}
+    .offcanvas{position:fixed;top:0;right:0;height:100dvh;width:320px;transform:translateX(100%);background:#0c0f14;color:#fff;transition:transform .25s ease;z-index:10000;outline:0;box-shadow:-4px 0 24px rgba(0,0,0,.3)}
+    .offcanvas[data-open="true"]{transform:translateX(0)}
+    .offcanvas__close{position:absolute;top:.4rem;right:.6rem;font-size:2rem;line-height:1;background:transparent;color:#fff;border:0;cursor:pointer}
+    .offcanvas__nav{display:flex;flex-direction:column;gap:.5rem;padding:3.2rem 1rem 1rem}
+    .offcanvas__nav a{display:block;padding:.8rem 1rem;border-radius:8px;border:1px solid #ffffff14;background:#ffffff0c;color:#fff;text-decoration:none}
+    .field{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:14px 0}
+    .field input,.field select{background:#12192a;border:1px solid #2a3245;color:#fff;border-radius:10px;padding:8px 10px}
+    .empty{padding:24px;text-align:center;color:#9aa3b6}
   </style>
 </head>
 <body>
-  <a class="sr-only" href="#discover">Aller au contenu</a>
+  <!-- Menu -->
+  <button id="navToggle" class="btn-nav" aria-controls="sideNav" aria-expanded="false" aria-label="Ouvrir le menu">☰</button>
+  <aside id="sideNav" class="offcanvas" aria-hidden="true">
+    <button id="navClose" class="offcanvas__close" aria-label="Fermer le menu">×</button>
+    <nav class="offcanvas__nav">
+      <a href="/">Accueil</a>
+      <a href="#discover">Découvrir</a>
+      <a href="/conversations.html">Conversations</a>
+      <a href="/profile.html">Mon profil</a>
+      <a href="/login.html" id="logoutLink">Se déconnecter</a>
+      <a href="/privacy.html">Confidentialité</a>
+      <a href="/cgu.html">CGU</a>
+    </nav>
+  </aside>
 
-  <!-- Header + nav -->
-  <header>
-    <div class="wrap row">
-      <a href="index.html" class="logo" aria-label="LoveNow">💘 LoveNow</a>
+  <!-- Bandeau e-mail non vérifié -->
+  <div id="emailBanner" class="notice" hidden>
+    <span>Ton e-mail n’est pas vérifié.</span>
+    <button id="sendVerify" class="ln-btn">Envoyer le lien</button>
+    <button id="refreshAuth" class="ln-btn">Rafraîchir</button>
+  </div>
 
-      <nav class="nav-desktop" aria-label="Navigation principale">
-        <a href="#discover">Découvrir</a>
-        <a href="conversations.html">Conversations</a>
-        <a href="profile.html">Mon profil</a>
-        <a id="navAuth" href="login.html">Connexion</a>
-        <a href="privacy.html">Confidentialité</a>
-        <a href="terms.html">CGU</a>
-      </nav>
-
-      <button id="burger" class="burger" aria-controls="navMobile" aria-expanded="false">☰</button>
-    </div>
-
-    <!-- Drawer mobile -->
-    <div id="navMobile" class="nav-mobile" hidden>
-      <div class="nav-panel" role="dialog" aria-label="Menu">
-        <button id="closeNav" class="btn ghost" style="align-self:flex-end">✕</button>
-        <a href="index.html">Accueil</a>
-        <a href="#discover" id="mDiscover">Découvrir</a>
-        <a href="conversations.html">Conversations</a>
-        <a href="profile.html">Mon profil</a>
-        <a id="navAuthM" href="login.html">Connexion</a>
-        <a href="privacy.html">Confidentialité</a>
-        <a href="terms.html">CGU</a>
+  <!-- Hero -->
+  <header class="hero">
+    <div class="container">
+      <h1>Rencontre l’amour près de chez toi</h1>
+      <p>Inscris-toi en 2 minutes, découvre des profils réels à proximité et commence à discuter.</p>
+      <div style="margin-top:14px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+        <span class="pill">🔥 Gratuit au départ</span>
+        <span class="pill">📍 Local & rapide</span>
+        <span class="pill">🔒 Sécurité & respect</span>
       </div>
-    </div>
-
-    <!-- Bandeau e-mail non vérifié -->
-    <div id="verifyEmailBar" class="banner" role="status" aria-live="polite">
-      Ton e-mail n’est pas vérifié.
-      <button id="btnSendVerify" class="btn">Valider mon e-mail</button>
-      <button id="btnRefreshVerify" class="btn">Rafraîchir</button>
+      <div style="margin-top:18px">
+        <a class="ln-btn primary" href="/login.html">Rejoins-nous gratuitement</a>
+      </div>
     </div>
   </header>
 
-  <!-- Hero -->
-  <section class="hero">
-    <h1>Rencontre l’amour près de chez toi</h1>
-    <p>Inscris-toi en 2 minutes, découvre des profils réels à proximité et commence à discuter. 100% gratuit au lancement.</p>
-    <a class="cta" href="login.html">Rejoins-nous gratuitement</a>
-    <div class="uspbar">
-      <span class="pill">🔥 Gratuit au départ</span>
-      <span class="pill">📍 Local & rapide</span>
-      <span class="pill">🔒 Sécurité & respect</span>
-    </div>
-  </section>
-
-  <!-- Discover -->
-  <main id="discover" class="wrap" tabindex="-1" aria-label="Découvrir des profils">
+  <!-- Découvrir -->
+  <main id="discover" class="container" style="padding:24px 16px 60px">
     <h2>Découvrir des profils</h2>
-    <p class="muted" id="discoverHelp">Affiche des profils réels autour de toi. Connecte-toi pour accéder à toutes les fonctionnalités.</p>
 
-    <form id="filters" class="filters" autocomplete="off">
-      <div class="cell w4">
-        <label for="city">Ville</label>
-        <input id="city" list="cities" placeholder="ex. Paris" inputmode="search">
-        <datalist id="cities">
-          <option>Paris</option><option>Lyon</option><option>Marseille</option>
-          <option>Toulouse</option><option>Bordeaux</option><option>Lille</option>
-          <option>Nantes</option><option>Nice</option><option>Montpellier</option>
-        </datalist>
-      </div>
-
-      <div class="cell w2">
-        <label>&nbsp;</label>
-        <button type="button" class="btn ghost" id="nearMe">📍 Autour de moi</button>
-      </div>
-
-      <div class="cell w3">
-        <fieldset>
-          <legend>Genre</legend>
-          <label><input type="radio" name="gender" value="tous" checked> Tous</label><br>
-          <label><input type="radio" name="gender" value="homme"> Hommes</label><br>
-          <label><input type="radio" name="gender" value="femme"> Femmes</label><br>
-          <label><input type="radio" name="gender" value="autre"> Autres</label>
-        </fieldset>
-      </div>
-
-      <div class="cell w3">
-        <fieldset>
-          <legend>Je cherche</legend>
-          <label><input type="radio" name="seeking" value="tous" checked> Tous</label><br>
-          <label><input type="radio" name="seeking" value="homme"> Homme</label><br>
-          <label><input type="radio" name="seeking" value="femme"> Femme</label>
-        </fieldset>
-      </div>
-
-      <div class="cell w6">
-        <label>Âge <span id="ageLbl">18–99</span></label>
-        <div style="display:flex;gap:10px">
-          <input type="range" id="ageMin" min="18" max="99" value="18" style="flex:1">
-          <input type="range" id="ageMax" min="18" max="99" value="99" style="flex:1">
-        </div>
-      </div>
-
-      <div class="cell w6 actions">
-        <button class="btn" type="submit" id="btnSearch">Rechercher</button>
-        <button class="btn alt" type="button" id="reset">Réinitialiser</button>
-      </div>
-    </form>
-
-    <div id="results" class="grid" aria-live="polite" aria-busy="false"></div>
-    <div class="loadmore">
-      <button id="btnMore" class="btn ghost" style="display:none">Charger plus</button>
+    <div class="field" id="filters">
+      <label>Genre</label>
+      <select id="fGender">
+        <option value="">Tous</option>
+        <option value="F">Femmes</option>
+        <option value="M">Hommes</option>
+        <option value="O">Autres</option>
+      </select>
+      <label>Âge</label>
+      <input id="fAgeMin" type="number" min="18" max="99" value="18" style="width:72px" />
+      <span>–</span>
+      <input id="fAgeMax" type="number" min="18" max="99" value="99" style="width:72px" />
+      <label>Ville</label>
+      <input id="fCity" type="text" placeholder="ex. Paris" />
+      <button id="btnSearch" class="ln-btn">Rechercher</button>
+      <button id="btnReset" class="ln-btn">Réinitialiser</button>
     </div>
+
+    <section id="cards" class="grid" aria-live="polite"></section>
+    <div id="empty" class="empty" hidden>Aucun profil ne correspond à ces critères.</div>
   </main>
 
-  <footer>
-    <div class="wrap footer">
-      © 2025 LoveNow — <a href="terms.html">Mentions / CGU</a> · <a href="privacy.html">Confidentialité</a> · 18+ uniquement
-    </div>
-  </footer>
+  <!-- Firebase config (TA CONFIG) -->
+  <script>
+    window.firebaseConfig = {
+      apiKey: "AIzaSyB_-cNA8bxqYCYUp3rUZs-VpiP4DX2wn3M",
+      authDomain: "lovenow-officiel.firebaseapp.com",
+      projectId: "lovenow-officiel",
+      storageBucket: "lovenow-officiel.firebasestorage.app",
+      messagingSenderId: "896585801571",
+      appId: "1:896585801571:web:cdde87293291dc1900bd56",
+      measurementId: "G-QGM25ND7LF"
+    };
+  </script>
 
-  <div id="toast" role="status" aria-live="polite"></div>
-
-  <!-- ======================= JS (module) ======================= -->
+  <!-- App -->
   <script type="module">
-    // ---------- Helpers UI ----------
-    const $=(s,c=document)=>c.querySelector(s), $$=(s,c=document)=>Array.from(c.querySelectorAll(s));
-    function toast(m,ms=2600){const t=$("#toast");t.textContent=m;t.style.display="block";setTimeout(()=>t.style.display="none",ms)}
-    const sanitize=s=>(s||"").replace(/[<>]/g,"");
-    const chatIdFor=(a,b)=>[a,b].sort().join("_");
-    const setLoading=(btn,on,labelBusy="…")=>{
-      if(!btn) return; if(on){btn.dataset._label=btn.textContent;btn.textContent=labelBusy;btn.setAttribute("disabled","")}
-      else{btn.textContent=btn.dataset._label||btn.textContent;btn.removeAttribute("disabled")}
-    };
-
-    // ---------- Burger ----------
-    const burger=$("#burger"), navMobile=$("#navMobile"), closeNav=$("#closeNav"), mDiscover=$("#mDiscover");
-    burger?.addEventListener("click",()=>{navMobile.hidden=false;burger.setAttribute("aria-expanded","true")});
-    closeNav?.addEventListener("click",()=>{navMobile.hidden=true;burger.setAttribute("aria-expanded","false")});
-    navMobile?.addEventListener("click",e=>{if(e.target===navMobile) closeNav.click()});
-    mDiscover?.addEventListener("click",()=>closeNav.click());
-
-    // ---------- Firebase (CDN v10) ----------
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
-    import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check.js";
-    import {
-      getAuth,onAuthStateChanged,sendEmailVerification,reload,signOut
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import {
-      getFirestore,collection,query,where,orderBy,limit,startAfter,getDocs,
-      doc,getDoc,setDoc,serverTimestamp,updateDoc,increment
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-    // ---------- Cloudinary (optionnel ici, utile sur profile/login) ----------
-    const CLOUD_NAME="dyqxadd0j";
-    const UPLOAD_PRESET="profile_pics";
-
-    // ---------- Config Firebase (tes valeurs) ----------
-    const firebaseConfig={
-      apiKey:"AIzaSyB_-cNA8bxqYCYUp3rUZs-VpiP4DX2wn3M",
-      authDomain:"lovenow-officiel.firebaseapp.com",
-      projectId:"lovenow-officiel",
-      storageBucket:"lovenow-officiel.firebasestorage.app",
-      messagingSenderId:"896585801571",
-      appId:"1:896585801571:web:cdde87293291dc1900bd56",
-      measurementId:"G-QGM25ND7LF"
-    };
-    const RECAPTCHA_SITE_KEY="6LfjpsErAAAAAExN2IvBq-K475TeJooeNzl9liPD";
-
-    const app=initializeApp(firebaseConfig); try{getAnalytics(app)}catch{}
-    initializeAppCheck(app,{provider:new ReCaptchaV3Provider(RECAPTCHA_SITE_KEY),isTokenAutoRefreshEnabled:true});
-    const auth=getAuth(app); const db=getFirestore(app);
-
-    // ---------- Vérification e-mail ----------
-    const verifyBar=$("#verifyEmailBar");
-    const btnSendVerify=$("#btnSendVerify"), btnRefreshVerify=$("#btnRefreshVerify");
-
-    const actionCodeSettings={
-      url: window.location.origin + '/?verified=1',
-      handleCodeInApp: false
-    };
-    const friendlyError=e=>{
-      const c=e?.code||"";
-      if(c.includes("too-many-requests")) return "Trop de tentatives. Réessaie dans une minute.";
-      if(c.includes("network-request-failed")) return "Problème réseau. Vérifie ta connexion.";
-      if(c.includes("unauthorized-continue-uri")) return "Domaine de retour non autorisé (Firebase > Auth > Domaines autorisés).";
-      return e?.message||"Une erreur est survenue.";
-    };
-
-    async function sendVerification(user,btn){
-      if(!user) return;
-      setLoading(btn,true,"Envoi…");
-      try{
-        try{ await sendEmailVerification(user,actionCodeSettings) }
-        catch(err){ if((err?.code||"").includes("unauthorized-continue-uri")) await sendEmailVerification(user); else throw err }
-        toast("E-mail de validation envoyé ✉️ (regarde tes SPAM).");
-      }catch(e){ toast(friendlyError(e)) }
-      finally{ setLoading(btn,false) }
+    // Off-canvas
+    const sideNav = document.getElementById('sideNav');
+    const navToggle = document.getElementById('navToggle');
+    const navClose  = document.getElementById('navClose');
+    function setNav(open){
+      sideNav.setAttribute('data-open', open ? 'true' : 'false');
+      sideNav.setAttribute('aria-hidden', open ? 'false' : 'true');
+      navToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if(open) sideNav.querySelector('a')?.focus();
     }
-    async function refreshVerification(user,btn){
-      if(!user) return;
-      setLoading(btn,true,"Maj…");
-      try{ await reload(user); updateVerifyUI(user) }catch(e){ toast(friendlyError(e)) }
-      finally{ setLoading(btn,false) }
-    }
-    btnSendVerify?.addEventListener("click",()=>sendVerification(auth.currentUser,btnSendVerify));
-    btnRefreshVerify?.addEventListener("click",()=>refreshVerification(auth.currentUser,btnRefreshVerify));
-
-    function updateVerifyUI(user){
-      const verified=!!user?.emailVerified;
-      verifyBar.style.display = verified ? "none" : "block";
-      // blocage léger côté UI (les règles sécurisent de toute façon côté serveur)
-      $("#btnMore").disabled = !verified && false; // on laisse consulter, l'envoi de message reste côté conversations
-    }
-
-    // ---------- Auth state + Nav ----------
-    const navAuth=$("#navAuth"), navAuthM=$("#navAuthM"), discoverHelp=$("#discoverHelp");
-    onAuthStateChanged(auth, async (user)=>{
-      if(user){
-        try{await reload(user)}catch{}
-        navAuth.textContent="Se déconnecter"; navAuth.href="#"; navAuth.onclick=async(e)=>{e.preventDefault(); await signOut(auth)};
-        navAuthM.textContent="Se déconnecter"; navAuthM.href="#"; navAuthM.onclick=async(e)=>{e.preventDefault(); closeNav?.click(); await signOut(auth)};
-        discoverHelp.textContent="Utilise les filtres pour affiner et envoie un message aux profils qui te plaisent.";
-        updateVerifyUI(user);
-      }else{
-        navAuth.textContent="Connexion"; navAuth.href="login.html"; navAuth.onclick=null;
-        navAuthM.textContent="Connexion"; navAuthM.href="login.html"; navAuthM.onclick=null;
-        discoverHelp.textContent="Affiche des profils réels autour de toi. Connecte-toi pour accéder à toutes les fonctionnalités.";
-        verifyBar.style.display="none";
+    navToggle?.addEventListener('click', ()=>setNav(true));
+    navClose?.addEventListener('click',  ()=>setNav(false));
+    document.addEventListener('click', (e)=>{
+      if(sideNav.getAttribute('data-open')==='true' && !sideNav.contains(e.target) && e.target!==navToggle){
+        setNav(false);
       }
-      // Charger une première page
-      lastDoc=null; await runSearch();
     });
 
-    // ---------- Filtres ----------
-    const ageMin=$("#ageMin"), ageMax=$("#ageMax"), ageLbl=$("#ageLbl"), city=$("#city");
-    function syncAge(){ const a=parseInt(ageMin.value,10), b=parseInt(ageMax.value,10); if(a>b){[ageMin.value,ageMax.value]=[b,a]} ageLbl.textContent=`${ageMin.value}–${ageMax.value}` }
-    ageMin.addEventListener("input",syncAge); ageMax.addEventListener("input",syncAge); syncAge();
-    $("#reset").addEventListener("click",()=>{
-      city.value=""; ageMin.value=18; ageMax.value=99; syncAge();
-      $$("input[name='gender']").forEach(r=>r.checked=r.value==="tous");
-      $$("input[name='seeking']").forEach(r=>r.checked=r.value==="tous");
+    // Firebase
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-analytics.js";
+    import { getAuth, onAuthStateChanged, signOut, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+    import { getFirestore, collection, query, where, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+
+    const app  = initializeApp(window.firebaseConfig);
+    try { getAnalytics(app); } catch(e) { /* analytics optionnel */ }
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
+
+    const emailBanner = document.getElementById('emailBanner');
+    const sendVerify  = document.getElementById('sendVerify');
+    const refreshAuth = document.getElementById('refreshAuth');
+    const logoutLink  = document.getElementById('logoutLink');
+
+    logoutLink?.addEventListener('click', async (e)=>{
+      e.preventDefault();
+      try { await signOut(auth); location.href = '/login.html'; } catch(e){ alert(e.message); }
     });
-    $("#nearMe").addEventListener("click",()=>{
-      if(!navigator.geolocation){toast("Géoloc non disponible");return;}
-      navigator.geolocation.getCurrentPosition(()=>{toast("Filtre ‘Autour de moi’ activé (approx)."); /* à brancher si tu ajoutes geohash */},
-        ()=>toast("Géoloc refusée"));
+
+    onAuthStateChanged(auth, (user)=>{
+      const need = !!user && !user.emailVerified;
+      emailBanner.hidden = !need;
+      sendVerify.onclick = async ()=>{
+        if(!auth.currentUser) return;
+        await sendEmailVerification(auth.currentUser);
+        alert("E-mail de vérification envoyé.");
+      };
+      refreshAuth.onclick = ()=> location.reload();
     });
 
-    // ---------- Recherche Firestore ----------
-    let lastDoc=null;
-    $("#filters").addEventListener("submit",async e=>{e.preventDefault(); lastDoc=null; await runSearch()});
-    $("#btnMore").addEventListener("click",async ()=>{ await runSearch(true) });
+    // Découvrir
+    const cardsEl = document.getElementById('cards');
+    const emptyEl = document.getElementById('empty');
+    const fGender = document.getElementById('fGender');
+    const fAgeMin = document.getElementById('fAgeMin');
+    const fAgeMax = document.getElementById('fAgeMax');
+    const fCity   = document.getElementById('fCity');
 
-    async function runSearch(append=false){
-      const res=$("#results"); const btnMore=$("#btnMore"); const btnSearch=$("#btnSearch");
-      const gender = ($("input[name='gender']:checked")||{}).value || "tous";
-      const seeking = ($("input[name='seeking']:checked")||{}).value || "tous";
-      const ageA=parseInt(ageMin.value,10), ageB=parseInt(ageMax.value,10); const min=Math.min(ageA,ageB), max=Math.max(ageA,ageB);
-      const cityVal=city.value.trim();
-
-      setLoading(btnSearch,true,"Recherche…"); res.setAttribute("aria-busy","true");
-      if(!append) res.innerHTML="";
-
-      try{
-        let q=query(collection(db,"users"), orderBy("createdAt","desc"), limit(24));
-        if(cityVal) q=query(q, where("city","==",cityVal));
-        if(gender!=="tous") q=query(q, where("gender","==",gender));
-        // seeking : on filtre côté client (simple, pas d’index supplémentaire)
-        if(lastDoc) q=query(q, startAfter(lastDoc));
-
-        const snap=await getDocs(q);
-        const items=[];
-        snap.forEach(d=>{
-          const u=d.data();
-          // bornes d’âge filtrées côté client
-          if((u.age??99) >= min && (u.age??0) <= max){
-            if(seeking==="tous" || (u.seeking||"tous")===seeking) items.push({id:d.id, ...u});
-          }
-        });
-
-        if(!append && items.length===0){ res.innerHTML=`<div class="card" style="padding:16px">Aucun profil ne correspond à tes filtres.</div>` }
-
-        items.forEach(u=> res.insertAdjacentHTML("beforeend", renderCard(u)) );
-
-        // wire des boutons Message
-        res.querySelectorAll("button.msg").forEach(b=>{
-          b.addEventListener("click",()=> openChatWith(b.dataset.uid));
-        });
-
-        lastDoc = snap.docs[snap.docs.length-1] || null;
-        btnMore.style.display = lastDoc ? "inline-block" : "none";
-      }catch(e){
-        console.debug(e);
-        toast("Requête impossible (index manquant ?). Va dans Firestore > Index si besoin.");
-      }finally{
-        setLoading(btnSearch,false); res.setAttribute("aria-busy","false");
-      }
-    }
-
-    // ---------- Rendu carte profil ----------
-    function renderCard(u){
-      const city = u.city ? ` · ${sanitize(u.city)}` : "";
-      const verified = u.emailVerified ? `<span class="v-badge">✔︎ Vérifié</span>` : "";
-      const bio = sanitize((u.bio||"").slice(0,140));
-      const img = u.photoUrl || "https://placehold.co/600x750?text=Profil";
-      const title = `${sanitize(u.name||"Sans nom")} · ${u.age||"?"} ans${city}`;
+    function cardTpl(p){
+      const photo = p.photoUrl || 'https://images.unsplash.com/photo-1527980965255-d3b416303d12?q=80&w=1200&auto=format&fit=crop';
       return `
-        <article class="card p-card">
-          <img src="${img}" alt="Photo de ${sanitize(u.name||'profil')}">
-          <div class="p-body">
-            <div class="p-title"><strong>${title}</strong> ${verified}</div>
-            <p>${bio}</p>
-            <div class="p-actions">
-              <button class="btn msg" data-uid="${u.id}">Message</button>
-              <a href="profile.html" class="btn ghost">Voir le profil</a>
+        <article class="card" data-uid="${p.uid}">
+          <img src="${photo}" alt="Photo de ${p.name ?? 'profil'}" loading="lazy" />
+          <div class="p">
+            <div class="meta"><strong>${p.name ?? '—'}</strong> · <span>${p.age ?? '—'} ans</span></div>
+            <div class="meta">${p.city ?? ''} ${p.gender ? '· '+p.gender : ''}</div>
+            <div class="actions">
+              <button class="ln-btn view">Voir le profil</button>
+              <button class="ln-btn primary chat">Message</button>
             </div>
           </div>
         </article>
       `;
     }
 
-    // ---------- Conversation helper ----------
-    async function ensureConversation(meUid,peerUid){
-      const cid=chatIdFor(meUid,peerUid);
-      const ref=doc(db,"conversations",cid);
-      const s=await getDoc(ref);
-      if(!s.exists()){
-        await setDoc(ref,{
-          members:[meUid,peerUid],
-          status:{[meUid]:"accepted",[peerUid]:"pending"},
-          lastText:"",lastSender:"",lastSenderName:"",lastAt:serverTimestamp(),
-          unread:{[meUid]:0,[peerUid]:0},createdAt:serverTimestamp()
+    async function loadProfiles(){
+      let qRef = collection(db, 'profiles');
+      const filters = [];
+      if(fGender.value) filters.push(where('gender','==', fGender.value));
+      if(fCity.value.trim()) filters.push(where('city','==', fCity.value.trim()));
+      const q = query(qRef, ...filters, orderBy('lastActive','desc'), limit(24));
+      const snap = await getDocs(q);
+
+      cardsEl.innerHTML = '';
+      if(snap.empty){ emptyEl.hidden = false; return; }
+      emptyEl.hidden = true;
+      snap.forEach(d=>{
+        const p = d.data(); p.uid = d.id;
+        cardsEl.insertAdjacentHTML('beforeend', cardTpl(p));
+      });
+
+      cardsEl.querySelectorAll('.card').forEach(card=>{
+        const uid = card.getAttribute('data-uid');
+        card.querySelector('.view')?.addEventListener('click', ()=>{
+          location.href = `/profile.html?uid=${encodeURIComponent(uid)}`;
         });
-      }
-      return ref;
-    }
-    async function openChatWith(peerUid){
-      const user=auth.currentUser;
-      if(!user){toast("Connecte-toi pour envoyer un message."); return; }
-      if(!user.emailVerified){toast("Valide d’abord ton e-mail ✉️"); return;}
-      try{
-        const ref=await ensureConversation(user.uid,peerUid);
-        try{ await updateDoc(ref,{["unread."+user.uid]:0}) }catch{}
-        // Redirection vers la page de conversations
-        window.location.href="conversations.html";
-      }catch(e){ toast("Impossible d’ouvrir la conversation."); }
+        card.querySelector('.chat')?.addEventListener('click', ()=>{
+          location.href = `/profile.html?uid=${encodeURIComponent(uid)}#chat`;
+        });
+      });
     }
 
-    // ---------- Utilitaires page ----------
-    // Met à jour le badge d’âge en live
-    ["input","change"].forEach(evt=>{
-      ageMin.addEventListener(evt,syncAge); ageMax.addEventListener(evt,syncAge);
+    document.getElementById('btnSearch')?.addEventListener('click', loadProfiles);
+    document.getElementById('btnReset')?.addEventListener('click', ()=>{
+      fGender.value=''; fAgeMin.value=18; fAgeMax.value=99; fCity.value=''; loadProfiles();
     });
+
+    loadProfiles();
   </script>
 </body>
 </html>
