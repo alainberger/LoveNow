@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>LoveNow — Rencontres gratuites, proches de toi</title>
-  <meta name="description" content="LoveNow : rencontres gratuites et locales. Inscris-toi, découvre des profils proches et discute en toute confiance.">
+  <meta name="description" content="LoveNow : rencontres gratuites et locales. Inscris-toi en 2 minutes, découvre des profils proches, discute en toute confiance.">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
 
@@ -24,6 +24,7 @@
     .nav-btn{border:1px solid #ffffffaa;padding:8px 14px;border-radius:999px;background:none;color:#fff;cursor:pointer}
     .nav-btn:hover{background:#fff;color:#000}
     .nav-btn.danger{border-color:var(--danger)}
+
     .hero{display:grid;place-items:center;min-height:70vh;text-align:center;padding:30px 18px;
       background:radial-gradient(1000px 500px at 15% 10%,rgba(255,77,109,.2),transparent 60%),
                  radial-gradient(1000px 500px at 85% 10%,rgba(143,81,234,.25),transparent 60%),
@@ -33,12 +34,14 @@
     .cta{display:inline-block;background:#fff;color:#000;font-weight:800;border-radius:999px;padding:14px 28px;border:0;cursor:pointer}
     .uspbar{display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap}
     .pill{border:1px solid #ffffff80;color:#fff;padding:6px 12px;border-radius:999px;font-size:12px;opacity:.9}
+
     section{padding:40px 18px}
     h2{margin:0 0 12px}
     .muted{color:var(--muted)}
     .grid{display:grid;gap:16px}
     .g-2{grid-template-columns:repeat(2,1fr)}
     @media(max-width:900px){.g-2{grid-template-columns:1fr}}
+
     .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
     .form{display:grid;gap:10px}
     .form input,.form textarea{width:100%;border-radius:10px;border:1px solid var(--line);background:#0f1320;color:#fff;padding:10px}
@@ -47,12 +50,15 @@
     .file span{display:inline-block;border:1px dashed var(--line);padding:10px;border-radius:10px;cursor:pointer}
     .avatar-wrap{margin-top:10px;text-align:center}
     .avatar-wrap img{width:120px;height:120px;border-radius:50%;object-fit:cover;border:2px solid var(--line)}
+
     .list{display:grid;gap:8px;max-height:280px;overflow:auto}
     .item{display:flex;align-items:center;gap:10px;border:1px solid var(--line);padding:10px;border-radius:10px}
     .item img{width:44px;height:44px;border-radius:50%;object-fit:cover}
     .item .grow{flex:1}
     .item button{padding:8px 10px;border:0;border-radius:999px;background:var(--acc);font-weight:700}
+
     .divider{height:1px;background:var(--line);margin:12px 0}
+
     .chat{display:grid;grid-template-columns:220px 1fr;gap:10px}
     @media(max-width:900px){.chat{grid-template-columns:1fr}}
     .chat-people{border:1px solid var(--line);border-radius:10px;max-height:320px;overflow:auto}
@@ -65,6 +71,7 @@
     .them{align-self:flex-start;background:#11141b}
     .send{display:flex;gap:8px;border-top:1px solid var(--line);padding:8px}
     .send input{flex:1}
+
     .footer{padding:24px 18px;border-top:1px solid var(--line);text-align:center;color:var(--muted);font-size:14px}
     #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:#000d;border:1px solid var(--line);
       padding:10px 14px;border-radius:12px;display:none}
@@ -111,7 +118,7 @@
     <div id="verifyBanner" style="display:none; margin:12px 18px;">
       <div style="background:#0f1320;border:1px solid var(--line);border-radius:10px;
                   padding:10px;display:flex;gap:10px;align-items:center;justify-content:space-between;">
-        <span>💌 Confirme ton e-mail pour activer toutes les fonctions.</span>
+        <span>💌 Confirmez votre e-mail pour activer toutes les fonctions.</span>
         <div style="display:flex;gap:8px;">
           <button id="btnResend" class="nav-btn">Renvoyer</button>
           <button id="btnCheckVerified" class="nav-btn">J’ai confirmé</button>
@@ -135,7 +142,7 @@
               <input id="age" name="age" type="number" min="18" max="100" required>
             </label>
             <label>Bio (500 max)
-              <textarea id="bio" name="bio" maxlength="500" rows="3" placeholder="Parle un peu de toi…"></textarea>
+              <textarea id="bio" name="bio" maxlength="500" rows="3" placeholder="Parlez un peu de vous…"></textarea>
             </label>
             <div class="row">
               <label class="file">
@@ -146,7 +153,7 @@
             </div>
           </form>
           <div class="avatar-wrap">
-            <img id="avatarPreview" alt="Avatar" />
+            <img id="avatarPreview" alt="Avatar" src="https://placehold.co/120x120?text=👤"/>
           </div>
         </div>
 
@@ -175,7 +182,7 @@
     <!-- CTA FINAL -->
     <section id="cta" class="wrap">
       <div class="card" style="text-align:center">
-        <h2>Prêt·e à tenter ta chance ?</h2>
+        <h2>Prêt·e à tenter votre chance ?</h2>
         <p class="muted">Inscription en 2 minutes. 18+ uniquement.</p>
         <button class="cta" id="ctaOpenAuth2">Créer un compte</button>
       </div>
@@ -199,14 +206,18 @@
 
       <div id="paneSignup" class="pane active">
         <form id="signupForm" class="form">
-          <label>Email <input id="suEmail" type="email" required autocomplete="email"></label>
-          <label>Mot de passe <input id="suPass" type="password" minlength="6" required autocomplete="new-password"></label>
+          <label>Email
+            <input id="suEmail" type="email" required autocomplete="email" autocapitalize="none" spellcheck="false">
+          </label>
+          <label>Mot de passe
+            <input id="suPass" type="password" minlength="6" required autocomplete="new-password">
+          </label>
           <div class="row">
             <label>Nom <input id="suName" maxlength="30" required></label>
             <label>Âge <input id="suAge" type="number" min="18" max="100" required></label>
           </div>
           <label>Bio (500 max)
-            <textarea id="suBio" maxlength="500" rows="3" placeholder="Parle un peu de toi…"></textarea>
+            <textarea id="suBio" maxlength="500" rows="3" placeholder="Parlez un peu de vous…"></textarea>
           </label>
           <label class="file">
             <input type="file" id="suAvatar" accept="image/*">
@@ -218,8 +229,12 @@
 
       <div id="paneLogin" class="pane">
         <form id="loginForm" class="form">
-          <label>Email <input id="liEmail" type="email" required autocomplete="email"></label>
-          <label>Mot de passe <input id="liPass" type="password" minlength="6" required autocomplete="current-password"></label>
+          <label>Email
+            <input id="liEmail" type="email" required autocomplete="username" autocapitalize="none" spellcheck="false">
+          </label>
+          <label>Mot de passe
+            <input id="liPass" type="password" minlength="6" required autocomplete="current-password">
+          </label>
           <div class="row" style="justify-content:space-between;align-items:center">
             <span class="muted" style="font-size:12px">Mot de passe oublié ?
               <a href="#" id="btnForgot">Réinitialiser</a>
@@ -235,21 +250,23 @@
   <div id="toast" role="status" aria-live="polite"></div>
 
   <script type="module">
-    // ===== Helpers
+    /* ===== Helpers ===== */
     const $  = (sel, ctx=document) => ctx.querySelector(sel);
     const $$ = (sel, ctx=document) => Array.from(ctx.querySelectorAll(sel));
-    function toast(msg, ms=2200){ const t=$("#toast"); t.textContent=msg; t.style.display="block"; setTimeout(()=>t.style.display="none", ms); }
+    function toast(msg, ms=2400){ const t=$("#toast"); t.textContent=msg; t.style.display="block"; setTimeout(()=>t.style.display="none", ms); }
     const sanitize = (s="") => s.replace(/[<>]/g,"");
-    const chatIdFor = (a,b) => [a,b].sort().join("_");
+    const chatIdFor = (a,b)=>[a,b].sort().join("_");
     const authErrorMessage = (e) => ({
       "auth/email-already-in-use":"Adresse déjà utilisée.",
       "auth/invalid-email":"Adresse e-mail invalide.",
       "auth/invalid-credential":"Email ou mot de passe incorrect.",
-      "auth/too-many-requests":"Trop de tentatives — réessaie plus tard.",
-      "auth/network-request-failed":"Problème réseau — réessaie."
+      "auth/wrong-password":"Email ou mot de passe incorrect.",
+      "auth/user-not-found":"Aucun compte avec cet e-mail.",
+      "auth/too-many-requests":"Trop de tentatives — réessayez plus tard.",
+      "auth/network-request-failed":"Problème réseau — réessayez."
     })[e?.code] || (e?.message || "Erreur");
 
-    // ===== UI Auth modal
+    /* ===== UI Modale ===== */
     const modal = $("#modalAuth");
     function openAuth(which="signup"){ modal.classList.add("open"); setTab(which); }
     function closeAuth(){ modal.classList.remove("open"); }
@@ -266,7 +283,7 @@
     }
     tabs.forEach(b=> b.addEventListener("click", ()=> setTab(b.dataset.tab)));
 
-    // ===== Firebase (CDN)
+    /* ===== Firebase (CDN) ===== */
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
     import {
@@ -278,13 +295,11 @@
       getFirestore, doc, setDoc, getDoc, updateDoc, addDoc,
       collection, query, where, orderBy, limit, getDocs, onSnapshot, serverTimestamp
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-    import {
-      initializeAppCheck, ReCaptchaV3Provider
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check.js";
+    import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check.js";
 
-    // ===== Cloudinary (unsigned)
-    const CLOUD_NAME = "dyqxadd0j";          // <- adapte si besoin
-    const UPLOAD_PRESET = "profile_pics";    // <- preset unsigned
+    /* ===== Cloudinary (unsigned) ===== */
+    const CLOUD_NAME    = "dyqxadd0j";       // ⚠️ remplace si besoin
+    const UPLOAD_PRESET = "profile_pics";    // ⚠️ preset unsigned
     async function uploadImage(file){
       const url = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`;
       const fd  = new FormData();
@@ -292,10 +307,10 @@
       fd.append("upload_preset", UPLOAD_PRESET);
       const r = await fetch(url, { method:"POST", body: fd });
       if(!r.ok) throw new Error("Upload Cloudinary échoué");
-      return r.json(); // { secure_url, ... }
+      return r.json();
     }
 
-    // ===== Config Firebase
+    /* ===== Config Firebase + AppCheck ===== */
     const firebaseConfig = {
       apiKey: "AIzaSyB_-cNA8bxqYCYUp3rUZs-VpiP4DX2wn3M",
       authDomain: "lovenow-officiel.firebaseapp.com",
@@ -314,36 +329,52 @@
     const auth = getAuth(app);
     const db   = getFirestore(app);
 
-    // ===== Réfs UI
+    /* ===== Réfs UI ===== */
     const appWrap   = $("#app");
     const btnLogout = $("#btnLogout");
     const hiName    = $("#hiName");
+    const verifyBanner = $("#verifyBanner");
+    const btnResend = $("#btnResend");
     const profilesList = $("#profilesList");
     const convList  = $("#conversationsList");
     const msgsList  = $("#messagesList");
     const sendForm  = $("#sendMsgForm");
     const msgInput  = $("#msgInput");
 
-    // ===== Email verification banner
+    /* ===== Bandeau vérif e-mail ===== */
     function toggleVerifyBanner(user){
-      const b = $("#verifyBanner");
-      if (!user) { b.style.display="none"; return; }
-      b.style.display = user.emailVerified ? "none" : "";
+      if(!user){ verifyBanner.style.display="none"; return; }
+      verifyBanner.style.display = user.emailVerified ? "none" : "";
     }
-    $("#btnResend")?.addEventListener("click", async ()=>{
-      const u = auth.currentUser; if(!u){ toast("Pas connecté."); return; }
-      try{ await sendEmailVerification(u); toast("E-mail envoyé ✅"); }
-      catch(err){ toast(authErrorMessage(err)); }
+    btnResend?.addEventListener("click", async ()=>{
+      const u = auth.currentUser;
+      if(!u){ toast("Pas connecté."); return; }
+      try{
+        await u.reload();
+        if(u.emailVerified){
+          toggleVerifyBanner(u);
+          toast("Adresse déjà vérifiée ✅");
+          return;
+        }
+        await sendEmailVerification(u);
+        toast("E-mail de vérification envoyé ✅ (vérifiez vos spams)");
+      }catch(err){
+        if(err.code === "auth/too-many-requests"){
+          toast("Trop d’envois — réessayez dans quelques minutes.");
+        }else{
+          toast(authErrorMessage(err));
+        }
+      }
     });
     $("#btnCheckVerified")?.addEventListener("click", async ()=>{
       const u = auth.currentUser; if(!u) return;
       await u.reload();
       toggleVerifyBanner(auth.currentUser);
       if(auth.currentUser.emailVerified) toast("Merci, e-mail confirmé ✅");
-      else toast("Toujours pas confirmé. Regarde tes spams 😉");
+      else toast("Toujours pas confirmé. Regardez vos spams 😉");
     });
 
-    // ===== INSCRIPTION
+    /* ===== INSCRIPTION ===== */
     $("#signupForm")?.addEventListener("submit", async (e)=>{
       e.preventDefault();
       const email = $("#suEmail").value.trim();
@@ -367,13 +398,12 @@
 
         await updateProfile(cred.user, { displayName: name, photoURL: photoUrl || null });
 
-        // email de vérification automatique
         await sendEmailVerification(cred.user);
-        toast("Compte créé ! Vérifie ta boîte mail ✉️");
+        toast("Compte créé ! Vérifiez votre e-mail ✉️");
         closeAuth();
       }catch(err){
         if(err.code === "auth/email-already-in-use"){
-          toast("Adresse déjà utilisée — connecte-toi.");
+          toast("Adresse déjà utilisée — connectez-vous.");
           setTab("login");
         }else{
           toast(authErrorMessage(err));
@@ -381,7 +411,7 @@
       }
     });
 
-    // ===== CONNEXION
+    /* ===== CONNEXION ===== */
     $("#loginForm")?.addEventListener("submit", async (e)=>{
       e.preventDefault();
       const email = $("#liEmail").value.trim();
@@ -393,7 +423,7 @@
       }catch(err){ toast(authErrorMessage(err)); }
     });
 
-    // ===== Mot de passe oublié
+    /* ===== Mot de passe oublié ===== */
     $("#btnForgot")?.addEventListener("click", async (e)=>{
       e.preventDefault();
       const email = prompt("Adresse e-mail :", $("#liEmail").value.trim() || "");
@@ -404,10 +434,10 @@
       }catch(err){ toast(authErrorMessage(err)); }
     });
 
-    // ===== DÉCONNEXION
+    /* ===== DÉCONNEXION ===== */
     btnLogout?.addEventListener("click", async ()=>{ await signOut(auth); });
 
-    // ===== ÉTAT AUTH + mini notif nouveaux messages
+    /* ===== ÉTAT AUTH + mini notif nouveaux messages ===== */
     let unsubGlobalInbox = null;
     let lastInboxTs = 0;
 
@@ -416,9 +446,9 @@
 
       if(user){
         btnLogout.style.display = "";
-        appWrap.style.display = "";
+        appWrap.style.display = user.emailVerified ? "" : "none";
         $("#btnOpenAuth").style.display = "none";
-        hiName.textContent = user.displayName || "toi";
+        hiName.textContent = user.displayName || "vous";
 
         // Préremplir profil
         try{
@@ -431,32 +461,33 @@
             if(u.photoUrl) $("#avatarPreview").src = u.photoUrl;
           }
         }catch{}
-        loadProfiles();
 
-        // Notifs : dernier message reçu
-        if(unsubGlobalInbox) unsubGlobalInbox();
-        const qInbox = query(
-          collection(db,"messages"),
-          where("receiverId","==",user.uid),
-          orderBy("createdAt","desc"),
-          limit(1)
-        );
-        unsubGlobalInbox = onSnapshot(qInbox, async (snap)=>{
-          const docu = snap.docs[0]; if(!docu) return;
-          const m = docu.data();
-          const ts = m.createdAt?.seconds || 0;
-          if(ts > lastInboxTs){ lastInboxTs = ts;
-            if(m.senderId !== user.uid){
-              // récupère le nom de l’expéditeur
-              try{
-                const s = await getDoc(doc(db,"users",m.senderId));
-                const n = s.exists() ? (s.data().name || "Quelqu’un") : "Quelqu’un";
-                toast(`🔔 Nouveau message de ${n}`);
-              }catch{ toast("🔔 Nouveau message"); }
+        if(user.emailVerified){
+          loadProfiles();
+
+          // Notifs: dernier message reçu
+          if(unsubGlobalInbox) unsubGlobalInbox();
+          const qInbox = query(
+            collection(db,"messages"),
+            where("receiverId","==",user.uid),
+            orderBy("createdAt","desc"),
+            limit(1)
+          );
+          unsubGlobalInbox = onSnapshot(qInbox, async (snap)=>{
+            const docu = snap.docs[0]; if(!docu) return;
+            const m = docu.data();
+            const ts = m.createdAt?.seconds || 0;
+            if(ts > lastInboxTs){ lastInboxTs = ts;
+              if(m.senderId !== user.uid){
+                try{
+                  const s = await getDoc(doc(db,"users",m.senderId));
+                  const n = s.exists() ? (s.data().name || "Quelqu’un") : "Quelqu’un";
+                  toast(`🔔 Nouveau message de ${n}`);
+                }catch{ toast("🔔 Nouveau message"); }
+              }
             }
-          }
-        });
-
+          });
+        }
       }else{
         btnLogout.style.display = "none";
         appWrap.style.display = "none";
@@ -465,7 +496,7 @@
       }
     });
 
-    // ===== MÀJ PROFIL
+    /* ===== MÀJ PROFIL ===== */
     $("#editProfileForm")?.addEventListener("submit", async (e)=>{
       e.preventDefault();
       const user = auth.currentUser; if(!user) return;
@@ -488,12 +519,12 @@
       }catch(err){ toast(authErrorMessage(err)); }
     });
 
-    // ===== PROFILS
+    /* ===== PROFILS ===== */
     async function loadProfiles(){
       const me = auth.currentUser; if(!me) return;
       try{
-        const q = query(collection(db,"users"), orderBy("createdAt","desc"), limit(30));
-        const snap = await getDocs(q);
+        const qy = query(collection(db,"users"), orderBy("createdAt","desc"), limit(30));
+        const snap = await getDocs(qy);
         profilesList.innerHTML = "";
         snap.forEach(d=>{
           if(d.id === me.uid) return;
@@ -513,7 +544,7 @@
       }catch(err){ console.warn(err); }
     }
 
-    // ===== CHAT
+    /* ===== CHAT ===== */
     let currentPeer = null;
     let unsubMessages = null;
 
@@ -554,24 +585,58 @@
           msgsList.appendChild(div);
         });
         msgsList.scrollTop = msgsList.scrollHeight;
+      }, (err)=>{
+        if((err?.code||"").includes("failed-precondition")){
+          toast("Crée l’index Firestore: messages(chatId ASC, createdAt ASC).");
+        }else{
+          toast("Erreur de lecture des messages.");
+        }
       });
     }
 
+    // ===== Envoi message (robuste)
     sendForm?.addEventListener("submit", async (e)=>{
       e.preventDefault();
-      const me = auth.currentUser; if(!me || !currentPeer){ toast("Choisis un profil pour discuter."); return; }
+      const me = auth.currentUser;
+
+      if(!me){ toast("Connectez-vous."); return; }
+      if(!currentPeer){ toast("Choisissez un profil pour discuter."); return; }
+
+      if(!me.emailVerified){
+        toggleVerifyBanner(me);
+        toast("Vérifiez votre e-mail avant d’envoyer un message.");
+        return;
+      }
+
       const text = sanitize(msgInput.value.trim());
       if(!text) return;
       if(text.length>500){ toast("500 caractères max"); return; }
-      const cid = chatIdFor(me.uid, currentPeer);
-      await addDoc(collection(db,"messages"), {
-        chatId: cid,
-        senderId: me.uid,
-        receiverId: currentPeer,
-        text,
-        createdAt: serverTimestamp()
-      });
-      msgInput.value = "";
+
+      const btn = sendForm.querySelector("button[type=submit]");
+      btn.disabled = true;
+
+      try{
+        const cid = chatIdFor(me.uid, currentPeer);
+        await addDoc(collection(db,"messages"), {
+          chatId: cid,
+          senderId: me.uid,
+          receiverId: currentPeer,
+          text,
+          createdAt: serverTimestamp()
+        });
+        msgInput.value = "";
+      }catch(err){
+        if(err.code === "permission-denied"){
+          toast("Permissions Firestore insuffisantes (règles).");
+        }else if(err.code === "failed-precondition"){
+          toast("Index requis: messages(chatId ASC, createdAt ASC).");
+        }else{
+          toast(authErrorMessage(err));
+        }
+        console.error(err);
+      }finally{
+        btn.disabled = false;
+      }
     });
   </script>
 </body>
