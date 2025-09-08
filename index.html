@@ -24,6 +24,7 @@
     .nav-btn{border:1px solid #ffffffaa;padding:8px 14px;border-radius:999px;background:none;color:#fff;cursor:pointer}
     .nav-btn:hover{background:#fff;color:#000}
     .nav-btn.danger{border-color:var(--danger)}
+
     .hero{display:grid;place-items:center;min-height:70vh;text-align:center;padding:30px 18px;
       background:radial-gradient(1000px 500px at 15% 10%,rgba(255,77,109,.2),transparent 60%),
                  radial-gradient(1000px 500px at 85% 10%,rgba(143,81,234,.25),transparent 60%),
@@ -31,28 +32,33 @@
     .hero h1{font-size:clamp(28px,6vw,48px);margin:6px 0 10px;font-weight:800}
     .hero p{max-width:640px;margin:0 auto 18px;color:#fff;opacity:.95}
     .cta{display:inline-block;background:#fff;color:#000;font-weight:800;border-radius:999px;padding:14px 28px;border:0;cursor:pointer}
-    .uspbar{display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap}
-    .pill{border:1px solid #ffffff80;color:#fff;padding:6px 12px;border-radius:999px;font-size:12px;opacity:.9}
+
     section{padding:40px 18px}
     h2{margin:0 0 12px}
     .muted{color:var(--muted)}
+
     .grid{display:grid;gap:16px}
     .g-2{grid-template-columns:repeat(2,1fr)}
     @media(max-width:900px){.g-2{grid-template-columns:1fr}}
     .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+
     .form{display:grid;gap:10px}
     .form input,.form textarea{width:100%;border-radius:10px;border:1px solid var(--line);background:#0f1320;color:#fff;padding:10px}
     .form button{border:0;border-radius:10px;padding:12px 16px;background:var(--acc);color:#000;font-weight:800;cursor:pointer}
+
     .file input{display:none}
     .file span{display:inline-block;border:1px dashed var(--line);padding:10px;border-radius:10px;cursor:pointer}
     .avatar-wrap{margin-top:10px;text-align:center}
     .avatar-wrap img{width:120px;height:120px;border-radius:50%;object-fit:cover;border:2px solid var(--line)}
+
     .list{display:grid;gap:8px;max-height:280px;overflow:auto}
     .item{display:flex;align-items:center;gap:10px;border:1px solid var(--line);padding:10px;border-radius:10px}
     .item img{width:44px;height:44px;border-radius:50%;object-fit:cover}
     .item .grow{flex:1}
     .item button{padding:8px 10px;border:0;border-radius:999px;background:var(--acc);font-weight:700}
+
     .divider{height:1px;background:var(--line);margin:12px 0}
+
     .chat{display:grid;grid-template-columns:220px 1fr;gap:10px}
     @media(max-width:900px){.chat{grid-template-columns:1fr}}
     .chat-people{border:1px solid var(--line);border-radius:10px;max-height:320px;overflow:auto}
@@ -65,10 +71,13 @@
     .them{align-self:flex-start;background:#11141b}
     .send{display:flex;gap:8px;border-top:1px solid var(--line);padding:8px}
     .send input{flex:1}
+
     .footer{padding:24px 18px;border-top:1px solid var(--line);text-align:center;color:var(--muted);font-size:14px}
     #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:#000d;border:1px solid var(--line);
       padding:10px 14px;border-radius:12px;display:none}
     .sr-only{position:absolute;left:-99999px;top:auto;width:1px;height:1px;overflow:hidden}
+
+    /* Modal */
     .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55);z-index:100}
     .modal.open{display:flex}
     .modal-card{min-width:320px;max-width:580px;background:var(--card);border:1px solid var(--line);border-radius:14px}
@@ -94,21 +103,20 @@
   </header>
 
   <main id="main">
+    <!-- HERO -->
     <section class="hero">
       <h1>Rencontre l’amour près de chez toi</h1>
       <p>Inscris-toi en 2 minutes, découvre des profils réels à proximité et commence à discuter. 100% gratuit au lancement.</p>
       <button class="cta" id="ctaStart">Rejoins-nous gratuitement</button>
-      <div class="uspbar">
-        <span class="pill">🔥 Gratuit au départ</span>
-        <span class="pill">📍 Local & rapide</span>
-        <span class="pill">🔒 Sécurité & respect</span>
-      </div>
+      <div class="muted" style="margin-top:10px">Conversations privées, photos via Cloudinary, sécurité reCAPTCHA.</div>
     </section>
 
+    <!-- APP (après connexion) -->
     <section id="app" class="wrap" style="display:none">
       <h2>Bienvenue <span id="hiName"></span> 👋</h2>
 
       <div class="grid g-2">
+        <!-- PROFIL -->
         <div class="card">
           <h3>Mon profil</h3>
           <form id="editProfileForm" class="form">
@@ -130,14 +138,17 @@
             </div>
           </form>
           <div class="avatar-wrap">
-            <img id="avatarPreview" alt="Avatar" />
+            <img id="avatarPreview" alt="Avatar" src="https://placehold.co/120x120?text=👤" />
           </div>
         </div>
 
+        <!-- DÉCOUVERTE + CHAT -->
         <div class="card">
           <h3>Profils proches</h3>
           <div id="profilesList" class="list"></div>
+
           <div class="divider"></div>
+
           <h3>Chat</h3>
           <div class="chat">
             <div class="chat-people" id="conversationsList"></div>
@@ -153,6 +164,7 @@
       </div>
     </section>
 
+    <!-- CTA FINAL -->
     <section id="cta" class="wrap">
       <div class="card" style="text-align:center">
         <h2>Prêt·e à tenter ta chance ?</h2>
@@ -208,33 +220,33 @@
 
   <div id="toast" role="status" aria-live="polite"></div>
 
+  <!-- ===== JS ===== -->
   <script type="module">
-    // Helpers
+    /* Helpers */
     const $  = (sel, ctx=document) => ctx.querySelector(sel);
     const $$ = (sel, ctx=document) => Array.from(ctx.querySelectorAll(sel));
-    function toast(msg, ms=2200){ const t=$("#toast"); t.textContent=msg; t.style.display="block"; setTimeout(()=>t.style.display="none", ms); }
     const sanitize = (s="") => s.replace(/[<>]/g,"");
-    const chatIdFor = (a,b) => [a,b].sort().join("_");
+    function toast(msg, ms=2200){ const t=$("#toast"); t.textContent=msg; t.style.display="block"; setTimeout(()=>t.style.display="none", ms); }
+    const chatIdFor = (a,b)=>[a,b].sort().join("_");
 
-    // Modale
+    /* UI Modale */
     const modal = $("#modalAuth");
+    const tabs  = $$("#modalAuth .tabs button");
     function openAuth(which="signup"){ modal.classList.add("open"); setTab(which); }
     function closeAuth(){ modal.classList.remove("open"); }
-    $("#btnOpenAuth")?.addEventListener("click", ()=> openAuth("signup"));
-    $("#ctaStart")?.addEventListener("click", ()=> openAuth("signup"));
-    $("#ctaOpenAuth2")?.addEventListener("click", ()=> openAuth("signup"));
-    $("#closeAuth")?.addEventListener("click", closeAuth);
-    modal.addEventListener("click", (e)=>{ if(e.target===modal) closeAuth(); });
-
-    const tabs = $$("#modalAuth .tabs button");
     function setTab(which){
       tabs.forEach(b=> b.classList.toggle("active", b.dataset.tab===which));
       $("#paneSignup").classList.toggle("active", which==="signup");
       $("#paneLogin").classList.toggle("active", which==="login");
     }
+    $("#btnOpenAuth")?.addEventListener("click", ()=> openAuth("signup"));
+    $("#ctaStart")?.addEventListener("click", ()=> openAuth("signup"));
+    $("#ctaOpenAuth2")?.addEventListener("click", ()=> openAuth("signup"));
+    $("#closeAuth")?.addEventListener("click", closeAuth);
+    modal.addEventListener("click", (e)=>{ if(e.target===modal) closeAuth(); });
     tabs.forEach(b=> b.addEventListener("click", ()=> setTab(b.dataset.tab)));
 
-    /* ===== Firebase + App Check ===== */
+    /* Firebase (CDN) */
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
     import {
@@ -245,13 +257,11 @@
       getFirestore, doc, setDoc, getDoc, updateDoc, addDoc,
       collection, query, where, orderBy, limit, getDocs, onSnapshot, serverTimestamp
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-    import {
-      initializeAppCheck, ReCaptchaV3Provider
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check.js";
+    import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check.js";
 
-    /* ===== Cloudinary (unsigned) ===== */
-    const CLOUD_NAME    = "dyqxadd0j";
-    const UPLOAD_PRESET = "profile_pics";
+    /* Cloudinary (unsigned) */
+    const CLOUD_NAME   = "dyqxadd0j";
+    const UPLOAD_PRESET= "profile_pics";
     async function uploadImage(file){
       const url = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`;
       const fd  = new FormData();
@@ -259,10 +269,10 @@
       fd.append("upload_preset", UPLOAD_PRESET);
       const r = await fetch(url, { method:"POST", body: fd });
       if(!r.ok) throw new Error("Upload Cloudinary échoué");
-      return r.json(); // { secure_url, ... }
+      return r.json();
     }
 
-    /* ===== Config Firebase (ton projet) ===== */
+    /* Firebase config + AppCheck (ta clé site reCAPTCHA v3) */
     const firebaseConfig = {
       apiKey: "AIzaSyB_-cNA8bxqYCYUp3rUZs-VpiP4DX2wn3M",
       authDomain: "lovenow-officiel.firebaseapp.com",
@@ -272,7 +282,6 @@
       appId: "1:896585801571:web:cdde87293291dc1900bd56",
       measurementId: "G-QGM25ND7LF"
     };
-    // Ta clé **du site** reCAPTCHA v3 :
     const RECAPTCHA_SITE_KEY = "6LfjpsErAAAAAExN2IvBq-K475TeJooeNzl9liPD";
 
     const app = initializeApp(firebaseConfig);
@@ -285,7 +294,17 @@
     const auth = getAuth(app);
     const db   = getFirestore(app);
 
-    /* ===== Inscription ===== */
+    /* Refs UI */
+    const appWrap   = $("#app");
+    const btnLogout = $("#btnLogout");
+    const hiName    = $("#hiName");
+    const profilesList = $("#profilesList");
+    const convList  = $("#conversationsList");
+    const msgsList  = $("#messagesList");
+    const sendForm  = $("#sendMsgForm");
+    const msgInput  = $("#msgInput");
+
+    /* INSCRIPTION */
     $("#signupForm")?.addEventListener("submit", async (e)=>{
       e.preventDefault();
       const email = $("#suEmail").value.trim();
@@ -297,13 +316,11 @@
       if(age < 18){ toast("18+ requis"); return; }
       try{
         const cred = await createUserWithEmailAndPassword(auth, email, pass);
-        const uid  = cred.user.uid;
+        const uid = cred.user.uid;
 
-        // Upload photo si fournie
         let photoUrl = "";
         if(file){ const up = await uploadImage(file); photoUrl = up.secure_url || ""; }
 
-        // Création du doc (règles : createdAt == request.time)
         await setDoc(doc(db,"users",uid), {
           name, age, bio, createdAt: serverTimestamp(),
           photoUrl, photos: photoUrl ? [photoUrl] : []
@@ -322,7 +339,7 @@
       }
     });
 
-    /* ===== Connexion / Déconnexion ===== */
+    /* CONNEXION */
     $("#loginForm")?.addEventListener("submit", async (e)=>{
       e.preventDefault();
       const email = $("#liEmail").value.trim();
@@ -333,16 +350,18 @@
         closeAuth();
       }catch(err){ toast(err.message || "Erreur de connexion"); }
     });
-    $("#btnLogout")?.addEventListener("click", async ()=>{ await signOut(auth); });
 
+    /* DÉCONNEXION */
+    btnLogout?.addEventListener("click", async ()=>{ await signOut(auth); });
+
+    /* STATE */
     onAuthStateChanged(auth, async (user)=>{
       if(user){
-        $("#btnLogout").style.display = "";
-        $("#app").style.display = "";
+        btnLogout.style.display = "";
+        appWrap.style.display = "";
         $("#btnOpenAuth").style.display = "none";
-        $("#hiName").textContent = user.displayName || "toi";
+        hiName.textContent = user.displayName || "toi";
 
-        // Préremplir le profil
         try{
           const snap = await getDoc(doc(db,"users",user.uid));
           if(snap.exists()){
@@ -355,13 +374,13 @@
         }catch{}
         loadProfiles();
       }else{
-        $("#btnLogout").style.display = "none";
-        $("#app").style.display = "none";
+        btnLogout.style.display = "none";
+        appWrap.style.display = "none";
         $("#btnOpenAuth").style.display = "";
       }
     });
 
-    /* ===== Mise à jour du profil ===== */
+    /* PROFIL : update + upsert si doc manquant */
     $("#editProfileForm")?.addEventListener("submit", async (e)=>{
       e.preventDefault();
       const user = auth.currentUser; if(!user) return;
@@ -369,56 +388,86 @@
       const age  = parseInt($("#age").value,10);
       const bio  = sanitize($("#bio").value.trim()).slice(0,500);
       const file = $("#avatarFile").files[0];
+
       try{
-        const updates = { name, age, bio };
+        let updates = { name, age, bio };
         if(file){
           const up = await uploadImage(file);
           updates.photoUrl = up.secure_url;
           updates.photos   = [up.secure_url];
           $("#avatarPreview").src = up.secure_url;
         }
-        await updateDoc(doc(db,"users",user.uid), updates);
+        // tente update; si not-found → setDoc (respecte la règle create)
+        try{
+          await updateDoc(doc(db,"users",user.uid), updates);
+        }catch(e1){
+          updates = { ...updates, createdAt: serverTimestamp(), photos: updates.photos || [] };
+          await setDoc(doc(db,"users",user.uid), updates);
+        }
         await updateProfile(user, { displayName: name, photoURL: updates.photoUrl || user.photoURL || null });
         toast("Profil mis à jour");
         loadProfiles();
       }catch(err){ toast(err.message || "Erreur de mise à jour"); }
     });
 
-    /* ===== Profils (lecture simple) ===== */
+    /* --- Helper : dernier message entre moi et peer --- */
+    async function getLastMessageText(peerUid){
+      const me = auth.currentUser;
+      if(!me) return "";
+      const cid = chatIdFor(me.uid, peerUid);
+      try{
+        const qLast = query(
+          collection(db, "messages"),
+          where("chatId","==", cid),
+          orderBy("createdAt","desc"),
+          limit(1)
+        );
+        const snap = await getDocs(qLast);
+        if(!snap.empty){
+          const m = snap.docs[0].data();
+          return (m.text || "").slice(0,70);
+        }
+        return "";
+      }catch(e){ console.warn("getLastMessageText", e); return ""; }
+    }
+
+    /* --- PROFILES (patch : aperçu = dernier message, sinon bio) --- */
     async function loadProfiles(){
       const me = auth.currentUser; if(!me) return;
       try{
-        const q = query(collection(db,"users"), orderBy("createdAt","desc"), limit(30));
-        const snap = await getDocs(q);
-        const box = $("#profilesList");
-        box.innerHTML = "";
-        snap.forEach(d=>{
+        const qy = query(collection(db,"users"), orderBy("createdAt","desc"), limit(30));
+        const snap = await getDocs(qy);
+        profilesList.innerHTML = "";
+        snap.forEach(async d=>{
           if(d.id === me.uid) return;
           const u = d.data();
+          const previewId = `pv_${d.id}`;
           const div = document.createElement("div");
           div.className = "item";
           div.innerHTML = `
             <img src="${u.photoUrl || 'https://placehold.co/80x80?text=👤'}" alt="">
             <div class="grow">
               <div><strong>${u.name || "Sans nom"}</strong> · ${u.age || "?"} ans</div>
-              <div class="muted">${(u.bio||"").slice(0,70)}</div>
+              <div class="muted" id="${previewId}">${(u.bio||"").slice(0,70)}</div>
             </div>
             <button data-uid="${d.id}">Message</button>
           `;
-          box.appendChild(div);
+          profilesList.appendChild(div);
+
+          const last = await getLastMessageText(d.id);
+          if(last){
+            const el = document.getElementById(previewId);
+            if(el) el.textContent = last;
+          }
         });
       }catch(err){ console.warn(err); }
     }
 
-    /* ===== Chat ultra-simple ===== */
-    const convList = $("#conversationsList");
-    const msgsList = $("#messagesList");
-    const sendForm = $("#sendMsgForm");
-    const msgInput = $("#msgInput");
+    /* --- CHAT PRIVÉ --- */
     let currentPeer = null;
     let unsubMessages = null;
 
-    $("#profilesList").addEventListener("click", (e)=>{
+    profilesList.addEventListener("click", (e)=>{
       const btn = e.target.closest("button[data-uid]");
       if(!btn) return;
       openChatWith(btn.dataset.uid);
@@ -439,13 +488,13 @@
       const me = auth.currentUser; if(!me || !currentPeer) return;
       const cid = chatIdFor(me.uid, currentPeer);
 
-      const q = query(
+      const qMsgs = query(
         collection(db,"messages"),
         where("chatId","==",cid),
         orderBy("createdAt","asc"),
         limit(100)
       );
-      unsubMessages = onSnapshot(q, (snap)=>{
+      unsubMessages = onSnapshot(qMsgs, (snap)=>{
         msgsList.innerHTML = "";
         snap.forEach(docu=>{
           const m = docu.data();
