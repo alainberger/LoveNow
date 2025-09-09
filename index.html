@@ -1,83 +1,75 @@
 <!doctype html>
 <html lang="fr" data-theme="dark">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>LoveNow — Rencontres près de chez toi</title>
-  <meta name="description" content="Inscris-toi en 2 minutes, découvre des profils réels à proximité et commence à discuter sur LoveNow."/>
-  <meta name="theme-color" content="#14151a"/>
-  <meta property="og:title" content="LoveNow — Rencontres près de chez toi"/>
-  <meta property="og:description" content="Profils réels, sécurité & respect, local & rapide."/>
-  <meta property="og:type" content="website"/>
-  <meta property="og:image" content="/og-image.png"/>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>LoveNow — Rencontres près de chez toi</title>
+<meta name="description" content="Inscris-toi en 2 minutes, découvre des profils près de chez toi et commence à discuter."/>
+<meta name="theme-color" content="#14151a"/>
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" as="style" onload="this.rel='stylesheet'"/>
 
-  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" as="style" onload="this.rel='stylesheet'"/>
+<style>
+:root{--bg:#0f1115;--card:#171922;--muted:#aab1c3;--text:#e9edf6;--brand:#ff2d55;--brand2:#7a5cf0}
+*{box-sizing:border-box}html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:Inter,system-ui}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1100px;margin:0 auto;padding:16px}
+header{position:sticky;top:0;z-index:10;background:rgba(15,17,21,.7);backdrop-filter:saturate(140%) blur(8px);border-bottom:1px solid #202334}
+nav{display:flex;align-items:center;gap:10px;padding:10px 0}
+.brand{font-weight:700}
+.spacer{flex:1}
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:.6rem .9rem;border-radius:.6rem;background:#232739;border:1px solid #2b2f44;cursor:pointer}
+.btn-primary{background:linear-gradient(135deg,var(--brand),var(--brand2));border:none}
+.btn[disabled]{opacity:.6;cursor:not-allowed}
+.banner{display:flex;gap:8px;align-items:center;justify-content:space-between;background:#1a1e2b;border:1px solid #27314a;border-radius:.8rem;padding:.6rem .8rem;margin:.6rem 0}
+.hero{background:linear-gradient(135deg,#2b1742 0%,#0f3b5b 60%,#0f1115 100%);padding:64px 0;border-bottom:1px solid #202334}
+h1{font-size:clamp(28px,4vw,44px);margin:.2rem 0 1rem}
+.pills{display:flex;gap:8px;flex-wrap:wrap}
+.pill{display:inline-flex;gap:6px;align-items:center;background:#202334;border:1px solid #2b3550;color:#cbd3e6;padding:.4rem .6rem;border-radius:999px;font-size:.9rem}
+.grid{display:grid;grid-template-columns:1fr;gap:16px}
+@media(min-width:800px){.grid{grid-template-columns:280px 1fr}}
+.card{background:var(--card);border:1px solid #202334;border-radius:.9rem}
+.card section{padding:14px}
+.filters{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(min-width:700px){.filters{grid-template-columns:140px 140px 1fr 130px 130px}}
+label{display:block;margin-bottom:4px;color:var(--muted);font-size:.9rem}
+input,select{width:100%;padding:.6rem;border-radius:.6rem;background:#0f1115;border:1px solid #2b2f44;color:var(--text)}
+.results{display:grid;grid-template-columns:1fr;gap:12px;padding:12px}
+@media(min-width:680px){.results{grid-template-columns:repeat(2,1fr)}}
+.profile{background:#141824;border:1px solid #23283d;border-radius:.8rem;overflow:hidden;display:flex;flex-direction:column}
+.profile img{width:100%;height:180px;object-fit:cover;background:#0c0e12}
+.profile .meta{padding:10px 12px;color:#cfd6ea;display:flex;flex-direction:column;gap:6px}
+.profile .actions{display:flex;gap:8px;padding:10px 12px;border-top:1px solid #23283d}
+.foot{opacity:.75;font-size:.9rem;margin-top:12px}
+.toast{position:fixed;right:16px;bottom:16px;background:#111522;border:1px solid #22304a;padding:.7rem 1rem;border-radius:.7rem;transform:translateY(20px);opacity:0;transition:.25s}
+.toast.show{transform:translateY(0);opacity:1}
+.skeleton{background:linear-gradient(90deg,#151826 25%,#1a1f31 37%,#151826 63%);background-size:400% 100%;animation:sh 1.2s ease infinite}
+@keyframes sh{0%{background-position:100% 50%}100%{background-position:0 50%}}
+</style>
 
-  <style>
-    :root{--bg:#0f1115;--card:#171922;--muted:#aab1c3;--text:#e9edf6;--brand:#ff2d55;--brand2:#7a5cf0}
-    *{box-sizing:border-box} html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:Inter,system-ui}
-    a{color:inherit;text-decoration:none}
-    .wrap{max-width:1100px;margin:0 auto;padding:16px}
-    header{position:sticky;top:0;z-index:10;background:rgba(15,17,21,.7);backdrop-filter:saturate(140%) blur(8px);border-bottom:1px solid #202334}
-    nav{display:flex;align-items:center;gap:10px;padding:10px 0}
-    .brand{font-weight:700}
-    .spacer{flex:1}
-    .btn{display:inline-flex;align-items:center;justify-content:center;padding:.6rem .9rem;border-radius:.6rem;background:#232739;border:1px solid #2b2f44;cursor:pointer}
-    .btn-primary{background:linear-gradient(135deg,var(--brand),var(--brand2));border:none}
-    .btn[disabled]{opacity:.6;cursor:not-allowed}
-    .banner{display:flex;gap:8px;align-items:center;justify-content:space-between;background:#1a1e2b;border:1px solid #27314a;border-radius:.8rem;padding:.6rem .8rem;margin:.6rem 0}
-    .hero{background:linear-gradient(135deg,#2b1742 0%,#0f3b5b 60%,#0f1115 100%);padding:64px 0;border-bottom:1px solid #202334}
-    h1{font-size:clamp(28px,4vw,44px);margin:.2rem 0 1rem}
-    .pills{display:flex;gap:8px;flex-wrap:wrap}
-    .pill{display:inline-flex;gap:6px;align-items:center;background:#202334;border:1px solid #2b3550;color:#cbd3e6;padding:.4rem .6rem;border-radius:999px;font-size:.9rem}
-    .grid{display:grid;grid-template-columns:1fr;gap:16px}
-    @media(min-width:800px){.grid{grid-template-columns:280px 1fr}}
-    .card{background:var(--card);border:1px solid #202334;border-radius:.9rem}
-    .card section{padding:14px}
-    .filters{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    @media(min-width:700px){.filters{grid-template-columns:140px 140px 1fr 130px 130px}}
-    label{display:block;margin-bottom:4px;color:var(--muted);font-size:.9rem}
-    input,select{width:100%;padding:.6rem;border-radius:.6rem;background:#0f1115;border:1px solid #2b2f44;color:var(--text)}
-    .results{display:grid;grid-template-columns:1fr;gap:12px;padding:12px}
-    @media(min-width:680px){.results{grid-template-columns:repeat(2,1fr)}}
-    .profile{background:#141824;border:1px solid #23283d;border-radius:.8rem;overflow:hidden;display:flex;flex-direction:column}
-    .profile img{width:100%;height:180px;object-fit:cover;background:#0c0e12}
-    .profile .meta{padding:10px 12px;color:#cfd6ea;display:flex;flex-direction:column;gap:6px}
-    .profile .actions{display:flex;gap:8px;padding:10px 12px;border-top:1px solid #23283d}
-    .foot{opacity:.75;font-size:.9rem;margin-top:12px}
-    .toast{position:fixed;right:16px;bottom:16px;background:#111522;border:1px solid #22304a;padding:.7rem 1rem;border-radius:.7rem;transform:translateY(20px);opacity:0;transition:.25s}
-    .toast.show{transform:translateY(0);opacity:1}
-    .skeleton{background:linear-gradient(90deg,#151826 25%,#1a1f31 37%,#151826 63%);background-size:400% 100%;animation:sh 1.2s ease infinite}
-    @keyframes sh{0%{background-position:100% 50%}100%{background-position:0 50%}}
-  </style>
+<script src="config.js"></script>
 
-  <!-- Config (tes clés & options) -->
-  <script src="config.js"></script>
+<!-- Firebase + App Check -->
+<script type="module">
+  const cfg = window.APP_CONFIG?.firebase;
+  const siteKey = window.APP_CONFIG?.appCheck?.recaptchaV3SiteKey;
 
-  <!-- Firebase + App Check (imports stables) -->
-  <script type="module">
-    const cfg = window.APP_CONFIG?.firebase;
-    const siteKey = window.APP_CONFIG?.appCheck?.recaptchaV3SiteKey;
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+  import { getAuth, onAuthStateChanged, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+  import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app-check.js";
 
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-    import { getAuth, onAuthStateChanged, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-    import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app-check.js";
+  const app = initializeApp(cfg);
+  if (siteKey) initializeAppCheck(app, { provider:new ReCaptchaV3Provider(siteKey), isTokenAutoRefreshEnabled:true });
+  const auth = getAuth(app);
 
-    const app = initializeApp(cfg);
-    if (siteKey) initializeAppCheck(app, { provider:new ReCaptchaV3Provider(siteKey), isTokenAutoRefreshEnabled:true });
-    const auth = getAuth(app);
-
-    // Expose pour les scripts bas de page
-    window.__AUTH__ = { auth, onAuthStateChanged, sendEmailVerification };
-    document.documentElement.dataset.firebase = "on";
-    document.dispatchEvent(new CustomEvent("firebase-ready"));
-  </script>
+  window.__AUTH__ = { auth, onAuthStateChanged, sendEmailVerification };
+  document.dispatchEvent(new CustomEvent("firebase-ready"));
+</script>
 </head>
 <body>
 <header>
   <div class="wrap">
     <nav aria-label="Navigation principale">
-      <strong class="brand" aria-label="LoveNow">LoveNow</strong>
+      <strong class="brand">LoveNow</strong>
       <a class="btn" href="index.html" aria-current="page">Accueil</a>
       <a class="btn" href="#discover">Découvrir</a>
       <a class="btn" href="login.html">Conversations</a>
@@ -85,10 +77,10 @@
       <span class="spacer"></span>
       <a class="btn" href="privacy.html">Confidentialité</a>
       <a class="btn" href="cgu.html">CGU</a>
-      <a class="btn btn-primary" href="login.html" aria-label="Rejoins-nous gratuitement">Rejoins-nous gratuitement</a>
+      <a class="btn btn-primary" href="login.html">Rejoins-nous gratuitement</a>
     </nav>
 
-    <!-- Bannière vérif : HIDDEN par défaut. Affichée uniquement si user && !emailVerified -->
+    <!-- Bannière vérif : HIDDEN par défaut -->
     <div id="verifyBanner" class="banner" role="status" aria-live="polite" hidden>
       <div><strong>Action requise :</strong> valide ton e-mail pour envoyer des messages.</div>
       <div style="display:flex;gap:8px">
@@ -104,7 +96,7 @@
     <div class="wrap">
       <h1>Rencontre l’amour près de chez toi</h1>
       <p>Inscris-toi en 2 minutes, découvre des profils réels à proximité et commence à discuter.</p>
-      <div class="pills" aria-label="Promesses">
+      <div class="pills">
         <span class="pill">🔥 Gratuit au départ</span>
         <span class="pill">📍 Local & rapide</span>
         <span class="pill">🔒 Sécurité & respect</span>
@@ -153,18 +145,6 @@
       <div class="card">
         <section>
           <div id="emptyState" class="foot">Ajuste les filtres ou complète ton profil pour plus de matches.</div>
-
-          <!-- Fallback “squelette” si JS bloqué -->
-          <noscript>
-            <div class="results">
-              <article class="profile">
-                <div class="skeleton" style="height:180px"></div>
-                <div class="meta"><div class="skeleton" style="height:16px;width:60%"></div></div>
-                <div class="actions"><span class="skeleton" style="height:36px;width:120px;border-radius:8px"></span></div>
-              </article>
-            </div>
-          </noscript>
-
           <div id="results" class="results" aria-live="polite"></div>
         </section>
       </div>
@@ -173,112 +153,87 @@
 </main>
 
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
+<footer class="wrap foot">© <span id="year"></span> LoveNow — <a href="privacy.html">Confidentialité</a> · <a href="cgu.html">CGU</a></footer>
 
-<footer class="wrap foot">
-  © <span id="year"></span> LoveNow — <a href="privacy.html">Confidentialité</a> · <a href="cgu.html">CGU</a>
-</footer>
-
-<!-- Scripts de page -->
 <script>
-  const $ = s => document.querySelector(s);
-  const toast = (msg) => { const t=$("#toast"); t.textContent=msg; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"), 2400); };
+const $ = s => document.querySelector(s);
+const toast=(msg)=>{const t=$("#toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2400);};
 
-  // Démo dataset (remplace plus tard par backend/Firestore)
-  const DEMO = [
-    { id:"u2", name:"Test2", age:26, city:"Paris", gender:"F", img:"https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=1200&auto=format&fit=crop"},
-    { id:"u1", name:"Test1", age:25, city:"Paris", gender:"M", img:"https://images.unsplash.com/photo-1531123897727-8f129e1688ce?q=80&w=1200&auto=format&fit=crop"}
-  ];
+// Démo — remplace plus tard par Firestore
+const DEMO = [
+  { id:"u2", name:"Alice",  age:26, city:"Paris", gender:"F", img:"https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=1200&auto=format&fit=crop"},
+  { id:"u1", name:"Benoît", age:25, city:"Lyon",  gender:"M", img:"https://images.unsplash.com/photo-1531123897727-8f129e1688ce?q=80&w=1200&auto=format&fit=crop"}
+];
 
-  function renderProfiles(list){
-    const wrap = $("#results"); wrap.innerHTML = "";
-    list.forEach(p=>{
-      const el = document.createElement("article");
-      el.className = "profile";
-      el.innerHTML = `
-        <img src="${p.img}" alt="Photo de ${p.name}">
-        <div class="meta">
-          <div><strong>${p.name}</strong> · ${p.age} ans</div>
-          <div>${p.city} · ${p.gender}</div>
-        </div>
-        <div class="actions">
-          <a class="btn" href="login.html">Voir le profil</a>
-          <button class="btn btn-primary" data-act="msg" data-user="${p.id}">Message</button>
-        </div>`;
-      wrap.appendChild(el);
-    });
-    $("#emptyState").hidden = list.length !== 0;
-  }
+function renderProfiles(list){
+  const wrap=$("#results"); wrap.innerHTML="";
+  list.forEach(p=>{
+    const el=document.createElement("article");
+    el.className="profile";
+    el.innerHTML=`
+      <img src="${p.img}" alt="Photo de ${p.name}">
+      <div class="meta"><div><strong>${p.name}</strong> · ${p.age} ans</div><div>${p.city} · ${p.gender}</div></div>
+      <div class="actions">
+        <a class="btn" href="login.html">Voir le profil</a>
+        <button class="btn btn-primary" data-act="msg" data-user="${p.id}">Message</button>
+      </div>`;
+    wrap.appendChild(el);
+  });
+  $("#emptyState").hidden = list.length !== 0;
+}
 
-  function applyFilters(){
-    const g = $("#fGender").value;
-    const min = Math.max(18, Number($("#fAgeMin").value||18));
-    const max = Math.min(99, Number($("#fAgeMax").value||99));
-    const city = ($("#fCity").value||"").trim().toLowerCase();
+function applyFilters(){
+  const g=$("#fGender").value;
+  const min=Math.max(18, Number($("#fAgeMin").value||18));
+  const max=Math.min(99, Number($("#fAgeMax").value||99));
+  const city=($("#fCity").value||"").trim().toLowerCase();
 
-    const filtered = DEMO.filter(p=>{
-      const okGender = (g==="all" || p.gender===g);
-      const okAge = (p.age >= min && p.age <= max); // inclusif
-      const okCity = (!city || (p.city||"").toLowerCase().includes(city));
-      return okGender && okAge && okCity;
-    });
-    renderProfiles(filtered);
-  }
+  const filtered=DEMO.filter(p=>{
+    const okG=(g==="all"||p.gender===g);
+    const okA=(p.age>=min && p.age<=max);
+    const okC=(!city||(p.city||"").toLowerCase().includes(city));
+    return okG&&okA&&okC;
+  });
+  renderProfiles(filtered);
+}
 
-  $("#btnSearch").addEventListener("click", applyFilters);
-  $("#btnReset").addEventListener("click", ()=>{ $("#fGender").value="all"; $("#fAgeMin").value=18; $("#fAgeMax").value=99; $("#fCity").value=""; applyFilters(); });
+$("#btnSearch").addEventListener("click", applyFilters);
+$("#btnReset").addEventListener("click", ()=>{ $("#fGender").value="all"; $("#fAgeMin").value=18; $("#fAgeMax").value=99; $("#fCity").value=""; applyFilters(); });
 
-  // Message : exige e-mail vérifié
-  $("#results").addEventListener("click", (e)=>{
-    const b = e.target.closest("button[data-act='msg']");
-    if(!b) return;
-    const ok = document.documentElement.dataset.verified === "true";
-    if(!ok){ alert("Valide ton e-mail avant d’envoyer des messages."); return; }
-    location.href = "login.html#conversations";
+$("#results").addEventListener("click",(e)=>{
+  const b=e.target.closest("button[data-act='msg']"); if(!b) return;
+  const ok=document.documentElement.dataset.verified==="true";
+  if(!ok){ alert("Valide ton e-mail avant d’envoyer des messages."); return; }
+  location.href="login.html#conversations";
+});
+
+// Bannière vérif : seulement user non vérifié
+document.addEventListener("firebase-ready", ()=>{
+  const {auth,onAuthStateChanged,sendEmailVerification}=window.__AUTH__;
+  const banner=$("#verifyBanner"), btnResend=$("#btnResend"), btnRefresh=$("#btnRefresh");
+  let cooldown=0, timer; const setCooldown=(sec)=>{cooldown=sec;clearInterval(timer);const base="Envoyer le lien";btnResend.disabled=true;btnResend.textContent=`${base} (${cooldown})`;timer=setInterval(()=>{cooldown--;if(cooldown<=0){clearInterval(timer);btnResend.disabled=false;btnResend.textContent=base;}else{btnResend.textContent=`${base} (${cooldown})`;}} ,1000);};
+
+  onAuthStateChanged(auth,(user)=>{
+    const show=!!(user && !user.emailVerified);
+    banner.hidden=!show;
+    document.documentElement.dataset.verified = user?.emailVerified ? "true" : "false";
   });
 
-  // Bannière e-mail : pilotage via Firebase
-  const banner = $("#verifyBanner");
-  const btnResend = $("#btnResend");
-  const btnRefresh = $("#btnRefresh");
-  let cooldown = 0, timer;
-
-  function setCooldown(sec){
-    cooldown = sec;
-    clearInterval(timer);
-    const baseText = "Envoyer le lien";
-    btnResend.disabled = true;
-    btnResend.textContent = `${baseText} (${cooldown})`;
-    timer = setInterval(()=>{
-      cooldown--;
-      if(cooldown<=0){ clearInterval(timer); btnResend.disabled = false; btnResend.textContent = baseText; }
-      else { btnResend.textContent = `${baseText} (${cooldown})`; }
-    }, 1000);
-  }
-
-  document.addEventListener("firebase-ready", ()=>{
-    const {auth, onAuthStateChanged, sendEmailVerification} = window.__AUTH__;
-    onAuthStateChanged(auth, (user)=>{
-      const verified = !!user?.emailVerified;
-      document.documentElement.dataset.verified = verified ? "true" : "false";
-      banner.hidden = !(user && !verified); // n’affiche QUE si user non vérifié
-    });
-
-    btnResend?.addEventListener("click", async ()=>{
-      const u = window.__AUTH__.auth.currentUser;
-      if(!u){ location.href="login.html"; return; }
-      try{
-        const actionCodeSettings = { url: "https://lovenow.netlify.app/login.html?verified=1", handleCodeInApp: false };
-        await window.__AUTH__.sendEmailVerification(u, actionCodeSettings);
-        setCooldown(window.APP_CONFIG?.resendCooldown ?? 30);
-        toast("Lien de vérification envoyé ✅");
-      }catch(e){ console.error(e); toast("Impossible d’envoyer le lien"); }
-    });
-
-    btnRefresh?.addEventListener("click", ()=> location.reload());
+  btnResend?.addEventListener("click", async ()=>{
+    const u=window.__AUTH__.auth.currentUser; if(!u){ location.href="login.html"; return; }
+    try{
+      const actionCodeSettings={ url:"https://lovenow.netlify.app/login.html?verified=1", handleCodeInApp:false };
+      await window.__AUTH__.sendEmailVerification(u, actionCodeSettings);
+      setCooldown(window.APP_CONFIG?.resendCooldown ?? 30);
+      toast("Lien de vérification envoyé ✅");
+    }catch(e){ console.error(e); toast("Impossible d’envoyer le lien"); }
   });
 
-  renderProfiles(DEMO);
-  document.getElementById("year").textContent = new Date().getFullYear();
+  btnRefresh?.addEventListener("click",()=>location.reload());
+});
+
+document.getElementById("year").textContent=(new Date()).getFullYear();
+renderProfiles(DEMO);
 </script>
 </body>
 </html>
