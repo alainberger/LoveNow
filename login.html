@@ -1,103 +1,100 @@
 <!doctype html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>LoveNow — Connexion / Inscription</title>
-  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" as="style" onload="this.rel='stylesheet'">
-  <style>
-    body{margin:0;background:#0f1115;color:#e9edf6;font-family:Inter,system-ui}
-    .wrap{max-width:720px;margin:0 auto;padding:20px}
-    .tabs{display:flex;gap:8px;margin:8px 0 16px}
-    .tab{padding:.6rem .9rem;border-radius:.6rem;background:#1a1e2b;border:1px solid #27314a;cursor:pointer}
-    .tab[aria-selected="true"]{background:linear-gradient(135deg,#ff2d55,#7a5cf0);border:none}
-    input{width:100%;padding:.7rem;border-radius:.6rem;background:#0f1115;border:1px solid #2b2f44;color:#e9edf6}
-    label{display:block;margin:10px 0 6px;color:#aab1c3}
-    .btn{display:inline-flex;align-items:center;justify-content:center;padding:.7rem 1rem;border-radius:.6rem;background:#232739;border:1px solid #2b2f44;cursor:pointer}
-    .btn-primary{background:linear-gradient(135deg,#ff2d55,#7a5cf0);border:none}
-    .card{background:#171922;border:1px solid #202334;border-radius:.9rem;padding:16px}
-    .muted{color:#aab1c3}
-    .banner{background:#1a1e2b;border:1px solid #27314a;border-radius:.8rem;padding:.6rem .8rem;margin:12px 0;display:flex;gap:8px;justify-content:space-between;align-items:center}
-    .toast{position:fixed;right:16px;bottom:16px;background:#111522;border:1px solid #22304a;padding:8px 12px;border-radius:8px}
-  </style>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>LoveNow — Connexion / Inscription</title>
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" as="style" onload="this.rel='stylesheet'">
+<style>
+body{margin:0;background:#0f1115;color:#e9edf6;font-family:Inter,system-ui}
+.wrap{max-width:720px;margin:0 auto;padding:20px}
+.tabs{display:flex;gap:8px;margin:8px 0 16px}
+.tab{padding:.6rem .9rem;border-radius:.6rem;background:#1a1e2b;border:1px solid #27314a;cursor:pointer}
+.tab[aria-selected="true"]{background:linear-gradient(135deg,#ff2d55,#7a5cf0);border:none}
+input{width:100%;padding:.7rem;border-radius:.6rem;background:#0f1115;border:1px solid #2b2f44;color:#e9edf6}
+label{display:block;margin:10px 0 6px;color:#aab1c3}
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:.7rem 1rem;border-radius:.6rem;background:#232739;border:1px solid #2b2f44;cursor:pointer}
+.btn-primary{background:linear-gradient(135deg,#ff2d55,#7a5cf0);border:none}
+.card{background:#171922;border:1px solid #202334;border-radius:.9rem;padding:16px}
+.muted{color:#aab1c3}
+.banner{background:#1a1e2b;border:1px solid #27314a;border-radius:.8rem;padding:.6rem .8rem;margin:12px 0;display:flex;gap:8px;justify-content:space-between;align-items:center}
+.toast{position:fixed;right:16px;bottom:16px;background:#111522;border:1px solid #22304a;padding:8px 12px;border-radius:8px}
+</style>
 
-  <script src="config.js"></script>
+<script src="config.js"></script>
 
-  <script type="module">
-    const cfg = window.APP_CONFIG?.firebase;
-    const siteKey = window.APP_CONFIG?.appCheck?.recaptchaV3SiteKey;
+<script type="module">
+const cfg = window.APP_CONFIG?.firebase;
+const siteKey = window.APP_CONFIG?.appCheck?.recaptchaV3SiteKey;
 
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-    import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, sendEmailVerification, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-    import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app-check.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, sendEmailVerification, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app-check.js";
 
-    const app = initializeApp(cfg);
-    if (siteKey) initializeAppCheck(app, { provider:new ReCaptchaV3Provider(siteKey), isTokenAutoRefreshEnabled:true });
-    const auth = getAuth(app);
+const app = initializeApp(cfg);
+if (siteKey) initializeAppCheck(app, { provider:new ReCaptchaV3Provider(siteKey), isTokenAutoRefreshEnabled:true });
+const auth = getAuth(app);
 
-    const $ = s=>document.querySelector(s);
-    const show = (t)=>{ $("#tab-login").setAttribute("aria-selected",t==="login"); $("#panel-login").hidden=t!=="login"; $("#tab-signup").setAttribute("aria-selected",t==="signup"); $("#panel-signup").hidden=t!=="signup"; }
-    $("#tab-login").addEventListener("click",()=>show("login"));
-    $("#tab-signup").addEventListener("click",()=>show("signup"));
-    show(location.hash==="#signup" ? "signup" : "login");
+const $ = s=>document.querySelector(s);
+const show=(t)=>{ $("#tab-login").setAttribute("aria-selected",t==="login"); $("#panel-login").hidden=t!=="login"; $("#tab-signup").setAttribute("aria-selected",t==="signup"); $("#panel-signup").hidden=t!=="signup"; };
+$("#tab-login").addEventListener("click",()=>show("login"));
+$("#tab-signup").addEventListener("click",()=>show("signup"));
+show(location.hash==="#signup" ? "signup" : "login");
 
-    // Toast minimal
-    const toast=(t)=>{ const el=document.createElement('div'); el.className='toast'; el.textContent=t; document.body.appendChild(el); setTimeout(()=>el.remove(),2200); };
+// Toast minimal
+const toast=(t)=>{ const el=document.createElement('div'); el.className='toast'; el.textContent=t; document.body.appendChild(el); setTimeout(()=>el.remove(),2200); };
 
-    // État vérif
-    onAuthStateChanged(auth,(user)=>{
-      const b = $("#verifyBanner");
-      if(user && !user.emailVerified){ b.hidden=false; $("#who").textContent=user.email||""; }
-      else { b.hidden=true; $("#who").textContent=""; }
-    });
+// État vérif
+onAuthStateChanged(auth,(user)=>{
+  const b=$("#verifyBanner");
+  if(user && !user.emailVerified){ b.hidden=false; $("#who").textContent=user.email||""; }
+  else { b.hidden=true; $("#who").textContent=""; }
+});
 
-    // Inscription
-    $("#signup").addEventListener("submit", async (e)=>{
-      e.preventDefault();
-      const email = $("#suEmail").value.trim();
-      const pass  = $("#suPass").value;
-      const name  = $("#suName").value.trim();
-      const age   = Number($("#suAge").value);
-      const city  = $("#suCity").value.trim();
-      const gender= $("#suGender").value;
-      try{
-        const {user} = await createUserWithEmailAndPassword(auth, email, pass);
-        await updateProfile(user, {displayName: name});
-        try{
-          const actionCodeSettings = { url: "https://lovenow.netlify.app/login.html?verified=1", handleCodeInApp: false };
-          await sendEmailVerification(user, actionCodeSettings);
-        }catch{}
-        alert("Compte créé. Vérifie ton e-mail pour discuter.");
-        location.href = "/";
-      }catch(err){
-        console.error(err); alert("Inscription impossible : "+(err?.message||""));
-      }
-    });
+// Inscription
+$("#signup").addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  const email=$("#suEmail").value.trim();
+  const pass=$("#suPass").value;
+  const name=$("#suName").value.trim();
+  try{
+    const {user}=await createUserWithEmailAndPassword(auth,email,pass);
+    await updateProfile(user,{ displayName:name });
+    try{
+      const actionCodeSettings={ url:"https://lovenow.netlify.app/login.html?verified=1", handleCodeInApp:false };
+      await sendEmailVerification(user, actionCodeSettings);
+    }catch{}
+    alert("Compte créé. Vérifie ton e-mail pour discuter.");
+    location.href="/";
+  }catch(err){
+    console.error(err); alert("Inscription impossible : "+(err?.message||""));
+  }
+});
 
-    // Connexion
-    $("#login").addEventListener("submit", async (e)=>{
-      e.preventDefault();
-      try{
-        await signInWithEmailAndPassword(auth, $("#liEmail").value.trim(), $("#liPass").value);
-        location.href = "/";
-      }catch(err){
-        console.error(err); alert("Connexion impossible : "+(err?.message||""));
-      }
-    });
+// Connexion
+$("#login").addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  try{
+    await signInWithEmailAndPassword(auth, $("#liEmail").value.trim(), $("#liPass").value);
+    location.href="/";
+  }catch(err){
+    console.error(err); alert("Connexion impossible : "+(err?.message||""));
+  }
+});
 
-    // Renvoi e-mail
-    $("#btnResend").addEventListener("click", async ()=>{
-      const u = auth.currentUser; if(!u) return alert("Connecte-toi d’abord.");
-      try{
-        const actionCodeSettings = { url: "https://lovenow.netlify.app/login.html?verified=1", handleCodeInApp: false };
-        await sendEmailVerification(u, actionCodeSettings);
-        toast("Lien envoyé ✅");
-      }catch{ toast("Échec envoi lien"); }
-    });
+// Renvoi e-mail
+$("#btnResend").addEventListener("click", async ()=>{
+  const u=auth.currentUser; if(!u) return alert("Connecte-toi d’abord.");
+  try{
+    const actionCodeSettings={ url:"https://lovenow.netlify.app/login.html?verified=1", handleCodeInApp:false };
+    await sendEmailVerification(u, actionCodeSettings);
+    toast("Lien envoyé ✅");
+  }catch{ toast("Échec envoi lien"); }
+});
 
-    // Déconnexion
-    $("#btnLogout").addEventListener("click", async ()=>{ await signOut(auth); alert("Déconnecté"); location.href="/"; });
-  </script>
+// Déconnexion
+$("#btnLogout").addEventListener("click", async ()=>{ await signOut(auth); alert("Déconnecté"); location.href="/"; });
+</script>
 </head>
 <body>
   <div class="wrap">
@@ -138,10 +135,16 @@
         <input id="suPass" type="password" required minlength="6" autocomplete="new-password">
         <label for="suName">Nom / Pseudo</label>
         <input id="suName" type="text" required>
-        <label for="suAge">Âge</label>
-        <input id="suAge" type="number" min="18" max="99" required>
-        <label for="suCity">Ville</label>
-        <input id="suCity" type="text" required>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div>
+            <label for="suAge">Âge</label>
+            <input id="suAge" type="number" min="18" max="99" required>
+          </div>
+          <div>
+            <label for="suCity">Ville</label>
+            <input id="suCity" type="text" required>
+          </div>
+        </div>
         <label for="suGender">Genre</label>
         <select id="suGender"><option value="F">Femme</option><option value="M">Homme</option><option value="O">Autre</option></select>
         <div style="margin-top:12px;display:flex;gap:8px">
@@ -153,7 +156,7 @@
 
     <div style="margin-top:16px">
       <button id="btnLogout" class="btn">Se déconnecter</button>
-      <span class="muted">· Astuce : après vérification e-mail, reviens ici puis “Accueil”.</span>
+      <span class="muted">· Après vérification e-mail, reviens ici puis « Accueil ».</span>
     </div>
   </div>
 </body>
