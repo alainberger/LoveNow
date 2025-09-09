@@ -1,75 +1,71 @@
 <!doctype html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>LoveNow — Politique de confidentialité</title>
-  <meta name="description" content="Politique de confidentialité LoveNow (RGPD)."/>
-  <style>
-    body{margin:0;background:#0f1115;color:#e9edf6;font-family:Inter,system-ui}
-    .wrap{max-width:900px;margin:0 auto;padding:20px}
-    a{color:#9ecbff}
-    h1,h2{margin:.6rem 0}
-    .card{background:#171922;border:1px solid #202334;border-radius:.9rem;padding:16px}
-    .btn{display:inline-flex;align-items:center;gap:6px;padding:.6rem .9rem;border-radius:.6rem;background:#1a1e2b;border:1px solid #27314a}
-  </style>
-  <script src="config.js"></script>
-  <script>
-    document.addEventListener("DOMContentLoaded",()=>{
-      const c = window.APP_CONFIG?.legal||{};
-      const dpo = window.APP_CONFIG?.dpoEmail || c.editorEmail || "";
-      document.getElementById("editorName").textContent   = c.editorName || "";
-      document.getElementById("editorAddress").textContent= c.editorAddress || "";
-      document.getElementById("editorEmail").textContent  = c.editorEmail || "";
-      document.getElementById("dpoEmail").textContent     = dpo || "";
-      document.getElementById("last").textContent         = new Date().toLocaleDateString('fr-FR');
-    });
-  </script>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>LoveNow — Politique de confidentialité</title>
+<meta name="description" content="Politique de confidentialité LoveNow (RGPD)."/>
+<style>
+body{margin:0;background:#0f1115;color:#e9edf6;font-family:Inter,system-ui}
+.wrap{max-width:900px;margin:0 auto;padding:20px}
+a{color:#9ecbff}.card{background:#171922;border:1px solid #202334;border-radius:.9rem;padding:16px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:.6rem .9rem;border-radius:.6rem;background:#1a1e2b;border:1px solid #27314a}
+</style>
+<script src="config.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded",()=>{
+  const L=window.APP_CONFIG?.legal||{};
+  const dpo=window.APP_CONFIG?.dpoEmail||L.editorEmail||"";
+  const set=(id,v)=>{const el=document.getElementById(id); if(el) el.textContent=v||"";}
+  set("editorName",L.editorName); set("editorAddress",L.editorAddress); set("editorEmail",L.editorEmail);
+  set("dpoEmail",dpo); document.getElementById("last").textContent=new Date().toLocaleDateString("fr-FR");
+});
+</script>
 </head>
 <body>
-  <div class="wrap">
-    <a class="btn" href="index.html">← Retour à l’accueil</a>
-    <h1>Politique de confidentialité</h1>
-    <p>Dernière mise à jour : <span id="last"></span></p>
+<div class="wrap">
+  <a class="btn" href="index.html">← Retour à l’accueil</a>
+  <h1>Politique de confidentialité</h1>
+  <p>Dernière mise à jour : <span id="last"></span></p>
 
-    <div class="card">
-      <h2>1. Responsable du traitement</h2>
-      <p><strong id="editorName"></strong> — <span id="editorAddress"></span> — <a href="mailto:" id="mailLegal"><span id="editorEmail"></span></a></p>
+  <div class="card">
+    <h2>1. Responsable du traitement</h2>
+    <p><strong id="editorName"></strong> — <span id="editorAddress"></span> — <a href="mailto:" id="mailLegal"><span id="editorEmail"></span></a></p>
 
-      <h2>2. Données traitées</h2>
-      <ul>
-        <li>Compte : e-mail, mot de passe (haché), statut de vérification.</li>
-        <li>Profil : nom/pseudo, âge (18+), genre, ville, photo(s).</li>
-        <li>Usage : messages, invitations, horodatages, signalements.</li>
-        <li>Sécurité : logs techniques (IP, user-agent), jetons anti-abus (App Check).</li>
-      </ul>
+    <h2>2. Données traitées</h2>
+    <ul>
+      <li>Compte : e-mail, statut de vérification.</li>
+      <li>Profil : nom/pseudo, âge (18+), genre, ville, photo(s).</li>
+      <li>Usage : messages, invitations, horodatages.</li>
+      <li>Sécurité : logs techniques (IP, UA), App Check (reCAPTCHA v3).</li>
+    </ul>
 
-      <h2>3. Finalités et bases légales</h2>
-      <ul>
-        <li>Fournir le service et la messagerie privée (exécution du contrat).</li>
-        <li>Sécurité, prévention de l’abus, anti-spam (intérêt légitime).</li>
-        <li>Notifications transactionnelles (contrat/intérêt légitime).</li>
-      </ul>
+    <h2>3. Finalités & bases légales</h2>
+    <ul>
+      <li>Fournir le service et la messagerie privée (contrat).</li>
+      <li>Sécurité/anti-abus (intérêt légitime).</li>
+      <li>Notifications transactionnelles (contrat/intérêt légitime).</li>
+    </ul>
 
-      <h2>4. Durées de conservation</h2>
-      <ul>
-        <li>Compte/Profil : tant que le compte est actif.</li>
-        <li>Messages : jusqu’à suppression du compte ou délai légal.</li>
-        <li>Journaux sécurité : durée minimale nécessaire (ex. 90 jours).</li>
-      </ul>
+    <h2>4. Durées de conservation</h2>
+    <ul>
+      <li>Compte/Profil : tant que le compte est actif.</li>
+      <li>Messages : jusqu’à suppression du compte ou délai légal.</li>
+      <li>Journaux sécurité : durée minimale nécessaire (ex. 90 jours).</li>
+    </ul>
 
-      <h2>5. Partage</h2>
-      <p>Hébergeurs/sous-traitants nécessaires (Netlify, Firebase/Auth). Pas de vente de données.</p>
+    <h2>5. Partage</h2>
+    <p>Sous-traitants techniques nécessaires (Netlify, Firebase). Pas de vente de données.</p>
 
-      <h2>6. Transferts hors UE</h2>
-      <p>Le cas échéant, clauses contractuelles types et garanties appropriées.</p>
+    <h2>6. Transferts hors UE</h2>
+    <p>Clauses contractuelles types et garanties appropriées si applicables.</p>
 
-      <h2>7. Droits</h2>
-      <p>Accès, rectification, suppression, limitation, opposition, portabilité. Contact : <strong id="dpoEmail"></strong>. Recours possible auprès de la CNIL.</p>
+    <h2>7. Droits</h2>
+    <p>Accès, rectification, suppression, opposition, portabilité. Contact : <strong id="dpoEmail"></strong>. Recours : CNIL.</p>
 
-      <h2>8. Sécurité</h2>
-      <p>Chiffrement TLS, hachage des mots de passe, contrôle d’accès, journalisation, App Check (reCAPTCHA v3).</p>
-    </div>
+    <h2>8. Sécurité</h2>
+    <p>Chiffrement TLS, hachage des mots de passe, contrôle d’accès, journalisation, App Check.</p>
   </div>
+</div>
 </body>
 </html>
