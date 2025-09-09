@@ -18,93 +18,97 @@
     .card{background:#171922;border:1px solid #202334;border-radius:.9rem;padding:16px}
     .muted{color:#aab1c3}
     .banner{background:#1a1e2b;border:1px solid #27314a;border-radius:.8rem;padding:.6rem .8rem;margin:12px 0;display:flex;gap:8px;justify-content:space-between;align-items:center}
+    .toast{position:fixed;right:16px;bottom:16px;background:#111522;border:1px solid #22304a;padding:8px 12px;border-radius:8px}
   </style>
+
   <script src="config.js"></script>
+
   <script type="module">
     const cfg = window.APP_CONFIG?.firebase;
-    if(cfg && cfg.apiKey){
-      const { initializeApp } = await import("https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js");
-      const { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, signOut, sendEmailVerification } = await import("https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js");
-      const { getAnalytics } = await import("https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics.js");
-      const app = initializeApp(cfg);
+    const siteKey = window.APP_CONFIG?.appCheck?.recaptchaV3SiteKey;
 
-      // App Check (site key seulement)
-      const siteKey = window.APP_CONFIG?.appCheck?.recaptchaV3SiteKey;
-      if(siteKey){
-        const { initializeAppCheck, ReCaptchaV3Provider } = await import("https://www.gstatic.com/firebasejs/9.23.0/firebase-app-check.js");
-        initializeAppCheck(app, { provider: new ReCaptchaV3Provider(siteKey), isTokenAutoRefreshEnabled: true });
-      }
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, sendEmailVerification, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app-check.js";
 
-      if(window.APP_CONFIG?.analyticsEnabled && cfg.measurementId){
-        try{ getAnalytics(app); }catch(e){ console.warn("Analytics non initialisé:", e); }
-      }
+    const app = initializeApp(cfg);
+    if (siteKey) initializeAppCheck(app, { provider:new ReCaptchaV3Provider(siteKey), isTokenAutoRefreshEnabled:true });
+    const auth = getAuth(app);
 
-      const auth = getAuth(app);
-      const $ = s=>document.querySelector(s);
-      const show = (t)=>{ $("#tab-login").ariaSelected=(t==="login"); $("#tab-signup").ariaSelected=(t!=="login"); $("#panel-login").hidden=t!=="login"; $("#panel-signup").hidden=t==="login"; }
-      $("#tab-login").addEventListener("click",()=>show("login"));
-      $("#tab-signup").addEventListener("click",()=>show("signup"));
-      if(location.hash==="#signup") show("signup");
+    const $ = s=>document.querySelector(s);
+    const show = (t)=>{ $("#tab-login").setAttribute("aria-selected",t==="login"); $("#panel-login").hidden=t!=="login"; $("#tab-signup").setAttribute("aria-selected",t==="signup"); $("#panel-signup").hidden=t!=="signup"; }
+    $("#tab-login").addEventListener("click",()=>show("login"));
+    $("#tab-signup").addEventListener("click",()=>show("signup"));
+    show(location.hash==="#signup" ? "signup" : "login");
 
-      // Signup
-      $("#signup").addEventListener("submit", async (e)=>{
-        e.preventDefault();
-        const email = $("#suEmail").value.trim();
-        const pass = $("#suPass").value;
-        const name = $("#suName").value.trim();
-        const age = Number($("#suAge").value);
-        const city = $("#suCity").value.trim();
-        const gender = $("#suGender").value;
+    // Toast minimal
+    const toast=(t)=>{ const el=document.createElement('div'); el.className='toast'; el.textContent=t; document.body.appendChild(el); setTimeout(()=>el.remove(),2200); };
+
+    // État vérif
+    onAuthStateChanged(auth,(user)=>{
+      const b = $("#verifyBanner");
+      if(user && !user.emailVerified){ b.hidden=false; $("#who").textContent=user.email||""; }
+      else { b.hidden=true; $("#who").textContent=""; }
+    });
+
+    // Inscription
+    $("#signup").addEventListener("submit", async (e)=>{
+      e.preventDefault();
+      const email = $("#suEmail").value.trim();
+      const pass  = $("#suPass").value;
+      const name  = $("#suName").value.trim();
+      const age   = Number($("#suAge").value);
+      const city  = $("#suCity").value.trim();
+      const gender= $("#suGender").value;
+      try{
+        const {user} = await createUserWithEmailAndPassword(auth, email, pass);
+        await updateProfile(user, {displayName: name});
         try{
-          const {user} = await createUserWithEmailAndPassword(auth, email, pass);
-          await updateProfile(user, {displayName: name});
-          try{ await sendEmailVerification(user); }catch{}
-          alert("Compte créé. Vérifie ton e-mail pour discuter.");
-          location.href = "/";
-        }catch(err){ console.error(err); alert("Inscription impossible: "+(err?.message||"")); }
-      });
+          const actionCodeSettings = { url: "https://lovenow.netlify.app/login.html?verified=1", handleCodeInApp: false };
+          await sendEmailVerification(user, actionCodeSettings);
+        }catch{}
+        alert("Compte créé. Vérifie ton e-mail pour discuter.");
+        location.href = "/";
+      }catch(err){
+        console.error(err); alert("Inscription impossible : "+(err?.message||""));
+      }
+    });
 
-      // Login
-      $("#login").addEventListener("submit", async (e)=>{
-        e.preventDefault();
-        try{
-          await signInWithEmailAndPassword(auth, $("#liEmail").value.trim(), $("#liPass").value);
-          location.href = "/";
-        }catch(err){ console.error(err); alert("Connexion impossible: "+(err?.message||"")); }
-      });
+    // Connexion
+    $("#login").addEventListener("submit", async (e)=>{
+      e.preventDefault();
+      try{
+        await signInWithEmailAndPassword(auth, $("#liEmail").value.trim(), $("#liPass").value);
+        location.href = "/";
+      }catch(err){
+        console.error(err); alert("Connexion impossible : "+(err?.message||""));
+      }
+    });
 
-      // Banner
-      onAuthStateChanged(auth, (user)=>{
-        const banner = $("#verifyBanner");
-        if(user && !user.emailVerified){ banner.hidden = false; $("#who").textContent = user.email; }
-        else { banner.hidden = true; $("#who").textContent = ""; }
-      });
+    // Renvoi e-mail
+    $("#btnResend").addEventListener("click", async ()=>{
+      const u = auth.currentUser; if(!u) return alert("Connecte-toi d’abord.");
+      try{
+        const actionCodeSettings = { url: "https://lovenow.netlify.app/login.html?verified=1", handleCodeInApp: false };
+        await sendEmailVerification(u, actionCodeSettings);
+        toast("Lien envoyé ✅");
+      }catch{ toast("Échec envoi lien"); }
+    });
 
-      $("#btnResend").addEventListener("click", async ()=>{
-        if(!auth.currentUser){ return alert("Connecte-toi d’abord."); }
-        try{ await sendEmailVerification(auth.currentUser); alert("Lien envoyé ✅"); }catch(e){ alert("Échec envoi lien"); }
-      });
-
-      $("#btnLogout").addEventListener("click", async ()=>{ await signOut(auth); alert("Déconnecté"); location.href="/"; });
-    } else {
-      const $ = s=>document.querySelector(s);
-      const show = (t)=>{ $("#tab-login").ariaSelected=(t==="login"); $("#tab-signup").ariaSelected=(t!=="login"); $("#panel-login").hidden=t!=="login"; $("#panel-signup").hidden=t==="login"; }
-      $("#tab-login").addEventListener("click",()=>show("login"));
-      $("#tab-signup").addEventListener("click",()=>show("signup"));
-      if(location.hash==="#signup") show("signup"); else show("login");
-    }
+    // Déconnexion
+    $("#btnLogout").addEventListener("click", async ()=>{ await signOut(auth); alert("Déconnecté"); location.href="/"; });
   </script>
 </head>
 <body>
   <div class="wrap">
-    <a class="btn" href="/">← Retour à l’accueil</a>
+    <a class="btn" href="index.html">← Retour à l’accueil</a>
     <h1>Connexion / Inscription</h1>
 
     <div class="banner" id="verifyBanner" hidden>
       <div>E-mail <span id="who" class="muted"></span> non vérifié.</div>
       <div style="display:flex;gap:8px">
         <button id="btnResend" class="btn">Envoyer le lien</button>
-        <a class="btn" href="/">Rafraîchir</a>
+        <a class="btn" href="index.html">Accueil</a>
       </div>
     </div>
 
@@ -121,7 +125,7 @@
         <input id="liPass" type="password" required autocomplete="current-password" minlength="6">
         <div style="margin-top:12px;display:flex;gap:8px">
           <button class="btn btn-primary" type="submit">Se connecter</button>
-          <a class="btn" href="/">Accueil</a>
+          <a class="btn" href="index.html">Accueil</a>
         </div>
       </form>
     </div>
@@ -142,7 +146,7 @@
         <select id="suGender"><option value="F">Femme</option><option value="M">Homme</option><option value="O">Autre</option></select>
         <div style="margin-top:12px;display:flex;gap:8px">
           <button class="btn btn-primary" type="submit">Créer mon compte</button>
-          <a class="btn" href="/">Accueil</a>
+          <a class="btn" href="index.html">Accueil</a>
         </div>
       </form>
     </div>
