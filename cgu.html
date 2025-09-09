@@ -13,10 +13,16 @@
     h1,h2{margin:.6rem 0}
   </style>
   <script src="config.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded",()=>{
+      const email = window.APP_CONFIG?.legal?.editorEmail || "contact@lovenow.app";
+      document.getElementById("legalEmail").textContent = email;
+    });
+  </script>
 </head>
 <body>
   <div class="wrap">
-    <a class="btn" href="/">← Retour à l’accueil</a>
+    <a class="btn" href="index.html">← Retour à l’accueil</a>
     <h1>Conditions Générales d’Utilisation</h1>
     <div class="card">
       <h2>1. Objet</h2>
@@ -35,7 +41,7 @@
       <h2>6. Données personnelles</h2>
       <p>Voir la <a href="privacy.html">Politique de confidentialité</a>.</p>
       <h2>7. Contact</h2>
-      <p>Contact : <span data-legal="editorEmail">contact@ton-domaine.fr</span></p>
+      <p>Contact : <span id="legalEmail">contact@lovenow.app</span></p>
     </div>
   </div>
 </body>
