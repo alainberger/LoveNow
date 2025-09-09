@@ -35,6 +35,7 @@ textarea{min-height:110px;resize:vertical}
 .toast.show{transform:translateY(0);opacity:1}
 .skeleton{background:linear-gradient(90deg,#151826 25%,#1a1f31 37%,#151826 63%);background-size:400% 100%;animation:sh 1.2s ease infinite}
 @keyframes sh{0%{background-position:100% 50%}100%{background-position:0 50%}}
+.err{background:#2a1120;border:1px solid #61223c;color:#ffd1de;border-radius:.7rem;padding:.6rem .8rem;margin:.6rem 0}
 .muted{color:var(--muted)}
 </style>
 
@@ -45,7 +46,7 @@ textarea{min-height:110px;resize:vertical}
   const cfg = window.APP_CONFIG?.firebase;
   const siteKey = window.APP_CONFIG?.appCheck?.recaptchaV3SiteKey;
 
-  import { initializeApp, getApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
   import { getAuth, onAuthStateChanged, sendEmailVerification, updateProfile, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
   import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app-check.js";
   import { getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
@@ -62,8 +63,9 @@ textarea{min-height:110px;resize:vertical}
   /* --- UI helpers --- */
   const $ = s => document.querySelector(s);
   const toast=(msg)=>{const t=$("#toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2400);};
+  const showErr = (msg)=>{ const e=$("#err"); e.textContent=msg; e.hidden=false; };
 
-  /* --- DOM els --- */
+  /* --- DOM --- */
   const banner = $("#verifyBanner");
   const btnResend = $("#btnResend");
   const btnRefresh = $("#btnRefresh");
@@ -71,6 +73,10 @@ textarea{min-height:110px;resize:vertical}
   const btnSave = $("#btnSave");
   const fileInput = $("#avatarFile");
   const avatarImg = $("#avatarPreview");
+  const emailSpan = $("#who");
+  const formWrap = $("#formWrap");
+  const loadingCard = $("#loadingCard");
+  const errBox = $("#err");
 
   const fName = $("#fName");
   const fAge  = $("#fAge");
@@ -78,34 +84,26 @@ textarea{min-height:110px;resize:vertical}
   const fGender = $("#fGender");
   const fBio  = $("#fBio");
 
-  const emailSpan = $("#who");
-  const formWrap = $("#formWrap");
-  const loadingCard = $("#loadingCard");
-
-  /* --- State --- */
   let currentUser = null;
   let pendingFile = null;
 
   /* --- Auth state --- */
   onAuthStateChanged(auth, async (user)=>{
     if (!user){
-      // pas de session → vers login
       location.href = "login.html#login";
       return;
     }
     currentUser = user;
     document.documentElement.dataset.verified = user.emailVerified ? "true" : "false";
 
-    // bannière seulement si e-mail non vérifié
-    const show = !user.emailVerified;
-    banner.hidden = !show;
+    // bannière si e-mail non vérifié
+    banner.hidden = !!user.emailVerified;
     emailSpan.textContent = user.email || "";
 
-    // charger / créer doc profil
     await loadOrInitProfile(user.uid, user);
   });
 
-  /* --- Charge ou crée un document de profil --- */
+  /* --- Charger ou créer le doc de profil --- */
   async function loadOrInitProfile(uid, user){
     try{
       const refUser = doc(db, "users", uid);
@@ -126,11 +124,14 @@ textarea{min-height:110px;resize:vertical}
           updatedAt: serverTimestamp()
         };
         await setDoc(refUser, data, { merge:true });
+        // relire pour avoir les valeurs concrètes
+        const again = await getDoc(refUser);
+        data = again.data() || data;
       }else{
         data = snap.data();
       }
 
-      // remplir le formulaire
+      // remplir formulaire
       fName.value = data.name || data.displayName || "";
       fAge.value  = data.age ?? "";
       fCity.value = data.city || "";
@@ -138,29 +139,29 @@ textarea{min-height:110px;resize:vertical}
       fBio.value  = data.bio || "";
       avatarImg.src = data.photoURL || "https://images.unsplash.com/photo-1502685104226-ee32379fefbe?q=80&w=1200&auto=format&fit=crop";
 
-      // afficher le formulaire, cacher le skeleton
       loadingCard.hidden = true;
       formWrap.hidden = false;
+      errBox.hidden = true;
     }catch(err){
       console.error(err);
-      toast("Impossible de charger le profil");
+      loadingCard.hidden = true;
+      showErr(humanizeFirestoreError(err));
     }
   }
 
-  /* --- Upload image & preview --- */
+  /* --- Upload image + preview --- */
   fileInput.addEventListener("change", ()=>{
     const f = fileInput.files?.[0];
     if (!f) return;
     if (!/^image\//.test(f.type)){ toast("Fichier non supporté"); fileInput.value=""; return; }
     if (f.size > 5*1024*1024){ toast("Image trop lourde (>5 Mo)"); fileInput.value=""; return; }
     pendingFile = f;
-
     const r = new FileReader();
     r.onload = e => { avatarImg.src = String(e.target.result||""); };
     r.readAsDataURL(f);
   });
 
-  /* --- Save profile --- */
+  /* --- Sauvegarde --- */
   btnSave.addEventListener("click", async ()=>{
     if (!currentUser) return location.href="login.html#login";
 
@@ -177,23 +178,22 @@ textarea{min-height:110px;resize:vertical}
     try{
       let photoURL = avatarImg.src || "";
 
-      // upload si un nouveau fichier a été choisi
       if (pendingFile){
-        const ext = pendingFile.name.split(".").pop()?.toLowerCase() || "jpg";
+        const ext = (pendingFile.name.split(".").pop()||"jpg").toLowerCase();
         const path = `users/${currentUser.uid}/avatar_${Date.now()}.${ext}`;
         const storageRef = ref(st, path);
-        await uploadBytes(storageRef, pendingFile);
+        await uploadBytes(storageRef, pendingFile, { contentType: pendingFile.type||"image/jpeg" });
         photoURL = await getDownloadURL(storageRef);
       }
 
-      // Firestore
       const refUser = doc(db,"users", currentUser.uid);
       await updateDoc(refUser, {
         name, age: age||null, city, gender, bio,
         photoURL,
         updatedAt: serverTimestamp()
       }).catch(async(e)=>{
-        if (e.code==="not-found" || /No document to update/.test(e.message)){
+        // Si le doc n'existe pas, on le crée
+        if (e?.code==="not-found" || /No document to update/i.test(e?.message||"")){
           await setDoc(refUser, {
             uid: currentUser.uid,
             email: currentUser.email || "",
@@ -205,20 +205,18 @@ textarea{min-height:110px;resize:vertical}
         } else { throw e; }
       });
 
-      // Auth profile (pour cohérence)
       await updateProfile(currentUser, { displayName: name, photoURL }).catch(()=>{});
-
       toast("Profil enregistré ✅");
       pendingFile = null;
     }catch(err){
       console.error(err);
-      toast("Échec de l’enregistrement");
+      showErr(humanizeFirestoreError(err) || "Échec de l’enregistrement");
     }finally{
       btnSave.disabled = false; btnSave.textContent = "Enregistrer";
     }
   });
 
-  /* --- Resend verification --- */
+  /* --- Renvoi e-mail vérif --- */
   btnResend.addEventListener("click", async ()=>{
     if (!currentUser) return location.href="login.html#login";
     try{
@@ -234,6 +232,15 @@ textarea{min-height:110px;resize:vertical}
     await signOut(auth);
     location.href = "login.html#login";
   });
+
+  /* --- Messages d'erreurs lisibles --- */
+  function humanizeFirestoreError(err){
+    const code = err?.code || "";
+    if (code.includes("permission-denied")) return "Accès refusé par les règles de sécurité. Publie les règles Firestore/Storage indiquées.";
+    if (code.includes("failed-precondition")) return "Précondition échouée (index/App Check/règles). Vérifie App Check et les règles.";
+    if (code.includes("unavailable")) return "Service temporairement indisponible. Réessaie.";
+    return "Impossible de charger le profil.";
+  }
 </script>
 </head>
 
@@ -262,6 +269,8 @@ textarea{min-height:110px;resize:vertical}
 
 <main class="wrap">
   <h1>Mon profil</h1>
+
+  <div id="err" class="err" hidden>Impossible de charger le profil.</div>
 
   <!-- Skeleton -->
   <div id="loadingCard" class="card">
