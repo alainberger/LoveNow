@@ -1,7 +1,7 @@
 [build]
   publish = "."
 
-# Routes propres vers les pages statiques
+# Routes propres
 [[redirects]]
   from = "/privacy"
   to = "/privacy.html"
@@ -13,12 +13,7 @@
   status = 200
 
 [[redirects]]
-  from = "/terms"
-  to = "/cgu.html"
-  status = 200
-
-[[redirects]]
-  from = "/profile"
+  from = "/login"
   to = "/login.html"
   status = 200
 
@@ -27,13 +22,13 @@
   to = "/login.html"
   status = 200
 
-# Catch-all SPA vers index.html (évite 404 Netlify)
+# Catch-all SPA -> index.html (évite 404 Netlify)
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
 
-# Sécurité : CSP compatible Firebase/AppCheck/Storage/Recaptcha
+# Headers sécurité + CSP compatible Firebase/AppCheck/Storage/Recaptcha
 [[headers]]
   for = "/*"
   [headers.values]
