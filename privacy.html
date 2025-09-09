@@ -17,38 +17,38 @@
   <script>
     document.addEventListener("DOMContentLoaded",()=>{
       const c = window.APP_CONFIG?.legal||{};
-      document.querySelectorAll("[data-legal]").forEach(el=>{
-        const key = el.getAttribute("data-legal"); el.textContent = c[key] || "—";
-      });
-      const dpo = window.APP_CONFIG?.dpoEmail || c.editorEmail || "—";
-      document.getElementById("dpoEmail").textContent = dpo;
-      document.getElementById("last").textContent = new Date().toLocaleDateString('fr-FR');
+      const dpo = window.APP_CONFIG?.dpoEmail || c.editorEmail || "";
+      document.getElementById("editorName").textContent   = c.editorName || "";
+      document.getElementById("editorAddress").textContent= c.editorAddress || "";
+      document.getElementById("editorEmail").textContent  = c.editorEmail || "";
+      document.getElementById("dpoEmail").textContent     = dpo || "";
+      document.getElementById("last").textContent         = new Date().toLocaleDateString('fr-FR');
     });
   </script>
 </head>
 <body>
   <div class="wrap">
-    <a class="btn" href="/">← Retour à l’accueil</a>
+    <a class="btn" href="index.html">← Retour à l’accueil</a>
     <h1>Politique de confidentialité</h1>
     <p>Dernière mise à jour : <span id="last"></span></p>
 
     <div class="card">
       <h2>1. Responsable du traitement</h2>
-      <p><strong data-legal="editorName"></strong> — <span data-legal="editorAddress"></span> — <a href="mailto:" id="mailLegal"><span data-legal="editorEmail"></span></a></p>
+      <p><strong id="editorName"></strong> — <span id="editorAddress"></span> — <a href="mailto:" id="mailLegal"><span id="editorEmail"></span></a></p>
 
       <h2>2. Données traitées</h2>
       <ul>
-        <li>Compte : e-mail, mot de passe (haché), dates, statut de vérification.</li>
+        <li>Compte : e-mail, mot de passe (haché), statut de vérification.</li>
         <li>Profil : nom/pseudo, âge (18+), genre, ville, photo(s).</li>
         <li>Usage : messages, invitations, horodatages, signalements.</li>
-        <li>Sécurité : journaux techniques (IP, user-agent), jetons anti-abus (App Check).</li>
+        <li>Sécurité : logs techniques (IP, user-agent), jetons anti-abus (App Check).</li>
       </ul>
 
       <h2>3. Finalités et bases légales</h2>
       <ul>
         <li>Fournir le service et la messagerie privée (exécution du contrat).</li>
         <li>Sécurité, prévention de l’abus, anti-spam (intérêt légitime).</li>
-        <li>Notifications transactionnelles (intérêt légitime / contrat).</li>
+        <li>Notifications transactionnelles (contrat/intérêt légitime).</li>
       </ul>
 
       <h2>4. Durées de conservation</h2>
@@ -59,7 +59,7 @@
       </ul>
 
       <h2>5. Partage</h2>
-      <p>Hébergeurs et sous-traitants nécessaires (Netlify, Firebase/Auth). Pas de vente de données.</p>
+      <p>Hébergeurs/sous-traitants nécessaires (Netlify, Firebase/Auth). Pas de vente de données.</p>
 
       <h2>6. Transferts hors UE</h2>
       <p>Le cas échéant, clauses contractuelles types et garanties appropriées.</p>
@@ -68,7 +68,7 @@
       <p>Accès, rectification, suppression, limitation, opposition, portabilité. Contact : <strong id="dpoEmail"></strong>. Recours possible auprès de la CNIL.</p>
 
       <h2>8. Sécurité</h2>
-      <p>Hachage des mots de passe, contrôle d’accès, chiffrement TLS, journalisation, App Check (reCAPTCHA v3).</p>
+      <p>Chiffrement TLS, hachage des mots de passe, contrôle d’accès, journalisation, App Check (reCAPTCHA v3).</p>
     </div>
   </div>
 </body>
