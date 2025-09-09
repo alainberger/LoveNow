@@ -1,42 +1,36 @@
-<script>
-  window.APP_CONFIG = {
-    brand: "LoveNow",
+// config.js — paramètres appli affichés côté client
+// ⚠️ Remplace les infos légales par tes vraies infos (sinon c'est fonctionnel mais pas 100% RGPD)
 
-    // Renseigne ces 3 lignes avec ton identité légale réelle (pour la Privacy)
-    legal: {
-      editorName: "Ta société / Nom de l’éditeur",
-      editorAddress: "Adresse légale complète",
-      editorEmail: "contact@ton-domaine.fr"
-    },
-    dpoEmail: "dpo@ton-domaine.fr",
+window.APP_CONFIG = {
+  brand: "LoveNow",
 
-    // ► TES CLÉS FIREBASE (celles que tu m’as données)
-    firebase: {
-      apiKey: "AIzaSyB_-cNA8bxqYCYUp3rUZs-VpiP4DX2wn3M",
-      authDomain: "lovenow-officiel.firebaseapp.com",
-      projectId: "lovenow-officiel",
-      storageBucket: "lovenow-officiel.firebasestorage.app",
-      messagingSenderId: "896585801571",
-      appId: "1:896585801571:web:cdde87293291dc1900bd56",
-      measurementId: "G-QGM25ND7LF"
-    },
+  // ——— Identité légale (affichée dans privacy/cgu) ———
+  legal: {
+    editorName: "LoveNow (éditeur)",
+    editorAddress: "Adresse légale à compléter",
+    editorEmail: "contact@lovenow.app"
+  },
+  dpoEmail: "dpo@lovenow.app",
 
-    // ► Firebase App Check (reCAPTCHA v3)
-    //    Utilise UNIQUEMENT la site key côté client. NE PAS publier la clé secrète.
-    appCheck: {
-      recaptchaV3SiteKey: "6LfjpsErAAAAAAExN2IvBq-K475TeJooeNzI9liPD"
-    },
+  // ——— TES CLÉS FIREBASE (celles que tu as données) ———
+  firebase: {
+    apiKey: "AIzaSyB_-cNA8bxqYCYUp3rUZs-VpiP4DX2wn3M",
+    authDomain: "lovenow-officiel.firebaseapp.com",
+    projectId: "lovenow-officiel",
+    storageBucket: "lovenow-officiel.firebasestorage.app",
+    messagingSenderId: "896585801571",
+    appId: "1:896585801571:web:cdde87293291dc1900bd56",
+    measurementId: "G-QGM25ND7LF"
+  },
 
-    // Analytics désactivé par défaut (mets true après gestion du consentement)
-    analyticsEnabled: false,
+  // ——— App Check reCAPTCHA v3 (site key côté client uniquement) ———
+  appCheck: {
+    recaptchaV3SiteKey: "6LfjpsErAAAAAAExN2IvBq-K475TeJooeNzI9liPD"
+  },
 
-    // Cooldown (sec) pour renvoi du mail de vérif
-    resendCooldown: 30,
+  // Analytics désactivé tant que tu ne gères pas le consentement
+  analyticsEnabled: false,
 
-    // (Optionnel) Cloudinary — front only : cloudName ok, pas d’API secret côté client
-    cloudinary: {
-      cloudName: "dyqxadd0j",
-      unsignedUploadPreset: "" // si tu en crées un, mets-le ici
-    }
-  };
-</script>
+  // cooldown (secondes) pour renvoi e-mail vérif
+  resendCooldown: 30
+};
