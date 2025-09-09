@@ -1,333 +1,232 @@
 <!doctype html>
 <html lang="fr" data-theme="dark">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>LoveNow — Mon profil</title>
-<meta name="description" content="Gère ton profil LoveNow : photo, bio, âge, ville, genre."/>
-<meta name="theme-color" content="#14151a"/>
-<link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" as="style" onload="this.rel='stylesheet'"/>
-
-<style>
-:root{--bg:#0f1115;--card:#171922;--muted:#aab1c3;--text:#e9edf6;--brand:#ff2d55;--brand2:#7a5cf0}
-*{box-sizing:border-box}
-html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:Inter,system-ui}
-a{color:inherit;text-decoration:none}
-*[hidden]{display:none !important}
-.wrap{max-width:900px;margin:0 auto;padding:16px}
-header{position:sticky;top:0;z-index:10;background:rgba(15,17,21,.7);backdrop-filter:saturate(140%) blur(8px);border-bottom:1px solid #202334}
-nav{display:flex;align-items:center;gap:10px;padding:10px 0}
-.brand{font-weight:700}
-.spacer{flex:1}
-.btn{display:inline-flex;align-items:center;justify-content:center;padding:.6rem .9rem;border-radius:.6rem;background:#232739;border:1px solid #2b2f44;cursor:pointer}
-.btn-primary{background:linear-gradient(135deg,var(--brand),var(--brand2));border:none}
-.btn[disabled]{opacity:.6;cursor:not-allowed}
-.card{background:var(--card);border:1px solid #202334;border-radius:.9rem;padding:16px}
-.grid{display:grid;grid-template-columns:1fr;gap:16px}
-@media(min-width:820px){.grid{grid-template-columns:240px 1fr}}
-label{display:block;margin:10px 0 6px;color:var(--muted);font-size:.9rem}
-input,select,textarea{width:100%;padding:.7rem;border-radius:.6rem;background:#0f1115;border:1px solid #2b2f44;color:var(--text)}
-textarea{min-height:110px;resize:vertical}
-.avatar{aspect-ratio:1/1;width:100%;max-width:240px;border-radius:.8rem;object-fit:cover;background:#0c0e12;border:1px solid #23283d}
-.row{display:flex;gap:8px;flex-wrap:wrap}
-.banner{display:flex;gap:8px;align-items:center;justify-content:space-between;background:#1a1e2b;border:1px solid #27314a;border-radius:.8rem;padding:.6rem .8rem;margin:.6rem 0}
-.toast{position:fixed;right:16px;bottom:16px;background:#111522;border:1px solid #22304a;padding:.7rem 1rem;border-radius:.7rem;transform:translateY(20px);opacity:0;transition:.25s}
-.toast.show{transform:translateY(0);opacity:1}
-.skeleton{background:linear-gradient(90deg,#151826 25%,#1a1f31 37%,#151826 63%);background-size:400% 100%;animation:sh 1.2s ease infinite}
-@keyframes sh{0%{background-position:100% 50%}100%{background-position:0 50%}}
-.err{background:#2a1120;border:1px solid #61223c;color:#ffd1de;border-radius:.7rem;padding:.6rem .8rem;margin:.6rem 0}
-.muted{color:var(--muted)}
-</style>
-
-<script src="config.js"></script>
-
-<!-- Firebase + App Check -->
-<script type="module">
-  const cfg = window.APP_CONFIG?.firebase;
-  const siteKey = window.APP_CONFIG?.appCheck?.recaptchaV3SiteKey;
-
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-  import { getAuth, onAuthStateChanged, sendEmailVerification, updateProfile, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-  import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app-check.js";
-  import { getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-  import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
-
-  /* --- Init --- */
-  const app = initializeApp(cfg);
-  if (siteKey) initializeAppCheck(app, { provider:new ReCaptchaV3Provider(siteKey), isTokenAutoRefreshEnabled:true });
-
-  const auth = getAuth(app);
-  const db   = getFirestore(app);
-  const st   = getStorage(app);
-
-  /* --- UI helpers --- */
-  const $ = s => document.querySelector(s);
-  const toast=(msg)=>{const t=$("#toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2400);};
-  const showErr = (msg)=>{ const e=$("#err"); e.textContent=msg; e.hidden=false; };
-
-  /* --- DOM --- */
-  const banner = $("#verifyBanner");
-  const btnResend = $("#btnResend");
-  const btnRefresh = $("#btnRefresh");
-  const btnLogout = $("#btnLogout");
-  const btnSave = $("#btnSave");
-  const fileInput = $("#avatarFile");
-  const avatarImg = $("#avatarPreview");
-  const emailSpan = $("#who");
-  const formWrap = $("#formWrap");
-  const loadingCard = $("#loadingCard");
-  const errBox = $("#err");
-
-  const fName = $("#fName");
-  const fAge  = $("#fAge");
-  const fCity = $("#fCity");
-  const fGender = $("#fGender");
-  const fBio  = $("#fBio");
-
-  let currentUser = null;
-  let pendingFile = null;
-
-  /* --- Auth state --- */
-  onAuthStateChanged(auth, async (user)=>{
-    if (!user){
-      location.href = "login.html#login";
-      return;
-    }
-    currentUser = user;
-    document.documentElement.dataset.verified = user.emailVerified ? "true" : "false";
-
-    // bannière si e-mail non vérifié
-    banner.hidden = !!user.emailVerified;
-    emailSpan.textContent = user.email || "";
-
-    await loadOrInitProfile(user.uid, user);
-  });
-
-  /* --- Charger ou créer le doc de profil --- */
-  async function loadOrInitProfile(uid, user){
-    try{
-      const refUser = doc(db, "users", uid);
-      const snap = await getDoc(refUser);
-
-      let data;
-      if (!snap.exists()){
-        data = {
-          uid,
-          email: user.email || "",
-          name: user.displayName || "",
-          photoURL: user.photoURL || "",
-          age: null,
-          gender: "O",
-          city: "",
-          bio: "",
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp()
-        };
-        await setDoc(refUser, data, { merge:true });
-        // relire pour avoir les valeurs concrètes
-        const again = await getDoc(refUser);
-        data = again.data() || data;
-      }else{
-        data = snap.data();
-      }
-
-      // remplir formulaire
-      fName.value = data.name || data.displayName || "";
-      fAge.value  = data.age ?? "";
-      fCity.value = data.city || "";
-      fGender.value = (data.gender||"O").toUpperCase();
-      fBio.value  = data.bio || "";
-      avatarImg.src = data.photoURL || "https://images.unsplash.com/photo-1502685104226-ee32379fefbe?q=80&w=1200&auto=format&fit=crop";
-
-      loadingCard.hidden = true;
-      formWrap.hidden = false;
-      errBox.hidden = true;
-    }catch(err){
-      console.error(err);
-      loadingCard.hidden = true;
-      showErr(humanizeFirestoreError(err));
-    }
-  }
-
-  /* --- Upload image + preview --- */
-  fileInput.addEventListener("change", ()=>{
-    const f = fileInput.files?.[0];
-    if (!f) return;
-    if (!/^image\//.test(f.type)){ toast("Fichier non supporté"); fileInput.value=""; return; }
-    if (f.size > 5*1024*1024){ toast("Image trop lourde (>5 Mo)"); fileInput.value=""; return; }
-    pendingFile = f;
-    const r = new FileReader();
-    r.onload = e => { avatarImg.src = String(e.target.result||""); };
-    r.readAsDataURL(f);
-  });
-
-  /* --- Sauvegarde --- */
-  btnSave.addEventListener("click", async ()=>{
-    if (!currentUser) return location.href="login.html#login";
-
-    const name = fName.value.trim();
-    const age  = Number(fAge.value||0);
-    const city = fCity.value.trim();
-    const gender = String(fGender.value||"O").toUpperCase();
-    const bio  = fBio.value.trim();
-
-    if (!name){ return toast("Le nom/pseudo est requis"); }
-    if (age && (age<18 || age>99)){ return toast("Âge entre 18 et 99"); }
-
-    btnSave.disabled = true; btnSave.textContent = "Enregistrement…";
-    try{
-      let photoURL = avatarImg.src || "";
-
-      if (pendingFile){
-        const ext = (pendingFile.name.split(".").pop()||"jpg").toLowerCase();
-        const path = `users/${currentUser.uid}/avatar_${Date.now()}.${ext}`;
-        const storageRef = ref(st, path);
-        await uploadBytes(storageRef, pendingFile, { contentType: pendingFile.type||"image/jpeg" });
-        photoURL = await getDownloadURL(storageRef);
-      }
-
-      const refUser = doc(db,"users", currentUser.uid);
-      await updateDoc(refUser, {
-        name, age: age||null, city, gender, bio,
-        photoURL,
-        updatedAt: serverTimestamp()
-      }).catch(async(e)=>{
-        // Si le doc n'existe pas, on le crée
-        if (e?.code==="not-found" || /No document to update/i.test(e?.message||"")){
-          await setDoc(refUser, {
-            uid: currentUser.uid,
-            email: currentUser.email || "",
-            name, age: age||null, city, gender, bio,
-            photoURL,
-            createdAt: serverTimestamp(),
-            updatedAt: serverTimestamp()
-          }, { merge:true });
-        } else { throw e; }
-      });
-
-      await updateProfile(currentUser, { displayName: name, photoURL }).catch(()=>{});
-      toast("Profil enregistré ✅");
-      pendingFile = null;
-    }catch(err){
-      console.error(err);
-      showErr(humanizeFirestoreError(err) || "Échec de l’enregistrement");
-    }finally{
-      btnSave.disabled = false; btnSave.textContent = "Enregistrer";
-    }
-  });
-
-  /* --- Renvoi e-mail vérif --- */
-  btnResend.addEventListener("click", async ()=>{
-    if (!currentUser) return location.href="login.html#login";
-    try{
-      const actionCodeSettings={ url:"https://lovenow.netlify.app/login.html?verified=1", handleCodeInApp:false };
-      await sendEmailVerification(currentUser, actionCodeSettings);
-      toast("Lien de vérification envoyé ✅");
-    }catch(e){ console.error(e); toast("Impossible d’envoyer le lien"); }
-  });
-  btnRefresh.addEventListener("click", ()=>location.reload());
-
-  /* --- Logout --- */
-  btnLogout.addEventListener("click", async ()=>{
-    await signOut(auth);
-    location.href = "login.html#login";
-  });
-
-  /* --- Messages d'erreurs lisibles --- */
-  function humanizeFirestoreError(err){
-    const code = err?.code || "";
-    if (code.includes("permission-denied")) return "Accès refusé par les règles de sécurité. Publie les règles Firestore/Storage indiquées.";
-    if (code.includes("failed-precondition")) return "Précondition échouée (index/App Check/règles). Vérifie App Check et les règles.";
-    if (code.includes("unavailable")) return "Service temporairement indisponible. Réessaie.";
-    return "Impossible de charger le profil.";
-  }
-</script>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Mon profil — LoveNow</title>
+  <meta name="description" content="Gère ton profil LoveNow : photo, bio, ville, âge, genre."/>
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" as="style" onload="this.rel='stylesheet'"/>
+  <style>
+    :root{--bg:#0f1115;--card:#171922;--muted:#aab1c3;--text:#e9edf6;--brand:#ff2d55;--brand2:#7a5cf0}
+    *{box-sizing:border-box}
+    html,body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui}
+    a{color:inherit;text-decoration:none}
+    .wrap{max-width:900px;margin:0 auto;padding:16px}
+    header{position:sticky;top:0;z-index:5;background:rgba(15,17,21,.7);backdrop-filter:saturate(140%) blur(8px);border-bottom:1px solid #202334}
+    nav{display:flex;gap:8px;align-items:center;padding:10px 0}
+    .spacer{flex:1}
+    .btn{display:inline-flex;align-items:center;justify-content:center;padding:.6rem .9rem;border-radius:.6rem;background:#232739;border:1px solid #2b2f44;cursor:pointer}
+    .btn-primary{background:linear-gradient(135deg,var(--brand),var(--brand2));border:none}
+    .card{background:var(--card);border:1px solid #202334;border-radius:.9rem;padding:16px}
+    label{display:block;margin:10px 0 6px;color:var(--muted)}
+    input,select,textarea{width:100%;padding:.7rem;border-radius:.6rem;background:#0f1115;border:1px solid #2b2f44;color:var(--text)}
+    .row{display:grid;grid-template-columns:1fr;gap:12px}
+    @media(min-width:720px){.row{grid-template-columns:1fr 1fr}}
+    .photo{display:flex;gap:12px;align-items:center}
+    .photo img{width:108px;height:108px;border-radius:12px;object-fit:cover;background:#0c0e12;border:1px solid #2b2f44}
+    .muted{color:var(--muted)}
+    .banner{background:#1a1e2b;border:1px solid #27314a;border-radius:.8rem;padding:.6rem .8rem;margin:12px 0;display:flex;gap:8px;justify-content:space-between;align-items:center}
+    .toast{position:fixed;right:16px;bottom:16px;background:#111522;border:1px solid #22304a;padding:8px 12px;border-radius:8px}
+  </style>
+  <script src="config.js"></script>
 </head>
-
 <body>
 <header>
   <div class="wrap">
-    <nav aria-label="Navigation principale">
-      <strong class="brand">LoveNow</strong>
-      <a class="btn" href="index.html">Accueil</a>
-      <a class="btn" href="index.html#discover">Découvrir</a>
+    <nav>
+      <a class="btn" href="index.html">← Accueil</a>
+      <strong>Mon profil</strong>
       <span class="spacer"></span>
-      <a class="btn" href="privacy.html">Confidentialité</a>
-      <a class="btn" href="cgu.html">CGU</a>
+      <a class="btn" href="conversations.html" onclick="event.preventDefault();location.href='login.html#conversations'">Mes conversations</a>
       <button id="btnLogout" class="btn">Se déconnecter</button>
     </nav>
-
-    <div id="verifyBanner" class="banner" role="status" aria-live="polite" hidden>
-      <div><strong>E-mail non vérifié :</strong> <span id="who" class="muted"></span></div>
-      <div class="row">
-        <button id="btnResend" class="btn">Envoyer le lien</button>
-        <button id="btnRefresh" class="btn">Rafraîchir</button>
-      </div>
-    </div>
   </div>
 </header>
 
 <main class="wrap">
-  <h1>Mon profil</h1>
-
-  <div id="err" class="err" hidden>Impossible de charger le profil.</div>
-
-  <!-- Skeleton -->
-  <div id="loadingCard" class="card">
-    <div class="grid">
-      <div><div class="avatar skeleton"></div></div>
-      <div>
-        <div class="skeleton" style="height:18px;width:60%"></div>
-        <div class="skeleton" style="height:18px;width:40%;margin-top:10px"></div>
-        <div class="skeleton" style="height:18px;width:80%;margin-top:10px"></div>
-        <div class="skeleton" style="height:120px;width:100%;margin-top:14px"></div>
-      </div>
+  <div id="verifyBanner" class="banner" hidden>
+    <div>E-mail non vérifié. Vérifie ton e-mail pour débloquer toutes les fonctions.</div>
+    <div style="display:flex;gap:8px">
+      <button id="btnResend" class="btn">Renvoyer le lien</button>
+      <button id="btnRefresh" class="btn">Rafraîchir</button>
     </div>
   </div>
 
-  <!-- Form -->
-  <div id="formWrap" class="card" hidden>
-    <div class="grid">
+  <div class="card">
+    <div class="photo">
+      <img id="avatar" src="" alt="Ta photo">
       <div>
-        <img id="avatarPreview" class="avatar" alt="Ta photo de profil">
-        <label for="avatarFile">Changer la photo (≤ 5 Mo)</label>
-        <input id="avatarFile" type="file" accept="image/*">
-      </div>
-      <div>
-        <label for="fName">Nom / Pseudo</label>
-        <input id="fName" type="text" required>
-
-        <div class="row" style="gap:12px">
-          <div style="flex:1;min-width:120px">
-            <label for="fAge">Âge</label>
-            <input id="fAge" type="number" min="18" max="99" inputmode="numeric" placeholder="18–99">
-          </div>
-          <div style="flex:1;min-width:160px">
-            <label for="fCity">Ville</label>
-            <input id="fCity" type="text" placeholder="ex. Paris">
-          </div>
-          <div style="flex:1;min-width:140px">
-            <label for="fGender">Genre</label>
-            <select id="fGender">
-              <option value="F">Femme</option>
-              <option value="M">Homme</option>
-              <option value="O">Autre</option>
-            </select>
-          </div>
-        </div>
-
-        <label for="fBio">Bio</label>
-        <textarea id="fBio" placeholder="Parle un peu de toi…"></textarea>
-
-        <div class="row" style="margin-top:14px">
-          <button id="btnSave" class="btn btn-primary">Enregistrer</button>
-          <a class="btn" href="index.html#discover">← Revenir aux profils</a>
-        </div>
+        <input id="file" type="file" accept="image/*">
+        <div class="muted" style="font-size:.9rem">JPG/PNG ≤ 5 Mo. La photo est hébergée sur Cloudinary.</div>
+        <button id="btnUpload" class="btn" style="margin-top:8px">Téléverser la photo</button>
       </div>
     </div>
+    <div class="row" style="margin-top:12px">
+      <div>
+        <label for="name">Nom / Pseudo</label>
+        <input id="name" required>
+      </div>
+      <div>
+        <label for="city">Ville</label>
+        <input id="city" placeholder="ex. Paris">
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label for="age">Âge</label>
+        <input id="age" type="number" min="18" max="99" required>
+      </div>
+      <div>
+        <label for="gender">Genre</label>
+        <select id="gender">
+          <option value="F">Femme</option>
+          <option value="M">Homme</option>
+          <option value="O">Autre</option>
+        </select>
+      </div>
+    </div>
+    <label for="bio">Bio</label>
+    <textarea id="bio" rows="4" placeholder="Parle un peu de toi…"></textarea>
+
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button id="btnSave" class="btn btn-primary">Enregistrer</button>
+      <a class="btn" href="index.html">Retour</a>
+    </div>
+    <p class="muted" style="margin-top:8px">Astuce : enregistre ton profil pour qu’il apparaisse dans la découverte.</p>
   </div>
 </main>
 
-<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<div id="toast" class="toast" style="display:none"></div>
+
+<!-- Firebase + Firestore + AppCheck -->
+<script type="module">
+  const cfg = window.APP_CONFIG?.firebase;
+  const siteKey = window.APP_CONFIG?.appCheck?.recaptchaV3SiteKey;
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+  import { getAuth, onAuthStateChanged, updateProfile, sendEmailVerification, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+  import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app-check.js";
+  import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+  const app = initializeApp(cfg);
+  if (siteKey) initializeAppCheck(app, { provider: new ReCaptchaV3Provider(siteKey), isTokenAutoRefreshEnabled: true });
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  const $ = s => document.querySelector(s);
+  const toast = (t)=>{ const el=$("#toast"); el.textContent=t; el.style.display="block"; setTimeout(()=>el.style.display="none",2200); };
+
+  // --- Cloudinary config (public only) ---
+  const CLOUD = {
+    cloudName: (window.APP_CONFIG?.cloudinary?.cloudName || "dyqxadd0j"),
+    apiKey:    (window.APP_CONFIG?.cloudinary?.apiKey    || "596927578766188")
+  };
+
+  // --- UI refs
+  const avatar=$("#avatar"), file=$("#file");
+  const name=$("#name"), city=$("#city"), age=$("#age"), gender=$("#gender"), bio=$("#bio");
+  const verifyBanner=$("#verifyBanner"), btnResend=$("#btnResend"), btnRefresh=$("#btnRefresh");
+
+  // --- Auth gate
+  onAuthStateChanged(auth, async (user)=>{
+    if(!user){ location.href="login.html#login"; return; }
+
+    // Banner verify
+    const verified = !!user.emailVerified;
+    document.documentElement.dataset.verified = verified ? "true" : "false";
+    verifyBanner.hidden = verified;
+
+    // Charge ou initialise le profil
+    const ref = doc(db,"profiles",user.uid);
+    const snap = await getDoc(ref);
+    if(!snap.exists()){
+      await setDoc(ref,{
+        uid: user.uid,
+        name: user.displayName || "",
+        age:  null,
+        gender:"O",
+        city: "",
+        bio:  "",
+        photoURL: user.photoURL || "",
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      }, { merge:true });
+    }
+    const data = (await getDoc(ref)).data() || {};
+
+    // Remplit la UI
+    avatar.src = data.photoURL || user.photoURL || "https://images.unsplash.com/photo-1502685104226-ee32379fefbe?q=80&w=800&auto=format&fit=crop";
+    name.value = data.name || user.displayName || "";
+    city.value = data.city || "";
+    age.value  = data.age  || "";
+    gender.value = (data.gender || "O");
+    bio.value  = data.bio  || "";
+
+    // Actions
+    $("#btnSave").onclick = async ()=>{
+      const payload = {
+        name: name.value.trim(),
+        city: city.value.trim(),
+        age:  Number(age.value)||null,
+        gender: gender.value,
+        bio:  bio.value.trim(),
+        updatedAt: serverTimestamp()
+      };
+      await setDoc(ref, payload, { merge:true });
+      if (auth.currentUser && payload.name !== (auth.currentUser.displayName||"")){
+        try{ await updateProfile(auth.currentUser, { displayName: payload.name }); }catch{}
+      }
+      toast("Profil enregistré ✅");
+    };
+
+    $("#btnLogout").onclick = async ()=>{ await signOut(auth); location.href="login.html"; };
+
+    btnResend?.addEventListener("click", async ()=>{
+      try{
+        const actionCodeSettings={ url:"https://lovenow.netlify.app/login.html?verified=1", handleCodeInApp:false };
+        await sendEmailVerification(auth.currentUser, actionCodeSettings);
+        toast("Lien envoyé ✅");
+      }catch(e){ console.error(e); toast("Échec envoi lien"); }
+    });
+    btnRefresh?.addEventListener("click",()=>location.reload());
+
+    // Upload photo -> Cloudinary (signature via Netlify Function)
+    $("#btnUpload").onclick = async ()=>{
+      const f = file.files?.[0];
+      if(!f){ alert("Choisis d’abord une image."); return; }
+      if(f.size > 5*1024*1024){ alert("Fichier trop lourd (max 5 Mo)."); return; }
+
+      try{
+        // 1) récupère signature sécurisée depuis Netlify Function
+        const sigRes = await fetch("/.netlify/functions/sign-upload", { method:"POST" });
+        if(!sigRes.ok){ throw new Error("Signature error"); }
+        const { timestamp, signature, folder, api_key, cloud_name } = await sigRes.json();
+
+        // 2) upload signé vers Cloudinary
+        const fd = new FormData();
+        fd.append("file", f);
+        fd.append("api_key", api_key);
+        fd.append("timestamp", timestamp);
+        fd.append("signature", signature);
+        fd.append("folder", folder);
+
+        const up = await fetch(`https://api.cloudinary.com/v1_1/${cloud_name}/image/upload`, {
+          method:"POST",
+          body: fd
+        });
+        const out = await up.json();
+        if(!out.secure_url){ throw new Error(out.error?.message || "Upload échec"); }
+
+        // 3) persiste l’URL dans Firestore + UI
+        await setDoc(ref, { photoURL: out.secure_url, updatedAt: serverTimestamp() }, { merge:true });
+        avatar.src = out.secure_url;
+        await updateProfile(auth.currentUser, { photoURL: out.secure_url }).catch(()=>{});
+        toast("Photo mise à jour ✅");
+      }catch(e){
+        console.error(e);
+        alert("Impossible de téléverser la photo. Vérifie la configuration.");
+      }
+    };
+  });
+</script>
 </body>
 </html>
