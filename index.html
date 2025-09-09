@@ -50,7 +50,7 @@ input,select{width:100%;padding:.6rem;border-radius:.6rem;background:#0f1115;bor
 
 <script src="config.js"></script>
 
-<!-- Firebase + App Check -->
+<!-- Firebase init + App Check (expose __AUTH__ et évènement 'firebase-ready') -->
 <script type="module">
   const cfg = window.APP_CONFIG?.firebase;
   const siteKey = window.APP_CONFIG?.appCheck?.recaptchaV3SiteKey;
@@ -63,6 +63,7 @@ input,select{width:100%;padding:.6rem;border-radius:.6rem;background:#0f1115;bor
   if (siteKey) initializeAppCheck(app, { provider:new ReCaptchaV3Provider(siteKey), isTokenAutoRefreshEnabled:true });
   const auth = getAuth(app);
 
+  // exposer Auth au reste de la page
   window.__AUTH__ = { auth, onAuthStateChanged, sendEmailVerification };
   document.dispatchEvent(new CustomEvent("firebase-ready"));
 </script>
@@ -75,7 +76,7 @@ input,select{width:100%;padding:.6rem;border-radius:.6rem;background:#0f1115;bor
       <a class="btn" href="index.html" aria-current="page">Accueil</a>
       <a class="btn" href="#discover">Découvrir</a>
       <a class="btn" href="login.html">Conversations</a>
-      <a class="btn" href="login.html">Mon profil</a>
+      <a class="btn" href="profile.html">Mon profil</a><!-- ✅ corrigé -->
       <span class="spacer"></span>
       <a class="btn" href="privacy.html">Confidentialité</a>
       <a class="btn" href="cgu.html">CGU</a>
@@ -157,27 +158,31 @@ input,select{width:100%;padding:.6rem;border-radius:.6rem;background:#0f1115;bor
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 <footer class="wrap foot">© <span id="year"></span> LoveNow — <a href="privacy.html">Confidentialité</a> · <a href="cgu.html">CGU</a></footer>
 
+<!-- Un SEUL module pour tout le front : utils + auth + Firestore + filtres -->
 <script type="module">
-/** Utils **/
+/* ========= Imports Firestore ========= */
+import { getApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { getFirestore, collection, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+/* ========= Utils ========= */
 const $ = s => document.querySelector(s);
 const toast=(msg)=>{const t=$("#toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2400);};
 
-/** Fallback démo si Firestore indisponible **/
+/* ========= Démo fallback si Firestore vide ========= */
 const DEMO = [
   { id:"u2", name:"Alice",  age:26, city:"Paris", gender:"F", img:"https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=1200&auto=format&fit=crop"},
   { id:"u1", name:"Benoît", age:25, city:"Lyon",  gender:"M", img:"https://images.unsplash.com/photo-1531123897727-8f129e1688ce?q=80&w=1200&auto=format&fit=crop"}
 ];
-
 let LOADED = []; // profils chargés (Firestore ou DEMO)
 
-/** Rendu des cartes profil **/
+/* ========= Rendu des cartes ========= */
 function renderProfiles(list){
   const wrap=$("#results"); wrap.innerHTML="";
   list.forEach(p=>{
     const safeName = p.name || p.displayName || "Utilisateur";
     const safeAge  = Number(p.age)||"—";
     const safeCity = p.city || "—";
-    const safeGen  = p.gender || "O";
+    const safeGen  = (p.gender||"O").toString().toUpperCase();
     const img = p.img || p.photoURL || "https://images.unsplash.com/photo-1502685104226-ee32379fefbe?q=80&w=1200&auto=format&fit=crop";
 
     const el=document.createElement("article");
@@ -197,7 +202,7 @@ function renderProfiles(list){
   $("#emptyState").hidden = list.length !== 0;
 }
 
-/** Filtres **/
+/* ========= Filtres ========= */
 function applyFilters(){
   const g=$("#fGender").value;
   const min=Math.max(18, Number($("#fAgeMin").value||18));
@@ -215,8 +220,13 @@ function applyFilters(){
   });
   renderProfiles(filtered);
 }
+$("#btnSearch").addEventListener("click", applyFilters);
+$("#btnReset").addEventListener("click", ()=>{
+  $("#fGender").value="all"; $("#fAgeMin").value=18; $("#fAgeMax").value=99; $("#fCity").value="";
+  applyFilters();
+});
 
-/** Actions cartes **/
+/* ========= Actions cartes ========= */
 $("#results").addEventListener("click",(e)=>{
   const view = e.target.closest("[data-act='view']");
   const msg  = e.target.closest("[data-act='msg']");
@@ -225,27 +235,23 @@ $("#results").addEventListener("click",(e)=>{
   const verified = document.documentElement.dataset.verified==="true";
 
   if (view){
-    // Si non connecté : va sur login
     if (!verified){ location.href="login.html#login"; return; }
-    // TODO: remplacer par une page profil dédiée si tu en as une, ex: profile.html?id=xxx
-    // Temporaire : renvoyer vers login si pas encore implémenté
-    location.href="login.html#profile";
+    // Pour l’instant, on renvoie vers le profil perso (page publique "user.html" viendra ensuite)
+    location.href="profile.html";
     return;
   }
   if (msg){
     if (!verified){ alert("Valide ton e-mail avant d’envoyer des messages."); location.href="login.html#login"; return; }
-    // Redirection vers conversations (si tu as une page dédiée plus tard)
     location.href="login.html#conversations";
   }
 });
 
-/** Firebase Auth : bannière uniquement si user non vérifié **/
+/* ========= Auth & bannière (après 'firebase-ready') ========= */
 document.addEventListener("firebase-ready", ()=>{
   const {auth,onAuthStateChanged,sendEmailVerification}=window.__AUTH__;
   const banner=$("#verifyBanner"), btnResend=$("#btnResend"), btnRefresh=$("#btnRefresh");
 
-  // sécurité : masqué par défaut
-  if (banner) banner.hidden = true;
+  if (banner) banner.hidden = true; // sécurité : masqué par défaut
 
   onAuthStateChanged(auth,(user)=>{
     const show=!!(user && !user.emailVerified);
@@ -257,24 +263,18 @@ document.addEventListener("firebase-ready", ()=>{
     const u=window.__AUTH__.auth.currentUser; if(!u){ location.href="login.html"; return; }
     try{
       const actionCodeSettings={ url:"https://lovenow.netlify.app/login.html?verified=1", handleCodeInApp:false };
-      await window.__AUTH__.sendEmailVerification(u, actionCodeSettings);
+      await sendEmailVerification(u, actionCodeSettings);
       toast("Lien de vérification envoyé ✅");
     }catch(e){ console.error(e); toast("Impossible d’envoyer le lien"); }
   });
-
   btnRefresh?.addEventListener("click",()=>location.reload());
 });
-</script>
 
-<!-- Chargement Firestore (vrais profils) -->
-<script type="module">
-import { getFirestore, collection, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-import { getApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-
+/* ========= Chargement Firestore ========= */
 async function loadProfilesFromFirestore(){
   try{
     const db = getFirestore(getApp());
-    // Adapter ici : 'users' est la collection prévue avec des champs publics {displayName/ name, age, gender, city, photoURL/img}
+    // Adapter si ta collection s’appelle autrement que "users"
     const q  = query(collection(db,"users"), orderBy("createdAt","desc"), limit(200));
     const snap = await getDocs(q);
     const arr = [];
@@ -296,25 +296,13 @@ async function loadProfilesFromFirestore(){
   }
 }
 
-// Init
+// Init affichage
 (async ()=>{
   let data = await loadProfilesFromFirestore();
-  if (!data || !Array.isArray(data) || data.length===0){
-    // Fallback démo si Firestore vide ou erreur
-    data = DEMO;
-  }
-  // Mémorise & affiche
-  window.LOVENOW_PROFILES = data;
+  if (!data || !Array.isArray(data) || data.length===0){ data = DEMO; }
   LOADED = data;
   renderProfiles(LOADED);
 })();
-
-// Filtres
-$("#btnSearch").addEventListener("click", applyFilters);
-$("#btnReset").addEventListener("click", ()=>{
-  $("#fGender").value="all"; $("#fAgeMin").value=18; $("#fAgeMax").value=99; $("#fCity").value="";
-  applyFilters();
-});
 
 document.getElementById("year").textContent=(new Date()).getFullYear();
 </script>
