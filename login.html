@@ -33,74 +33,43 @@ import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com
 import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 const app = initializeApp(cfg);
-if (siteKey) initializeAppCheck(app, { provider:new ReCaptchaV3Provider(siteKey), isTokenAutoRefreshEnabled:true });
-const auth = getAuth(app);
-const db   = getFirestore(app);
+if (siteKey) initializeAppCheck(app,{provider:new ReCaptchaV3Provider(siteKey),isTokenAutoRefreshEnabled:true});
+const auth=getAuth(app); const db=getFirestore(app);
 
-const $ = s=>document.querySelector(s);
+const $=s=>document.querySelector(s);
 const show=(t)=>{ $("#tab-login").setAttribute("aria-selected",t==="login"); $("#panel-login").hidden=t!=="login"; $("#tab-signup").setAttribute("aria-selected",t==="signup"); $("#panel-signup").hidden=t!=="signup"; };
-$("#tab-login").addEventListener("click",()=>show("login"));
-$("#tab-signup").addEventListener("click",()=>show("signup"));
+$("#tab-login").addEventListener("click",()=>show("login")); $("#tab-signup").addEventListener("click",()=>show("signup"));
 show(location.hash==="#signup" ? "signup" : "login");
 
-// Toast minimal
 const toast=(t)=>{ const el=document.createElement('div'); el.className='toast'; el.textContent=t; document.body.appendChild(el); setTimeout(()=>el.remove(),2200); };
 
-// Vérif
-onAuthStateChanged(auth,(user)=>{
-  const b=$("#verifyBanner");
-  if(user && !user.emailVerified){ b.hidden=false; $("#who").textContent=user.email||""; }
-  else { b.hidden=true; $("#who").textContent=""; }
-});
+onAuthStateChanged(auth,(user)=>{ const b=$("#verifyBanner"); if(user && !user.emailVerified){ b.hidden=false; $("#who").textContent=user.email||""; } else { b.hidden=true; $("#who").textContent=""; } });
 
-// Inscription
 $("#signup").addEventListener("submit", async (e)=>{
   e.preventDefault();
-  const email=$("#suEmail").value.trim();
-  const pass=$("#suPass").value;
-  const name=$("#suName").value.trim();
-  const age = Number($("#suAge").value)||null;
-  const city=$("#suCity").value.trim();
-  const gender=$("#suGender").value;
-
+  const email=$("#suEmail").value.trim(), pass=$("#suPass").value, name=$("#suName").value.trim();
+  const age=Number($("#suAge").value)||null, city=$("#suCity").value.trim(), gender=$("#suGender").value;
   try{
     const {user}=await createUserWithEmailAndPassword(auth,email,pass);
-    await updateProfile(user,{ displayName:name });
-    // crée le doc public profiles/{uid}
-    await setDoc(doc(db,"profiles", user.uid), {
-      uid: user.uid,
-      email: user.email || "",
-      name, age, city, gender,
-      bio: "",
-      photoURL: "",
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp()
-    }, { merge:true });
-
+    await updateProfile(user,{displayName:name});
+    await setDoc(doc(db,"profiles", user.uid), { uid:user.uid, email:user.email||"", name, age, city, gender, bio:"", photoURL:"", createdAt:serverTimestamp(), updatedAt:serverTimestamp() }, {merge:true});
     try{
       const actionCodeSettings={ url:"https://lovenow.netlify.app/login.html?verified=1", handleCodeInApp:false };
       await sendEmailVerification(user, actionCodeSettings);
     }catch{}
-
     alert("Compte créé. Vérifie ton e-mail pour discuter.");
-    location.href="/";
-  }catch(err){
-    console.error(err); alert("Inscription impossible : "+(err?.message||""));
-  }
+    location.href="/profile.html";
+  }catch(err){ console.error(err); alert("Inscription impossible : "+(err?.message||"")); }
 });
 
-// Connexion
 $("#login").addEventListener("submit", async (e)=>{
   e.preventDefault();
   try{
-    await signInWithEmailAndPassword(auth, $("#liEmail").value.trim(), $("#liPass").value);
-    location.href="/";
-  }catch(err){
-    console.error(err); alert("Connexion impossible : "+(err?.message||""));
-  }
+    await signInWithEmailAndPassword(auth,$("#liEmail").value.trim(),$("#liPass").value);
+    location.href="/profile.html";
+  }catch(err){ console.error(err); alert("Connexion impossible : "+(err?.message||"")); }
 });
 
-// Renvoi e-mail
 $("#btnResend").addEventListener("click", async ()=>{
   const u=auth.currentUser; if(!u) return alert("Connecte-toi d’abord.");
   try{
@@ -109,73 +78,50 @@ $("#btnResend").addEventListener("click", async ()=>{
     toast("Lien envoyé ✅");
   }catch{ toast("Échec envoi lien"); }
 });
-
-// Déconnexion
 $("#btnLogout").addEventListener("click", async ()=>{ await signOut(auth); alert("Déconnecté"); location.href="/"; });
 </script>
 </head>
 <body>
-  <div class="wrap">
-    <a class="btn" href="index.html">← Retour à l’accueil</a>
-    <h1>Connexion / Inscription</h1>
+<div class="wrap">
+  <a class="btn" href="index.html">← Retour à l’accueil</a>
+  <h1>Connexion / Inscription</h1>
 
-    <div class="banner" id="verifyBanner" hidden>
-      <div>E-mail <span id="who" class="muted"></span> non vérifié.</div>
-      <div style="display:flex;gap:8px">
-        <button id="btnResend" class="btn">Envoyer le lien</button>
-        <a class="btn" href="index.html">Accueil</a>
-      </div>
-    </div>
-
-    <div class="tabs" role="tablist" aria-label="Choisir une action">
-      <button id="tab-login" role="tab" class="tab" aria-selected="true">Connexion</button>
-      <button id="tab-signup" role="tab" class="tab" aria-selected="false">Inscription</button>
-    </div>
-
-    <div id="panel-login" role="tabpanel" class="card">
-      <form id="login">
-        <label for="liEmail">Email</label>
-        <input id="liEmail" type="email" required autocomplete="username">
-        <label for="liPass">Mot de passe</label>
-        <input id="liPass" type="password" required autocomplete="current-password" minlength="6">
-        <div style="margin-top:12px;display:flex;gap:8px">
-          <button class="btn btn-primary" type="submit">Se connecter</button>
-          <a class="btn" href="index.html">Accueil</a>
-        </div>
-      </form>
-    </div>
-
-    <div id="panel-signup" role="tabpanel" class="card" hidden>
-      <form id="signup">
-        <label for="suEmail">Email</label>
-        <input id="suEmail" type="email" required autocomplete="email">
-        <label for="suPass">Mot de passe (≥ 6 caractères)</label>
-        <input id="suPass" type="password" required minlength="6" autocomplete="new-password">
-        <label for="suName">Nom / Pseudo</label>
-        <input id="suName" type="text" required>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-          <div>
-            <label for="suAge">Âge</label>
-            <input id="suAge" type="number" min="18" max="99" required>
-          </div>
-          <div>
-            <label for="suCity">Ville</label>
-            <input id="suCity" type="text" required>
-          </div>
-        </div>
-        <label for="suGender">Genre</label>
-        <select id="suGender"><option value="F">Femme</option><option value="M">Homme</option><option value="O">Autre</option></select>
-        <div style="margin-top:12px;display:flex;gap:8px">
-          <button class="btn btn-primary" type="submit">Créer mon compte</button>
-          <a class="btn" href="index.html">Accueil</a>
-        </div>
-      </form>
-    </div>
-
-    <div style="margin-top:16px">
-      <button id="btnLogout" class="btn">Se déconnecter</button>
-      <span class="muted">· Après vérification e-mail, reviens ici puis « Accueil ».</span>
+  <div class="banner" id="verifyBanner" hidden>
+    <div>E-mail <span id="who" class="muted"></span> non vérifié.</div>
+    <div style="display:flex;gap:8px">
+      <button id="btnResend" class="btn">Envoyer le lien</button>
+      <a class="btn" href="index.html">Accueil</a>
     </div>
   </div>
+
+  <div class="tabs" role="tablist" aria-label="Choisir une action">
+    <button id="tab-login" role="tab" class="tab" aria-selected="true">Connexion</button>
+    <button id="tab-signup" role="tab" class="tab" aria-selected="false">Inscription</button>
+  </div>
+
+  <div id="panel-login" role="tabpanel" class="card">
+    <form id="login">
+      <label for="liEmail">Email</label><input id="liEmail" type="email" required autocomplete="username">
+      <label for="liPass">Mot de passe</label><input id="liPass" type="password" required autocomplete="current-password" minlength="6">
+      <div style="margin-top:12px;display:flex;gap:8px"><button class="btn btn-primary" type="submit">Se connecter</button><a class="btn" href="index.html">Accueil</a></div>
+    </form>
+  </div>
+
+  <div id="panel-signup" role="tabpanel" class="card" hidden>
+    <form id="signup">
+      <label for="suEmail">Email</label><input id="suEmail" type="email" required autocomplete="email">
+      <label for="suPass">Mot de passe (≥ 6 caractères)</label><input id="suPass" type="password" required minlength="6" autocomplete="new-password">
+      <label for="suName">Nom / Pseudo</label><input id="suName" type="text" required>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div><label for="suAge">Âge</label><input id="suAge" type="number" min="18" max="99" required></div>
+        <div><label for="suCity">Ville</label><input id="suCity" type="text" required></div>
+      </div>
+      <label for="suGender">Genre</label><select id="suGender"><option value="F">Femme</option><option value="M">Homme</option><option value="O">Autre</option></select>
+      <div style="margin-top:12px;display:flex;gap:8px"><button class="btn btn-primary" type="submit">Créer mon compte</button><a class="btn" href="index.html">Accueil</a></div>
+    </form>
+  </div>
+
+  <div style="margin-top:16px"><button id="btnLogout" class="btn">Se déconnecter</button></div>
+</div>
 </body>
 </html>
