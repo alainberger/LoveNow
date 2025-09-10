@@ -1,193 +1,322 @@
 <!doctype html>
-<html lang="fr">
+<html lang="fr" data-theme="dark">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>LoveNow — Conversations</title>
-  <style>
-    :root{--ln-bg:#0c0f14;--ln-panel:#111622;--ln-ink:#fff;--ln-soft:#a9b1c3;--ln-accent:#ff3b81;}
-    body{margin:0;background:var(--ln-bg);color:var(--ln-ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial}
-    .wrap{display:grid;grid-template-columns:320px 1fr;min-height:100dvh}
-    .left{border-right:1px solid #ffffff10}
-    .panel{background:var(--ln-panel);border:1px solid #ffffff14;border-radius:14px;margin:16px;padding:12px}
-    .title{margin:16px;font-size:20px}
-    .list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
-    .item{padding:10px;border:1px solid #ffffff14;border-radius:12px;background:#0f1524;cursor:pointer}
-    .item small{color:var(--ln-soft)}
-    .right{display:flex;flex-direction:column}
-    .thread{flex:1;display:flex;flex-direction:column;gap:8px;margin:16px;padding:12px;background:#0f1524;border:1px solid #ffffff14;border-radius:14px;overflow:auto}
-    .msg{max-width:70%;padding:8px 10px;border-radius:10px;background:#ffffff14}
-    .mine{align-self:flex-end;background:var(--ln-accent)}
-    form{display:flex;gap:8px;margin:0 16px 16px}
-    input[type=text]{flex:1;background:#12192a;border:1px solid #2a3245;color:#fff;border-radius:10px;padding:10px}
-    .ln-btn{border:1px solid #ffffff40;background:#ffffff12;color:#fff;padding:10px 14px;border-radius:10px;cursor:pointer}
-    .notice{display:flex;gap:8px;align-items:center;background:#2a2f3d;color:#fff;margin:16px;border-radius:10px;padding:10px}
-  </style>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Conversations — LoveNow</title>
+<meta name="theme-color" content="#14151a"/>
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" as="style" onload="this.rel='stylesheet'"/>
+<style>
+:root{--bg:#0f1115;--card:#171922;--muted:#aab1c3;--text:#e9edf6;--brand:#ff2d55;--brand2:#7a5cf0;--line:#23283d}
+*{box-sizing:border-box}html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:Inter,system-ui}
+a{color:inherit;text-decoration:none}
+header{position:sticky;top:0;z-index:10;background:rgba(15,17,21,.7);backdrop-filter:saturate(140%) blur(8px);border-bottom:1px solid #202334}
+.wrap{max-width:1200px;margin:0 auto;padding:12px}
+nav{display:flex;gap:8px;align-items:center}
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:.55rem .85rem;border-radius:.6rem;background:#232739;border:1px solid #2b2f44;cursor:pointer}
+.btn-primary{background:linear-gradient(135deg,var(--brand),var(--brand2));border:none}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.app{display:grid;grid-template-columns:320px 1fr;height:calc(100vh - 64px)}
+@media(max-width:920px){.app{grid-template-columns:1fr;grid-template-rows:420px 1fr}}
+.panel{border-right:1px solid var(--line);overflow:auto}
+.panel:last-child{border-right:none}
+.card{background:var(--card);border:1px solid #202334;border-radius:.9rem}
+.banner{margin:10px;background:#1a1e2b;border:1px solid #27314a;border-radius:.8rem;padding:.6rem .8rem;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.list{padding:10px;display:flex;flex-direction:column;gap:8px}
+.item{display:grid;grid-template-columns:44px 1fr;gap:10px;align-items:center;padding:8px;border:1px solid var(--line);border-radius:.7rem;background:#141824;cursor:pointer}
+.item.active{outline:2px solid #3a4a8f}
+.ava{width:44px;height:44px;border-radius:50%;object-fit:cover;background:#0c0e12;border:1px solid #2b2f44}
+.meta{display:flex;flex-direction:column;gap:2px}
+.meta small{color:var(--muted)}
+.search{display:flex;gap:8px;padding:10px}
+.search input{flex:1;padding:.6rem;border-radius:.6rem;background:#0f1115;border:1px solid #2b2f44;color:var(--text)}
+.box{display:flex;flex-direction:column;height:100%}
+.chat-head{display:flex;align-items:center;gap:10px;padding:10px;border-bottom:1px solid var(--line)}
+.chat-body{flex:1;overflow:auto;padding:12px;display:flex;flex-direction:column;gap:8px}
+.msg{max-width:75%;padding:8px 10px;border-radius:12px;border:1px solid var(--line);background:#141824}
+.me{align-self:flex-end;background:linear-gradient(135deg,var(--brand),var(--brand2));border:none}
+.msg small{display:block;margin-top:4px;color:#d7dbea;opacity:.75}
+.chat-foot{display:flex;gap:8px;padding:10px;border-top:1px solid var(--line)}
+.chat-foot input{flex:1;padding:.65rem;border-radius:.6rem;background:#0f1115;border:1px solid #2b2f44;color:var(--text)}
+.muted{color:var(--muted)}
+.toast{position:fixed;right:16px;bottom:16px;background:#111522;border:1px solid #22304a;padding:.7rem 1rem;border-radius:.7rem;transform:translateY(20px);opacity:0;transition:.25s}
+.toast.show{transform:translateY(0);opacity:1}
+.skeleton{background:linear-gradient(90deg,#151826 25%,#1a1f31 37%,#151826 63%);background-size:400% 100%;animation:sh 1.2s ease infinite;border-radius:.7rem;height:54px}
+@keyframes sh{0%{background-position:100% 50%}100%{background-position:0 50%}}
+</style>
+
+<script src="config.js"></script>
 </head>
 <body>
+<header>
   <div class="wrap">
-    <aside class="left">
-      <h2 class="title">Mes conversations</h2>
-      <div id="emailBanner" class="notice" hidden>
-        <span>E-mail non vérifié.</span>
-        <button id="sendVerify" class="ln-btn">Envoyer le lien</button>
-        <button id="refreshAuth" class="ln-btn">Rafraîchir</button>
-      </div>
-      <div class="panel">
-        <ul id="convList" class="list"></ul>
-      </div>
-    </aside>
-    <section class="right">
-      <h2 class="title">Messages</h2>
-      <div id="thread" class="thread" aria-live="polite"></div>
-      <form id="composerForm" autocomplete="off">
-        <input id="composerInput" type="text" placeholder="Écrire un message…" />
-        <button class="ln-btn" type="submit">Envoyer</button>
-      </form>
-    </section>
+    <nav>
+      <a class="btn" href="index.html">← Accueil</a>
+      <strong>Conversations</strong>
+      <span style="flex:1"></span>
+      <a class="btn" href="profile.html">Mon profil</a>
+      <button id="logout" class="btn">Se déconnecter</button>
+    </nav>
   </div>
+</header>
 
-  <script>
-    window.firebaseConfig = {
-      apiKey: "AIzaSyB_-cNA8bxqYCYUp3rUZs-VpiP4DX2wn3M",
-      authDomain: "lovenow-officiel.firebaseapp.com",
-      projectId: "lovenow-officiel",
-      storageBucket: "lovenow-officiel.firebasestorage.app",
-      messagingSenderId: "896585801571",
-      appId: "1:896585801571:web:cdde87293291dc1900bd56",
-      measurementId: "G-QGM25ND7LF"
-    };
-  </script>
+<div id="verifyBanner" class="banner" hidden>
+  <div><strong>E-mail non vérifié.</strong> Vérifie ton e-mail pour pouvoir envoyer des messages.</div>
+  <div style="display:flex;gap:8px">
+    <button id="resend" class="btn">Renvoyer le lien</button>
+    <button id="refresh" class="btn">Rafraîchir</button>
+  </div>
+</div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-analytics.js";
-    import { getAuth, onAuthStateChanged, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
-    import {
-      getFirestore, collection, query, where, orderBy, onSnapshot,
-      doc, addDoc, serverTimestamp, getDoc, setDoc, updateDoc
-    } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+<section class="app">
+  <!-- Colonne gauche : conversations + recherche utilisateur -->
+  <aside class="panel">
+    <div class="search">
+      <input id="q" type="text" placeholder="Rechercher ou démarrer une discussion… (nom, ville)">
+      <button id="start" class="btn btn-primary" title="Démarrer avec l’utilisateur saisi">Nouveau</button>
+    </div>
+    <div class="list" id="convList">
+      <div class="skeleton"></div>
+      <div class="skeleton"></div>
+      <div class="skeleton"></div>
+    </div>
+  </aside>
 
-    const LAST_TS_FIELD = 'lastMessageAt';
+  <!-- Colonne droite : chat -->
+  <main class="panel box">
+    <div class="chat-head">
+      <img id="peerAva" class="ava" src="" alt="">
+      <div>
+        <div id="peerName"><span class="muted">Choisis une conversation</span></div>
+        <small id="peerCity" class="muted"></small>
+      </div>
+    </div>
+    <div id="chat" class="chat-body"></div>
+    <div class="chat-foot">
+      <input id="text" type="text" placeholder="Ton message…" autocomplete="off">
+      <button id="send" class="btn btn-primary">Envoyer</button>
+    </div>
+  </main>
+</section>
 
-    const app  = initializeApp(window.firebaseConfig);
-    try { getAnalytics(app); } catch(e) {}
-    const auth = getAuth(app);
-    const db   = getFirestore(app);
+<div id="toast" class="toast"></div>
 
-    const convList = document.getElementById('convList');
-    const threadEl = document.getElementById('thread');
-    const formEl   = document.getElementById('composerForm');
-    const inputEl  = document.getElementById('composerInput');
+<script type="module">
+/* ===== Utils ===== */
+const $ = s => document.querySelector(s);
+const toast=(msg)=>{const t=$("#toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2200);};
+const bust=(url,ver)=>!url?"" : url + (url.includes("?")?"&":"?")+"v="+(ver||Date.now());
 
-    const emailBanner = document.getElementById('emailBanner');
-    const sendVerify  = document.getElementById('sendVerify');
-    const refreshAuth = document.getElementById('refreshAuth');
+/* ===== Firebase init ===== */
+const cfg = window.APP_CONFIG?.firebase;
+const siteKey = window.APP_CONFIG?.appCheck?.recaptchaV3SiteKey;
 
-    let currentUser, currentCid=null;
+import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app-check.js";
+import { getAuth, onAuthStateChanged, signOut, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, addDoc, getDocs, onSnapshot, collection, query, where, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-    onAuthStateChanged(auth, async (user)=>{
-      if(!user){ location.href='/login.html'; return; }
-      currentUser = user;
+const app = getApps().length ? getApp() : initializeApp(cfg);
+if (siteKey) initializeAppCheck(app, { provider:new ReCaptchaV3Provider(siteKey), isTokenAutoRefreshEnabled:true });
+const auth = getAuth(app);
+const db   = getFirestore(app);
 
-      emailBanner.hidden = user.emailVerified;
-      formEl.querySelector('button[type="submit"]').disabled = !user.emailVerified;
-      sendVerify.onclick = async ()=>{ await sendEmailVerification(user); alert('E-mail de vérification envoyé.'); };
-      refreshAuth.onclick = ()=> location.reload();
+/* ===== Caches simples ===== */
+const profileCache = new Map(); // uid -> profile doc data
 
-      const q = query(
-        collection(db,'conversations'),
-        where('members','array-contains', user.uid),
-        orderBy(LAST_TS_FIELD,'desc')
-      );
-      onSnapshot(q, (snap)=>{
-        convList.innerHTML='';
-        if(snap.empty){ convList.innerHTML='<li class="item"><small>Aucune conversation.</small></li>'; return; }
-        snap.forEach(d=>{
-          const c = d.data();
-          const li = document.createElement('li');
-          li.className = 'item';
-          const preview = (c.lastMessage && c.lastMessage.text) ? c.lastMessage.text.slice(0,40) : 'Nouvelle conversation';
-          li.innerHTML = `<strong>${preview}</strong><br><small>${d.id}</small>`;
-          li.onclick = ()=> openConv(d.id);
-          convList.appendChild(li);
-        });
+async function getProfile(uid){
+  if (!uid) return null;
+  if (profileCache.has(uid)) return profileCache.get(uid);
+  const snap = await getDoc(doc(db,"profiles",uid));
+  const data = snap.exists() ? snap.data() : null;
+  profileCache.set(uid,data);
+  return data;
+}
+
+/* ===== Auth gate ===== */
+let me = null;
+let emailVerified = false;
+let activeCID = null;
+let activePeerUID = null;
+let unsubMsgs = null;
+
+onAuthStateChanged(auth, async (user)=>{
+  if (!user){ location.href="login.html#login"; return; }
+  me = user;
+  emailVerified = !!user.emailVerified;
+  document.documentElement.dataset.verified = emailVerified ? "true" : "false";
+  $("#verifyBanner").hidden = emailVerified;
+
+  // Charge profil courant (utile pour afficher sa propre photo si tu veux)
+  await getProfile(me.uid);
+
+  // UI handlers
+  $("#logout").onclick = async()=>{ await signOut(auth); location.href="login.html#login"; };
+  $("#resend").onclick = async ()=>{
+    try{
+      const actionCodeSettings={ url:"https://lovenow.netlify.app/login.html?verified=1", handleCodeInApp:false };
+      await sendEmailVerification(me, actionCodeSettings);
+      toast("Lien de vérification envoyé ✅");
+    }catch(e){ console.error(e); toast("Échec envoi lien"); }
+  };
+  $("#refresh").onclick = ()=>location.reload();
+
+  // Liste des conversations
+  listenConversations();
+});
+
+/* ===== Conversations : écoute temps réel ===== */
+function listenConversations(){
+  const list = $("#convList");
+  list.innerHTML = "<div class='muted' style='padding:10px'>Chargement…</div>";
+  // Pas d'orderBy ici pour éviter un index composite; on trie côté client.
+  const qConv = query(collection(db,"conversations"), where("members","array-contains", me.uid));
+  onSnapshot(qConv, async (snap)=>{
+    const items = [];
+    for (const d of snap.docs){
+      const c = d.data();
+      const others = (c.members||[]).filter(x=>x!==me.uid);
+      const other = others[0]; // 1:1 uniquement
+      const p = await getProfile(other);
+      const lastAt = (c.lastAt && c.lastAt.toDate) ? c.lastAt.toDate().getTime() : 0;
+      items.push({
+        id: d.id,
+        other,
+        name: p?.name || p?.displayName || "Utilisateur",
+        city: p?.city || "",
+        photo: bust(p?.photoURL || "", p?.updatedAt?.seconds || 0),
+        lastText: c.lastText || "",
+        lastAt
       });
+    }
+    items.sort((a,b)=>b.lastAt - a.lastAt);
 
-      const params = new URLSearchParams(location.search);
-      const cid    = params.get('cid');
-      if(cid) openConv(cid);
+    list.innerHTML = "";
+    if (!items.length){
+      const empty = document.createElement("div");
+      empty.className="muted"; empty.style.padding="10px";
+      empty.textContent = "Aucune conversation. Recherchez un utilisateur pour démarrer.";
+      list.appendChild(empty);
+    }
+    items.forEach(it=>{
+      const el = document.createElement("div");
+      el.className = "item" + (it.id===activeCID ? " active" : "");
+      el.dataset.cid = it.id; el.dataset.uid = it.other;
+      el.innerHTML = `
+        <img class="ava" src="${it.photo||'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?q=80&w=300&auto=format&fit=crop'}" alt="">
+        <div class="meta">
+          <strong>${it.name}</strong>
+          <small>${it.lastText ? it.lastText : (it.city||'')}</small>
+        </div>`;
+      el.addEventListener("click", ()=>openConversation(it.other));
+      list.appendChild(el);
     });
 
-    function scrollBottom(){ threadEl.scrollTop = threadEl.scrollHeight; }
-
-    async function ensureConversationDoc(cid){
-      const cRef = doc(db,'conversations',cid);
-      const snap = await getDoc(cRef);
-      if(!snap.exists()){
-        const [u1,u2] = cid.split('_');
-        await setDoc(cRef, {
-          members: [u1,u2],
-          createdAt: serverTimestamp(),
-          [LAST_TS_FIELD]: serverTimestamp(),
-          lastMessage: null
-        });
-      }
+    // Si on arrivait via ?to=UID
+    const urlTo = new URL(location.href).searchParams.get("to");
+    if (urlTo && items.every(x=>x.other!==urlTo)){
+      // démarre direct si pas déjà listé
+      openConversation(urlTo);
+      history.replaceState({}, "", "conversations.html");
     }
+  });
+}
 
-    async function openConv(cid){
-      currentCid = cid;
-      threadEl.innerHTML = '<div class="notice">Chargement…</div>';
+/* ===== Démarrer / Ouvrir une conversation ===== */
+function pairCID(a,b){ const [x,y]=[a,b].sort(); return `${x}__${y}`; }
 
-      await ensureConversationDoc(cid);
+async function openConversation(peerUID){
+  if (!peerUID) return;
+  const cid = pairCID(me.uid, peerUID);
+  activeCID = cid;
+  activePeerUID = peerUID;
 
-      const q = query(
-        collection(db,'conversations', cid, 'messages'),
-        orderBy('createdAt','asc')
-      );
-      onSnapshot(q, (snap)=>{
-        threadEl.innerHTML='';
-        if(snap.empty){ threadEl.innerHTML='<div class="notice">Aucun message pour le moment.</div>'; }
-        snap.forEach(m=>{
-          const msg = m.data();
-          const div = document.createElement('div');
-          div.className = 'msg' + (msg.from===currentUser.uid?' mine':'');
-          div.textContent = msg.text;
-          threadEl.appendChild(div);
-        });
-        scrollBottom();
-      });
-    }
+  // UI tête de chat
+  const p = await getProfile(peerUID);
+  $("#peerAva").src = bust(p?.photoURL || "https://images.unsplash.com/photo-1502685104226-ee32379fefbe?q=80&w=300&auto=format&fit=crop", p?.updatedAt?.seconds||0);
+  $("#peerName").textContent = p?.name || p?.displayName || "Utilisateur";
+  $("#peerCity").textContent = p?.city || "";
 
-    formEl.addEventListener('submit', async (e)=>{
-      e.preventDefault();
-      if(!currentUser?.emailVerified){ alert('Valide ton e-mail pour écrire.'); return; }
-      if(!currentCid){ alert('Choisis une conversation.'); return; }
-      const text = inputEl.value.trim();
-      if(!text) return;
+  // Crée le doc conv si absent
+  const cref = doc(db,"conversations", cid);
+  const exists = await getDoc(cref);
+  if (!exists.exists()){
+    await setDoc(cref, {
+      members: [me.uid, peerUID],
+      createdAt: serverTimestamp(),
+      lastAt: serverTimestamp(),
+      lastText: ""
+    }, { merge:true });
+  }
 
-      await addDoc(collection(db,'conversations', currentCid, 'messages'), {
-        from: currentUser.uid,
-        text,
-        createdAt: serverTimestamp()
-      });
-
-      const cRef = doc(db,'conversations', currentCid);
-      await updateDoc(cRef, {
-        lastMessage: { text, from: currentUser.uid },
-        [LAST_TS_FIELD]: serverTimestamp()
-      }).catch(async ()=>{
-        const [u1,u2] = currentCid.split('_');
-        await setDoc(cRef, {
-          members:[u1,u2],
-          lastMessage:{ text, from: currentUser.uid },
-          [LAST_TS_FIELD]: serverTimestamp(),
-          createdAt: serverTimestamp()
-        }, { merge:true });
-      });
-
-      inputEl.value='';
+  // Écoute des messages
+  if (unsubMsgs) unsubMsgs();
+  const qMsg = query(collection(db,"conversations",cid,"messages"), orderBy("at","asc"));
+  unsubMsgs = onSnapshot(qMsg, (snap)=>{
+    const box = $("#chat"); box.innerHTML = "";
+    snap.forEach(docu=>{
+      const m = docu.data();
+      const mine = m.from===me.uid;
+      const div = document.createElement("div");
+      div.className = "msg"+(mine?" me":"");
+      const when = m.at?.toDate ? new Date(m.at.toDate()) : null;
+      div.innerHTML = `
+        <div>${(m.text||"").replace(/</g,"&lt;")}</div>
+        <small>${when?when.toLocaleString("fr-FR"):''}</small>`;
+      box.appendChild(div);
     });
-  </script>
+    // scroll bas
+    $("#chat").scrollTop = $("#chat").scrollHeight;
+  });
+}
+
+/* ===== Envoi de message ===== */
+async function sendMessage(){
+  const input = $("#text");
+  const text = input.value.trim();
+  if (!text) return;
+
+  if (!emailVerified){
+    toast("Vérifie ton e-mail pour envoyer des messages.");
+    return;
+  }
+  if (!activeCID || !activePeerUID){
+    toast("Choisis un destinataire.");
+    return;
+  }
+  const mref = collection(db,"conversations",activeCID,"messages");
+  await addDoc(mref, { from: me.uid, text, at: serverTimestamp() });
+  await setDoc(doc(db,"conversations",activeCID), { lastText:text, lastAt: serverTimestamp() }, { merge:true });
+  input.value="";
+}
+
+$("#send").addEventListener("click", sendMessage);
+$("#text").addEventListener("keydown",(e)=>{ if(e.key==="Enter"){ e.preventDefault(); sendMessage(); }});
+
+/* ===== Démarrage depuis la recherche ===== */
+$("#start").addEventListener("click", async ()=>{
+  const s = $("#q").value.trim().toLowerCase();
+  if (!s){ toast("Tape un nom ou une ville."); return; }
+  // On prend un petit échantillon et on filtre côté client (évite index/accents)
+  const snap = await getDocs(query(collection(db,"profiles")));
+  const found = [];
+  snap.forEach(d=>{
+    const v = d.data()||{};
+    const hay = `${v.name||""} ${v.city||""}`.toLowerCase();
+    if (v.uid!==me.uid && hay.includes(s)) found.push({uid:v.uid, name:v.name||"Utilisateur"});
+  });
+  if (!found.length){ toast("Aucun utilisateur correspondant."); return; }
+  await openConversation(found[0].uid);
+  $("#q").value="";
+});
+
+/* ===== Pré-sélection via URL : conversations.html?to=UID ===== */
+window.addEventListener("DOMContentLoaded", ()=>{
+  const to = new URL(location.href).searchParams.get("to");
+  if (to) {
+    // on ouvre après auth (listenConversations appelle openConversation si besoin)
+  }
+});
+</script>
 </body>
 </html>
