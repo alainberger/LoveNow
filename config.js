@@ -32,3 +32,6 @@ window.APP_CONFIG = {
   analyticsEnabled: false,
   resendCooldown: 30
 };
+
+window.env = window.env || {};
+window.env.RECAPTCHA_SITE_KEY = "6LfjpsErAAAAAExN2IvBq-K475TeJooeNzl9liPD";
