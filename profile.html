@@ -1,129 +1,85 @@
-<!-- profile.html — LoveNow (Profil + compression image côté client) -->
 <!doctype html>
 <html lang="fr" data-theme="light">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>LoveNow — Mon profil</title>
-  <meta name="description" content="Éditez votre profil LoveNow : photo, prénom/pseudo, ville, âge, bio." />
-  <link rel="canonical" href="https://lovenow.netlify.app/profile" />
+  <meta name="description" content="Éditez votre profil LoveNow : prénom/pseudo, ville, âge, bio.">
+  <link rel="canonical" href="https://lovenow.netlify.app/profile">
   <meta property="og:title" content="LoveNow — Mon profil">
   <meta property="og:description" content="Mettez à jour votre profil LoveNow.">
   <meta property="og:url" content="https://lovenow.netlify.app/profile">
   <meta property="og:image" content="/assets/og-default.jpg">
   <meta name="twitter:card" content="summary_large_image">
   <style>
-    body{margin:0;font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial;color:#111}
-    .wrap{max-width:760px;margin:0 auto;padding:24px 16px}
-    label{font-weight:600;display:block;margin-top:10px}
-    input,textarea{width:100%;padding:.6rem .7rem;border:1px solid #ddd;border-radius:10px}
-    textarea{min-height:120px}
-    .btn{margin-top:12px;display:inline-block;padding:.65rem 1rem;border-radius:10px;border:1px solid transparent;background:#0AAEEF;color:#fff;font-weight:600}
-    .muted{color:#666}
-    :focus{outline:3px auto;outline-offset:2px}
-    #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:14px;background:#111;color:#fff;padding:.7rem 1rem;border-radius:10px;display:none}
-    img.preview{width:128px;height:128px;object-fit:cover;border-radius:14px;border:1px solid #eee;margin-top:8px}
+    body{ margin:0; font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial; color:#111 }
+    .wrap{ max-width:760px; margin:0 auto; padding:24px 16px }
+    label{ font-weight:600; display:block; margin-top:10px }
+    input,textarea,select{ width:100%; padding:.6rem .7rem; border:1px solid #ddd; border-radius:10px }
+    textarea{ min-height:120px }
+    .btn{ margin-top:12px; display:inline-block; padding:.65rem 1rem; border-radius:10px; border:1px solid transparent; background:#0AAEEF; color:#fff; font-weight:600 }
+    .muted{ color:#666 }
+    :focus{ outline:3px auto; outline-offset:2px }
+    #toast{ position:fixed; left:50%; transform:translateX(-50%); bottom:14px; background:#111; color:#fff; padding:.7rem 1rem; border-radius:10px; display:none }
   </style>
 </head>
 <body>
   <div class="wrap">
     <a href="/" aria-label="Retour accueil">← Accueil</a>
     <h1>Mon profil</h1>
-    <p class="muted">Photo conseillée : carré <strong>512×512</strong>, <strong>&lt; 5 Mo</strong>, JPG/PNG. Les images trop grandes sont automatiquement compressées côté appareil.</p>
-
-    <form id="profileForm" onsubmit="return saveProfile(event)">
-      <label for="avatar">Photo de profil</label>
-      <input id="avatar" type="file" accept="image/*" aria-describedby="avatarHelp">
-      <small id="avatarHelp" class="muted">Formats acceptés : JPG, PNG. Compression automatique si nécessaire.</small>
-      <img id="preview" class="preview" alt="Aperçu de votre photo" hidden>
-
+    <form id="profileForm">
       <label for="name">Prénom/Pseudo</label>
       <input id="name" required>
       <label for="city">Ville</label>
       <input id="city" placeholder="Paris">
       <label for="age">Âge</label>
       <input id="age" type="number" min="18" max="99" required>
+      <label for="gender">Genre</label>
+      <select id="gender">
+        <option value="">—</option><option value="f">Femme</option><option value="m">Homme</option><option value="o">Autre</option>
+      </select>
       <label for="bio">Bio</label>
       <textarea id="bio" maxlength="600" placeholder="Parlez un peu de vous…"></textarea>
-
-      <button id="btnSave" class="btn" type="submit">Enregistrer</button>
+      <button class="btn" id="btnSave" type="submit">Enregistrer</button>
     </form>
   </div>
 
   <div id="toast" role="status" aria-live="polite"></div>
 
-  <script src="/js/firebase-config.js"></script>
+  <script src="/config.js"></script>
   <script type="module">
-    import { onAuthStateChanged, getProfile, updateProfileDoc } from './js/firebase.js';
+    import { onAuthStateChanged, getProfileDoc, updateProfileDoc } from '/js/firebase.js';
+    const $ = s=>document.querySelector(s);
     const toast = document.getElementById('toast');
-    const showToast = m => { toast.textContent=m; toast.style.display='block'; setTimeout(()=>toast.style.display='none',2200); };
+    const showToast = m => { toast.textContent=m; toast.style.display='block'; setTimeout(()=>toast.style.display='none', 2200); };
 
-    const fileInput = document.getElementById('avatar');
-    const preview = document.getElementById('preview');
-
-    fileInput.addEventListener('change', async (e)=>{
-      const file = e.target.files && e.target.files[0];
-      if(!file) return;
-      const okTypes = ['image/jpeg','image/png','image/webp'];
-      if(!okTypes.includes(file.type)){ showToast('Format non pris en charge'); return; }
-
-      // Lecture
-      const bmp = await createImageBitmap(file).catch(()=>null);
-      if(!bmp){ showToast('Impossible de lire l’image'); return; }
-
-      // Redimensionne si trop grand (>1024 px)
-      const maxSide = 1024;
-      let w = bmp.width, h = bmp.height;
-      if(Math.max(w,h) > maxSide){
-        const ratio = maxSide / Math.max(w,h);
-        w = Math.round(w*ratio); h = Math.round(h*ratio);
+    onAuthStateChanged(async (u)=>{
+      if(!u) { location.href='/login.html#signup'; return; }
+      const doc = await getProfileDoc(u.uid);
+      if(doc){
+        $('#name').value = doc.displayName||'';
+        $('#city').value = doc.city||'';
+        $('#age').value = doc.age||'';
+        $('#gender').value = doc.gender||'';
+        $('#bio').value = doc.bio||'';
       }
-      const canvas = document.createElement('canvas');
-      canvas.width = w; canvas.height = h;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(bmp, 0, 0, w, h);
-
-      const blob = await new Promise(res=>canvas.toBlob(res, 'image/jpeg', 0.85));
-      if(!blob){ showToast('Compression échouée'); return; }
-
-      if(blob.size > 5*1024*1024){ showToast('Image &gt; 5 Mo même après compression'); }
-
-      // Affiche preview
-      preview.src = URL.createObjectURL(blob);
-      preview.hidden = false;
-
-      // TODO: uploader l'image et obtenir l'URL puis sauvegarder via updateProfileDoc({photoURL})
     });
 
-    onAuthStateChanged(async u => {
-      if(!u){ location.href = '/login.html#signup'; return; }
-      const data = await getProfile(u.uid) || {};
-      if(data.photoURL){ preview.src = data.photoURL; preview.hidden = false; }
-      document.getElementById('name').value = data.displayName || '';
-      document.getElementById('city').value = data.city || '';
-      document.getElementById('age').value = data.age || '';
-      document.getElementById('bio').value = data.bio || '';
-    });
-
-    async function saveProfile(e){
+    document.getElementById('profileForm').addEventListener('submit', async (e)=>{
       e.preventDefault();
-      const btn = document.getElementById('btnSave');
-      btn.disabled = true; btn.textContent='Enregistrement…';
+      const btn = document.getElementById('btnSave'); btn.disabled=true; const t=btn.textContent; btn.textContent='Enregistrement…';
       try{
         await updateProfileDoc({
-          displayName: document.getElementById('name').value.trim(),
-          city: document.getElementById('city').value.trim(),
-          age: parseInt(document.getElementById('age').value,10),
-          bio: document.getElementById('bio').value.trim()
+          displayName: $('#name').value.trim(),
+          city: $('#city').value.trim(),
+          age: parseInt($('#age').value,10),
+          gender: $('#gender').value,
+          bio: $('#bio').value.trim()
         });
         showToast('Profil enregistré');
-      }catch(ex){
-        showToast('Erreur: '+ex.message);
-      }finally{
-        btn.disabled = false; btn.textContent='Enregistrer';
-      }
-      return false;
-    }
+      }catch(ex){ alert(ex?.message||'Erreur'); }
+      finally{ btn.disabled=false; btn.textContent=t; }
+    });
   </script>
 </body>
 </html>
