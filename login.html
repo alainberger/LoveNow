@@ -30,10 +30,12 @@ const siteKey = window.APP_CONFIG?.appCheck?.recaptchaV3SiteKey;
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, sendEmailVerification, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app-check.js";
+import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 const app = initializeApp(cfg);
 if (siteKey) initializeAppCheck(app, { provider:new ReCaptchaV3Provider(siteKey), isTokenAutoRefreshEnabled:true });
 const auth = getAuth(app);
+const db   = getFirestore(app);
 
 const $ = s=>document.querySelector(s);
 const show=(t)=>{ $("#tab-login").setAttribute("aria-selected",t==="login"); $("#panel-login").hidden=t!=="login"; $("#tab-signup").setAttribute("aria-selected",t==="signup"); $("#panel-signup").hidden=t!=="signup"; };
@@ -44,7 +46,7 @@ show(location.hash==="#signup" ? "signup" : "login");
 // Toast minimal
 const toast=(t)=>{ const el=document.createElement('div'); el.className='toast'; el.textContent=t; document.body.appendChild(el); setTimeout(()=>el.remove(),2200); };
 
-// État vérif
+// Vérif
 onAuthStateChanged(auth,(user)=>{
   const b=$("#verifyBanner");
   if(user && !user.emailVerified){ b.hidden=false; $("#who").textContent=user.email||""; }
@@ -57,13 +59,29 @@ $("#signup").addEventListener("submit", async (e)=>{
   const email=$("#suEmail").value.trim();
   const pass=$("#suPass").value;
   const name=$("#suName").value.trim();
+  const age = Number($("#suAge").value)||null;
+  const city=$("#suCity").value.trim();
+  const gender=$("#suGender").value;
+
   try{
     const {user}=await createUserWithEmailAndPassword(auth,email,pass);
     await updateProfile(user,{ displayName:name });
+    // crée le doc public profiles/{uid}
+    await setDoc(doc(db,"profiles", user.uid), {
+      uid: user.uid,
+      email: user.email || "",
+      name, age, city, gender,
+      bio: "",
+      photoURL: "",
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    }, { merge:true });
+
     try{
       const actionCodeSettings={ url:"https://lovenow.netlify.app/login.html?verified=1", handleCodeInApp:false };
       await sendEmailVerification(user, actionCodeSettings);
     }catch{}
+
     alert("Compte créé. Vérifie ton e-mail pour discuter.");
     location.href="/";
   }catch(err){
