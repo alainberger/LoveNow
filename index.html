@@ -1,336 +1,221 @@
+<!-- index.html — LoveNow (Home + Découvrir) -->
 <!doctype html>
-<html lang="fr" data-theme="dark">
+<html lang="fr" data-theme="light">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>LoveNow — Rencontres près de chez toi</title>
-<meta name="description" content="Inscris-toi en 2 minutes, découvre des profils près de chez toi et commence à discuter."/>
-<link rel="canonical" href="https://lovenow.netlify.app/"/>
-<meta property="og:title" content="LoveNow — Rencontres près de chez toi"/>
-<meta property="og:description" content="Inscris-toi en 2 minutes, découvre des profils près de chez toi et commence à discuter."/>
-<meta property="og:url" content="https://lovenow.netlify.app/"/>
-<meta property="og:image" content="https://via.placeholder.com/1200x630.png?text=LoveNow"/>
-<meta name="twitter:card" content="summary_large_image"/>
-<meta name="theme-color" content="#14151a"/>
-<link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" as="style" onload="this.rel='stylesheet'"/>
-
-<style>
-:root{--bg:#0f1115;--card:#171922;--muted:#aab1c3;--text:#e9edf6;--brand:#ff2d55;--brand2:#7a5cf0}
-*{box-sizing:border-box}
-html{scroll-behavior:smooth}
-html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:Inter,system-ui}
-a:focus,button:focus,input:focus,select:focus,textarea:focus{outline:3px auto;outline-offset:2px}
-a{color:inherit;text-decoration:none}
-.wrap{max-width:1100px;margin:0 auto;padding:16px}
-header{position:sticky;top:0;z-index:10;background:rgba(15,17,21,.7);backdrop-filter:saturate(140%) blur(8px);border-bottom:1px solid #202334}
-nav{display:flex;align-items:center;gap:10px;padding:10px 0}
-.brand{font-weight:700}
-.spacer{flex:1}
-.btn{display:inline-flex;align-items:center;justify-content:center;padding:.6rem .9rem;border-radius:.6rem;background:#232739;border:1px solid #2b2f44;cursor:pointer}
-.btn-primary{background:linear-gradient(135deg,var(--brand),var(--brand2));border:none}
-.btn[disabled]{opacity:.6;cursor:not-allowed}
-.banner{display:flex;gap:8px;align-items:center;justify-content:space-between;background:#1a1e2b;border:1px solid #27314a;border-radius:.8rem;padding:.6rem .8rem;margin:.6rem 0}
-.hero{position:relative;background:linear-gradient(135deg,#2b1742 0%,#0f3b5b 60%,#0f1115 100%);padding:64px 0;border-bottom:1px solid #202334}
-.hero::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.45),rgba(0,0,0,.25))}
-.hero>*{position:relative}
-h1{font-size:clamp(28px,4vw,44px);margin:.2rem 0 1rem}
-.pills{display:flex;gap:8px;flex-wrap:wrap}
-.pill{display:inline-flex;gap:6px;align-items:center;background:#202334;border:1px solid #2b3550;color:#cbd3e6;padding:.4rem .6rem;border-radius:999px;font-size:.9rem}
-.grid{display:grid;grid-template-columns:1fr;gap:16px}
-@media(min-width:800px){.grid{grid-template-columns:280px 1fr}}
-.card{background:var(--card);border:1px solid #202334;border-radius:.9rem}
-.card section{padding:14px}
-.filters{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-@media(min-width:700px){.filters{grid-template-columns:140px 140px 1fr 130px 130px}}
-label{display:block;margin-bottom:4px;color:var(--muted);font-size:.9rem}
-input,select{width:100%;padding:.6rem;border-radius:.6rem;background:#0f1115;border:1px solid #2b2f44;color:var(--text)}
-.results{display:grid;grid-template-columns:1fr;gap:12px;padding:12px}
-@media(min-width:680px){.results{grid-template-columns:repeat(2,1fr)}}
-.profile{background:#141824;border:1px solid #23283d;border-radius:.8rem;overflow:hidden;display:flex;flex-direction:column}
-.profile img{width:100%;height:180px;object-fit:cover;background:#0c0e12}
-.profile.skeleton .ph{height:180px;background:#1a1e2b}
-.profile.skeleton .meta{padding:12px}
-.profile.skeleton .line{height:16px;margin:6px 0;background:#202334;border-radius:4px}
-.profile.skeleton .line.small{width:60%}
-@keyframes shimmer{0%{opacity:.6}50%{opacity:1}100%{opacity:.6}}
-.profile.skeleton{animation:shimmer 1.5s infinite}
-.profile .meta{padding:10px 12px;color:#cfd6ea;display:flex;flex-direction:column;gap:6px}
-.profile .actions{display:flex;gap:8px;padding:10px 12px;border-top:1px solid #23283d}
-.foot{opacity:.75;font-size:.9rem;margin-top:12px}
-.toast{position:fixed;right:16px;bottom:16px;background:#111522;border:1px solid #22304a;padding:.7rem 1rem;border-radius:.7rem;transform:translateY(20px);opacity:0;transition:.25s}
-.toast.show{transform:translateY(0);opacity:1}
-.skeleton{background:linear-gradient(90deg,#151826 25%,#1a1f31 37%,#151826 63%);background-size:400% 100%;animation:sh 1.2s ease infinite}
-@keyframes sh{0%{background-position:100% 50%}100%{background-position:0 50%}}
-</style>
-
-<!-- Config -->
-<script src="config.js"></script>
-
-<!-- Firebase + App Check bootstrap -->
-<script type="module">
-  const cfg = window.APP_CONFIG?.firebase;
-  const siteKey = window.APP_CONFIG?.appCheck?.recaptchaV3SiteKey;
-  import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-  import { getAuth, onAuthStateChanged, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-  import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app-check.js";
-
-  const app = getApps().length ? getApp() : initializeApp(cfg);
-  if (siteKey) initializeAppCheck(app, { provider:new ReCaptchaV3Provider(siteKey), isTokenAutoRefreshEnabled:true });
-  const auth = getAuth(app);
-
-  window.__AUTH__ = { auth, onAuthStateChanged, sendEmailVerification };
-  document.dispatchEvent(new CustomEvent("firebase-ready"));
-</script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>LoveNow — Rencontres 100% simples, 18+</title>
+  <meta name="description" content="LoveNow : rencontrez des profils près de chez vous. Gratuit au départ, 18+. Filtres par ville, âge et plus." />
+  <link rel="canonical" href="https://lovenow.netlify.app/" />
+  <meta property="og:title" content="LoveNow — Rencontrez simplement, 18+">
+  <meta property="og:description" content="Filtres clairs, profils près de chez vous. Essayez LoveNow.">
+  <meta property="og:url" content="https://lovenow.netlify.app/">
+  <meta property="og:image" content="/assets/og-default.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#0AAEEF" />
+  <link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><circle cx='32' cy='32' r='32' fill='%230AAEEF'/><path d='M16 30c0-6 4-10 10-10 3 0 6 2 6 4 0-2 3-4 6-4 6 0 10 4 10 10 0 11-16 18-16 18S16 41 16 30z' fill='white'/></svg>"/>
+  <style>
+    :root{
+      --brand:#0AAEEF;
+      --brand-2:#7A5CF0;
+      --text:#111; --muted:#666; --bg:#fff;
+    }
+    html{scroll-behavior:smooth}
+    body{margin:0;font:16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;color:var(--text);background:var(--bg)}
+    a{color:var(--brand);text-decoration:none}
+    header{position:sticky;top:0;background:#fff9;border-bottom:1px solid #eee;backdrop-filter:saturate(150%) blur(6px);z-index:10}
+    .wrap{max-width:1120px;margin:0 auto;padding:0 16px}
+    nav{display:flex;align-items:center;gap:16px;padding:12px 0}
+    nav .grow{flex:1}
+    .btn{display:inline-block;padding:.65rem 1rem;border-radius:10px;border:1px solid transparent;background:var(--brand);color:#fff;font-weight:600}
+    .btn.ghost{background:transparent;border-color:var(--brand);color:var(--brand)}
+    /* Hero */
+    .hero{position:relative;min-height:56vh;display:grid;place-items:center;text-align:center;color:#fff;background:
+      linear-gradient(120deg, rgba(10,174,239,.85), rgba(122,92,240,.85)), url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="%230AAEEF"/><stop offset="1" stop-color="%237A5CF0"/></linearGradient></defs><rect width="100%" height="100%" fill="url(%23g)"/></svg>') center/cover;}
+    .hero::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.45),rgba(0,0,0,.25));}
+    .hero > *{position:relative}
+    h1{font-size:clamp(28px,5vw,44px);margin:.2em 0}
+    p.lead{font-size:clamp(16px,2.5vw,20px);opacity:.95;margin:0 auto 1rem;max-width:720px}
+    /* Discover */
+    section{padding:48px 0}
+    .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+    .card{border:1px solid #eee;border-radius:14px;padding:14px;min-height:140px}
+    .filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;align-items:end;margin:12px 0 16px}
+    label{font-weight:600;font-size:.9rem}
+    input,select{width:100%;padding:.6rem .7rem;border:1px solid #ddd;border-radius:10px}
+    .actions{display:flex;gap:8px;flex-wrap:wrap}
+    .muted{color:var(--muted)}
+    /* Skeletons */
+    .skel{border-radius:12px;background:linear-gradient(90deg,#eee 25%,#f6f6f6 37%,#eee 63%);background-size:400% 100%;animation:shimmer 1.2s infinite;height:140px}
+    @keyframes shimmer{0%{background-position:100% 0}100%{background-position:-100% 0}}
+    /* A11y focus */
+    :focus{outline:3px auto;outline-offset:2px}
+    /* Toast */
+    #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:14px;min-width:260px;max-width:90vw;background:#111;color:#fff;padding:.7rem 1rem;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.25);z-index:99;display:none}
+  </style>
 </head>
 <body>
-<header>
-  <div class="wrap">
-    <nav aria-label="Navigation principale">
-      <strong class="brand">LoveNow</strong>
-      <a class="btn" href="index.html" aria-current="page">Accueil</a>
-      <a class="btn" href="/#discover">Découvrir</a>
-      <a class="btn" href="conversations.html">Conversations</a>
-      <a class="btn" href="profile.html">Mon profil</a>
-      <span class="spacer"></span>
-      <a class="btn" href="privacy.html">Confidentialité</a>
-      <a class="btn" href="cgu.html">CGU</a>
-      <a class="btn btn-primary" href="/login#signup">Rejoins-nous gratuitement</a>
-    </nav>
-
-    <!-- Bannière vérif : cachée par défaut, affichée si user connecté non vérifié -->
-    <div id="verifyBanner" class="banner" role="status" aria-live="polite" hidden>
-      <div><strong>Action requise :</strong> valide ton e-mail pour envoyer des messages.</div>
-      <div style="display:flex;gap:8px">
-        <button id="btnResend" class="btn">Envoyer le lien</button>
-        <button id="btnRefresh" class="btn">Rafraîchir</button>
-      </div>
-    </div>
-  </div>
-</header>
-
-<main>
-  <section class="hero">
+  <header>
     <div class="wrap">
-      <h1>Rencontre l’amour près de chez toi</h1>
-      <p>Inscris-toi en 2 minutes, découvre des profils réels à proximité et commence à discuter.</p>
-      <div class="pills">
-        <span class="pill">🔥 Gratuit au départ</span>
-        <span class="pill">📍 Local & rapide</span>
-        <span class="pill">🔒 Sécurité & respect</span>
-      </div>
-      <div style="margin-top:16px">
-        <a class="btn btn-primary" href="/login#signup">Rejoins-nous gratuitement</a>
-      </div>
+      <nav aria-label="Navigation principale">
+        <a href="/" class="logo" aria-label="LoveNow Accueil" style="font-weight:800">LoveNow</a>
+        <div class="grow"></div>
+        <a href="/#discover" class="ghost btn">Découvrir</a>
+        <a href="/conversations.html" class="ghost btn">Conversations</a>
+        <a href="/profile.html" class="ghost btn">Mon profil</a>
+        <a href="/privacy.html" class="ghost btn">Confidentialité</a>
+        <a href="/cgu.html" class="ghost btn">CGU</a>
+        <a href="/login.html#signup" class="btn">Rejoins-nous gratuitement</a>
+      </nav>
     </div>
-  </section>
+  </header>
 
-  <section id="discover" class="wrap" aria-labelledby="discoverTitle">
-    <h2 id="discoverTitle" style="margin:18px 0">Découvrir des profils</h2>
-    <div class="grid">
-      <div class="card" aria-labelledby="filtersTitle">
-        <section>
-          <h3 id="filtersTitle" style="margin:0 0 10px">Filtres</h3>
-          <div class="filters" role="group" aria-label="Filtres de recherche">
-            <div>
-              <label for="fGender">Genre</label>
-              <select id="fGender">
-                <option value="all">Tous</option>
-                <option value="F">Femmes</option>
-                <option value="M">Hommes</option>
-                <option value="O">Autre</option>
-              </select>
-            </div>
-            <div>
-              <label for="fAgeMin">Âge min</label>
-              <input id="fAgeMin" type="number" inputmode="numeric" min="18" max="99" value="18">
-            </div>
-            <div>
-              <label for="fAgeMax">Âge max</label>
-              <input id="fAgeMax" type="number" inputmode="numeric" min="18" max="99" value="99">
-            </div>
-            <div>
-              <label for="fCity">Ville</label>
-              <input id="fCity" type="text" placeholder="ex. Paris" autocomplete="address-level2">
-            </div>
-            <div style="display:flex;gap:8px;align-items:end">
-              <button id="btnSearch" class="btn" aria-label="Rechercher">Rechercher</button>
-              <button id="btnReset" class="btn" aria-label="Réinitialiser les filtres">Réinitialiser</button>
-            </div>
+  <main>
+    <section class="hero">
+      <div class="wrap">
+        <h1>Rencontrez en toute simplicité — réservé aux 18+</h1>
+        <p class="lead">Des profils proches de chez vous. Filtres clairs, messages sécurisés, confidentialité maîtrisée.</p>
+        <p>
+          <a class="btn" href="/login.html#signup">Créer mon compte</a>
+          <a class="btn ghost" href="/#discover" aria-describedby="hint-discover">Découvrir des profils</a>
+        </p>
+        <div id="hint-discover" class="sr-only" aria-hidden="true">Ce lien fait défiler la page jusqu’à la section Découvrir</div>
+      </div>
+    </section>
+
+    <section id="discover" aria-labelledby="discover-title">
+      <div class="wrap">
+        <h2 id="discover-title">Découvrir des profils</h2>
+        <form id="filters" class="filters" onsubmit="return false" aria-describedby="filters-help">
+          <div>
+            <label for="gender">Genre</label>
+            <select id="gender" name="gender">
+              <option value="">Tous</option>
+              <option value="f">Femme</option>
+              <option value="m">Homme</option>
+              <option value="o">Autre</option>
+            </select>
           </div>
-        </section>
+          <div>
+            <label for="ageMin">Âge min</label>
+            <input id="ageMin" name="ageMin" type="number" min="18" max="99" inputmode="numeric" placeholder="18">
+          </div>
+          <div>
+            <label for="ageMax">Âge max</label>
+            <input id="ageMax" name="ageMax" type="number" min="18" max="99" inputmode="numeric" placeholder="35">
+          </div>
+          <div>
+            <label for="city">Ville</label>
+            <input id="city" name="city" type="text" placeholder="Paris, Lyon…">
+          </div>
+          <div class="actions">
+            <button class="btn" id="btnSearch" type="button">Rechercher</button>
+            <button class="btn ghost" id="btnReset" type="button">Réinitialiser</button>
+          </div>
+        </form>
+        <p id="filters-help" class="muted">Astuce : utilisez 2–3 filtres pour des résultats pertinents.</p>
+
+        <div id="results" class="cards" aria-live="polite"></div>
+        <p id="empty-hint" class="muted" style="display:none">Ajuste les filtres ou complète ton profil pour voir plus de résultats.</p>
       </div>
-      <div class="card">
-        <section>
-          <div id="emptyState" class="foot">Ajuste les filtres ou complète ton profil pour plus de matches.</div>
-          <div id="results" class="results" aria-live="polite"></div>
-        </section>
-      </div>
+    </section>
+  </main>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <footer>
+    <div class="wrap" style="padding:24px 16px;color:#666">
+      <small>© LoveNow — <a href="/privacy.html">Confidentialité</a> · <a href="/cgu.html">CGU</a></small>
     </div>
-  </section>
-</main>
+  </footer>
 
-<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
-<footer class="wrap foot">© <span id="year"></span> LoveNow — <a href="privacy.html">Confidentialité</a> · <a href="cgu.html">CGU</a></footer>
+  <script>
+    // --- STATE & DATA (demo local) ---
+    const state = { filters: {}, data: [] }; // data: à brancher sur ta source réelle
 
-<!-- App logic (Firestore + actions) -->
-<script type="module">
-/* ===== Helpers ===== */
-const $ = s => document.querySelector(s);
-function showToast(msg){const t=$("#toast");t.textContent=msg;t.hidden=false;setTimeout(()=>t.hidden=true,3000);}
+    // Placeholder minimal pour la démo : tableau vide -> skeletons
+    state.data = []; // laisse vide par défaut
 
-/* ===== Fallback démo si Firestore vide ===== */
-const DEMO = [
-  { id:"u2", name:"Alice",  age:26, city:"Paris", gender:"F", img:"https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=1200&auto=format&fit=crop"},
-  { id:"u1", name:"Benoît", age:25, city:"Lyon",  gender:"M", img:"https://images.unsplash.com/photo-1531123897727-8f129e1688ce?q=80&w=1200&auto=format&fit=crop"}
-];
+    const $ = s => document.querySelector(s);
+    const resultsEl = $('#results');
+    const emptyHintEl = $('#empty-hint');
+    const toast = $('#toast');
 
-let LOADED = [];
-const params=new URLSearchParams(location.search);
-if(params.get("gender")) $("#fGender").value=params.get("gender");
-if(params.get("min")) $("#fAgeMin").value=params.get("min");
-if(params.get("max")) $("#fAgeMax").value=params.get("max");
-if(params.get("city")) $("#fCity").value=params.get("city");
+    function showToast(msg){ toast.textContent = msg; toast.style.display='block'; setTimeout(()=>toast.style.display='none', 2500); }
 
-/* ===== Rendu des cartes profil ===== */
-function renderProfiles(list){
-  const wrap=$("#results"); wrap.innerHTML="";
-  if(list.length===0){
-    for(let i=0;i<6;i++){
-      const sk=document.createElement("div");
-      sk.className="profile skeleton";
-      sk.innerHTML='<div class="ph"></div><div class="meta"><div class="line"></div><div class="line small"></div></div>';
-      wrap.appendChild(sk);
+    // URL <-> state
+    function readURL(){
+      const p = new URLSearchParams(location.search);
+      state.filters = {
+        gender: p.get('gender') || '',
+        ageMin: p.get('ageMin') || '',
+        ageMax: p.get('ageMax') || '',
+        city:   p.get('city') || ''
+      };
+      // Pré-remplir UI
+      for(const k in state.filters){
+        const el = document.getElementById(k);
+        if(el) el.value = state.filters[k];
+      }
     }
-    $("#emptyState").hidden=false;
-    return;
-  }
-  $("#emptyState").hidden=true;
-  list.forEach(p=>{
-    const safeName = p.name || p.displayName || "Utilisateur";
-    const safeAge  = (p.age!=null ? Number(p.age) : "—");
-    const safeCity = p.city || "—";
-    const safeGen  = p.gender || "O";
-    const img      = p.photoURL || p.img || "https://images.unsplash.com/photo-1502685104226-ee32379fefbe?q=80&w=1200&auto=format&fit=crop";
-    const uid      = p.id;
+    function writeURL(){
+      const p = new URLSearchParams();
+      for(const [k,v] of Object.entries(state.filters)){
+        if(v) p.set(k, v);
+      }
+      const url = p.toString() ? `?${p.toString()}` : location.pathname;
+      history.replaceState({}, '', url);
+    }
 
-    const el=document.createElement("article");
-    el.className="profile";
-    el.innerHTML=`
-      <img src="${img}" alt="Photo de ${safeName}">
-      <div class="meta">
-        <div><strong>${safeName}</strong> · ${safeAge} ${safeAge!=="—"?"ans":""}</div>
-        <div>${safeCity} · ${safeGen}</div>
-      </div>
-      <div class="actions">
-        <a class="btn" data-act="view" data-user="${uid}" href="/u/${encodeURIComponent(uid)}">Voir le profil</a>
-        <button class="btn btn-primary" data-act="msg" data-user="${uid}">Message</button>
-      </div>`;
-    wrap.appendChild(el);
-  });
-}
+    // Rendering
+    function renderSkeletons(n=6){
+      resultsEl.innerHTML = Array.from({length:n}).map(()=>'<div class="skel" aria-hidden="true"></div>').join('');
+      emptyHintEl.style.display = 'block';
+    }
+    function renderCards(items){
+      if(!items.length){ renderSkeletons(); return; }
+      emptyHintEl.style.display = 'none';
+      resultsEl.innerHTML = items.map(it => `
+        <article class="card" tabindex="0" aria-label="Profil">
+          <div style="font-weight:700">${it.name || 'Prénom'}</div>
+          <div class="muted">${(it.age||'—')} ans · ${it.city||'—'}</div>
+          <p>${it.bio || '—'}</p>
+          <a class="btn ghost" href="/login.html#signup">Dire bonjour</a>
+        </article>
+      `).join('');
+    }
 
-/* ===== Filtres ===== */
-function updateURL(){
-  const params=new URLSearchParams();
-  const g=$("#fGender").value; if(g!="all") params.set("gender",g);
-  const min=$("#fAgeMin").value; if(min && min!="18") params.set("min",min);
-  const max=$("#fAgeMax").value; if(max && max!="99") params.set("max",max);
-  const city=$("#fCity").value.trim(); if(city) params.set("city",city);
-  const qs=params.toString();
-  history.replaceState(null,'',qs?`?${qs}`:location.pathname);
-}
-function applyFilters(){
-  const g=$("#fGender").value;
-  const min=Math.max(18, Number($("#fAgeMin").value||18));
-  const max=Math.min(99, Number($("#fAgeMax").value||99));
-  const city=($("#fCity").value||"").trim().toLowerCase();
+    function applyFilters(){
+      // Ici, filtre state.data selon state.filters si tu as des données
+      const items = []; // filtrage réel à implémenter si data existe
+      renderCards(items);
+    }
 
-  const filtered=LOADED.filter(p=>{
-    const age = Number(p.age||0);
-    const gen = (p.gender||"").toUpperCase();
-    const cty = (p.city||"").toLowerCase();
-    const okG=(g==="all"||gen===g);
-    const okA=(age>=min && age<=max);
-    const okC=(!city||cty.includes(city));
-    return okG&&okA&&okC;
-  });
-  renderProfiles(filtered);
-  updateURL();
-}
+    // Events
+    $('#btnSearch').addEventListener('click', () => {
+      const form = $('#filters');
+      state.filters = {
+        gender: form.gender.value.trim(),
+        ageMin: form.ageMin.value.trim(),
+        ageMax: form.ageMax.value.trim(),
+        city:   form.city.value.trim()
+      };
+      writeURL();
+      applyFilters();
+    });
 
-/* ===== Firestore: chargement profils ===== */
-import { getFirestore, collection, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-import { getApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    $('#btnReset').addEventListener('click', () => {
+      const form = $('#filters');
+      form.reset();             // UI
+      state.filters = {};       // LOGIQUE
+      history.replaceState({}, '', location.pathname); // URL nettoyée
+      renderCards([]);          // Rendu défaut -> skeletons
+      showToast('Filtres réinitialisés');
+    });
 
-async function loadProfiles(){
-  try{
-    const db = getFirestore(getApp());
-    const q  = query(collection(db,"profiles"), orderBy("createdAt","desc"), limit(200));
-    const snap = await getDocs(q);
-    const arr=[]; snap.forEach(d=> arr.push({ id:d.id, ...d.data() }) );
-    return arr;
-  }catch(e){
-    console.error("Firestore load error:", e);
-    return null;
-  }
-}
-
-/* ===== Actions (message) ===== */
-$("#results").addEventListener("click",(e)=>{
-  const msg = e.target.closest("[data-act='msg']");
-  if (!msg) return;
-
-  const verified = document.documentElement.dataset.verified==="true";
-  if(!verified){
-    alert("Connecte-toi et valide ton e-mail pour envoyer des messages.");
-    location.href="login.html#login";
-    return;
-  }
-  const uid = msg.getAttribute("data-user");
-  location.href = uid ? `conversations.html?with=${encodeURIComponent(uid)}` : "conversations.html";
-});
-
-/* ===== Bannière vérif Auth ===== */
-document.addEventListener("firebase-ready", ()=>{
-  const {auth,onAuthStateChanged,sendEmailVerification}=window.__AUTH__;
-  const banner=$("#verifyBanner"), btnResend=$("#btnResend"), btnRefresh=$("#btnRefresh");
-
-  onAuthStateChanged(auth,(user)=>{
-    const show = !!(user && !user.emailVerified);
-    banner.hidden = !show;
-    document.documentElement.dataset.verified = user?.emailVerified ? "true" : "false";
-  });
-
-  btnResend?.addEventListener("click", async ()=>{
-    const u=window.__AUTH__.auth.currentUser; if(!u){ location.href="login.html"; return; }
-    const prev=btnResend.textContent; btnResend.disabled=true; btnResend.textContent="Envoi…";
-    showToast("Envoi en cours…");
-    try{
-      const actionCodeSettings={ url:"https://lovenow.netlify.app/login.html?verified=1", handleCodeInApp:false };
-      await window.__AUTH__.sendEmailVerification(u, actionCodeSettings);
-      showToast("Lien envoyé ✅");
-    }catch(e){ console.error(e); showToast("Échec d'envoi. Réessaye."); }
-    finally{ btnResend.disabled=false; btnResend.textContent=prev; }
-  });
-
-  btnRefresh?.addEventListener("click",()=>location.reload());
-});
-
-/* ===== Init page ===== */
-document.getElementById("year").textContent=(new Date()).getFullYear();
-
-(async ()=>{
-  let data = await loadProfiles();
-  if (!data || data.length===0) data = DEMO;
-  LOADED = data;
-  applyFilters();
-})();
-
-$("#btnSearch").addEventListener("click", applyFilters);
-$("#btnReset").addEventListener("click", ()=>{
-  $("#fGender").value="all"; $("#fAgeMin").value=18; $("#fAgeMax").value=99; $("#fCity").value="";
-  applyFilters();
-});
-</script>
+    // Init
+    readURL();
+    applyFilters();
+  </script>
 </body>
 </html>
