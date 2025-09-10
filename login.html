@@ -101,7 +101,7 @@
     });
 
     // Login
-    document.getElementById('loginForm').addEventListener('submit', async (e)=>{
+  document.getElementById('loginForm').addEventListener('submit', async (e)=>{
       e.preventDefault();
       const btn = document.getElementById('btnLogin'); setLoading(btn,true);
       const err = document.getElementById('loginError'); err.textContent='';
@@ -118,7 +118,8 @@
         location.href='/';
       }catch(ex){ err.textContent = ex?.message || 'Erreur inconnue'; }
       finally{ setLoading(btn,false); }
-    });
+  });
   </script>
+  <script src="chat.js"></script>
 </body>
 </html>
