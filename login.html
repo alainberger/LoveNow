@@ -1,142 +1,98 @@
+<!-- login.html — LoveNow (Connexion / Inscription avec validation 18+) -->
 <!doctype html>
-<html lang="fr">
+<html lang="fr" data-theme="light">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>LoveNow — Connexion / Inscription</title>
-<meta name="description" content="Connecte-toi ou crée ton compte LoveNow."/>
-<link rel="canonical" href="https://lovenow.netlify.app/login"/>
-<meta property="og:title" content="LoveNow — Connexion / Inscription"/>
-<meta property="og:description" content="Connecte-toi ou crée ton compte LoveNow."/>
-<meta property="og:url" content="https://lovenow.netlify.app/login"/>
-<meta property="og:image" content="https://via.placeholder.com/1200x630.png?text=LoveNow"/>
-<meta name="twitter:card" content="summary_large_image"/>
-<link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" as="style" onload="this.rel='stylesheet'">
-<style>
-body{margin:0;background:#0f1115;color:#e9edf6;font-family:Inter,system-ui}
-.wrap{max-width:720px;margin:0 auto;padding:20px}
-.tabs{display:flex;gap:8px;margin:8px 0 16px}
-.tab{padding:.6rem .9rem;border-radius:.6rem;background:#1a1e2b;border:1px solid #27314a;cursor:pointer}
-.tab[aria-selected="true"]{background:linear-gradient(135deg,#ff2d55,#7a5cf0);border:none}
-input{width:100%;padding:.7rem;border-radius:.6rem;background:#0f1115;border:1px solid #2b2f44;color:#e9edf6}
-label{display:block;margin:10px 0 6px;color:#aab1c3}
-.btn{display:inline-flex;align-items:center;justify-content:center;padding:.7rem 1rem;border-radius:.6rem;background:#232739;border:1px solid #2b2f44;cursor:pointer}
-.btn-primary{background:linear-gradient(135deg,#ff2d55,#7a5cf0);border:none}
-.card{background:#171922;border:1px solid #202334;border-radius:.9rem;padding:16px}
-.muted{color:#aab1c3}
-.banner{background:#1a1e2b;border:1px solid #27314a;border-radius:.8rem;padding:.6rem .8rem;margin:12px 0;display:flex;gap:8px;justify-content:space-between;align-items:center}
-:focus{outline:3px auto;outline-offset:2px}
-.toast{position:fixed;right:16px;bottom:16px;background:#111522;border:1px solid #22304a;padding:8px 12px;border-radius:8px}
-</style>
-
-<script src="config.js"></script>
-
-<script type="module">
-const cfg = window.APP_CONFIG?.firebase;
-const siteKey = window.APP_CONFIG?.appCheck?.recaptchaV3SiteKey;
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, sendEmailVerification, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app-check.js";
-import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-
-const app = initializeApp(cfg);
-if (siteKey) initializeAppCheck(app,{provider:new ReCaptchaV3Provider(siteKey),isTokenAutoRefreshEnabled:true});
-const auth=getAuth(app); const db=getFirestore(app);
-
-const $=s=>document.querySelector(s);
-const show=(t)=>{ $("#tab-login").setAttribute("aria-selected",t==="login"); $("#panel-login").hidden=t!=="login"; $("#tab-signup").setAttribute("aria-selected",t==="signup"); $("#panel-signup").hidden=t!=="signup"; };
-$("#tab-login").addEventListener("click",()=>show("login")); $("#tab-signup").addEventListener("click",()=>show("signup"));
-show(location.hash==="#signup" ? "signup" : "login");
-
-function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.hidden=false;setTimeout(()=>t.hidden=true,3000);}
-
-onAuthStateChanged(auth,(user)=>{ const b=$("#verifyBanner"); if(user && !user.emailVerified){ b.hidden=false; $("#who").textContent=user.email||""; } else { b.hidden=true; $("#who").textContent=""; } });
-
-$("#signup").addEventListener("submit", async (e)=>{
-  e.preventDefault();
-  const email=$("#suEmail").value.trim(), pass=$("#suPass").value, name=$("#suName").value.trim();
-  const age=Number($("#suAge").value)||null, city=$("#suCity").value.trim(), gender=$("#suGender").value;
-  if(!Number.isFinite(age)||age<18){
-    const err=document.getElementById('suAgeErr'); err.textContent="Vous devez avoir 18 ans ou plus."; err.style.display='block'; document.getElementById('suAge').focus(); return;
-  }else{document.getElementById('suAgeErr').style.display='none';}
-  try{
-    const {user}=await createUserWithEmailAndPassword(auth,email,pass);
-    await updateProfile(user,{displayName:name});
-    await setDoc(doc(db,"profiles", user.uid), { uid:user.uid, email:user.email||"", name, age, city, gender, bio:"", photoURL:"", createdAt:serverTimestamp(), updatedAt:serverTimestamp() }, {merge:true});
-    try{
-      const actionCodeSettings={ url:"https://lovenow.netlify.app/login.html?verified=1", handleCodeInApp:false };
-      await sendEmailVerification(user, actionCodeSettings);
-    }catch{}
-    alert("Compte créé. Vérifie ton e-mail pour discuter.");
-    location.href="/profile.html";
-  }catch(err){ console.error(err); alert("Inscription impossible : "+(err?.message||"")); }
-});
-
-$("#login").addEventListener("submit", async (e)=>{
-  e.preventDefault();
-  try{
-    await signInWithEmailAndPassword(auth,$("#liEmail").value.trim(),$("#liPass").value);
-    location.href="/profile.html";
-  }catch(err){ console.error(err); alert("Connexion impossible : "+(err?.message||"")); }
-});
-
-$("#btnResend").addEventListener("click", async ()=>{
-  const u=auth.currentUser; if(!u) return alert("Connecte-toi d’abord.");
-  const btn=$("#btnResend"); const prev=btn.textContent; btn.disabled=true; btn.textContent="Envoi…";
-  showToast("Envoi en cours…");
-  try{
-    const actionCodeSettings={ url:"https://lovenow.netlify.app/login.html?verified=1", handleCodeInApp:false };
-    await sendEmailVerification(u, actionCodeSettings);
-    showToast("Lien envoyé ✅");
-  }catch{ showToast("Échec d'envoi. Réessaye."); }
-  finally{ btn.disabled=false; btn.textContent=prev; }
-});
-$("#btnLogout").addEventListener("click", async ()=>{ await signOut(auth); alert("Déconnecté"); location.href="/"; });
-</script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>LoveNow — Connexion & Inscription</title>
+  <meta name="description" content="Connectez-vous ou créez un compte LoveNow. Réservé aux 18 ans et plus." />
+  <link rel="canonical" href="https://lovenow.netlify.app/login" />
+  <meta property="og:title" content="LoveNow — Connexion & Inscription">
+  <meta property="og:description" content="Créez un compte LoveNow (18+).">
+  <meta property="og:url" content="https://lovenow.netlify.app/login">
+  <meta property="og:image" content="/assets/og-default.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <style>
+    body{margin:0;font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial;color:#111}
+    .wrap{max-width:720px;margin:0 auto;padding:24px 16px}
+    h1{margin:.3em 0}
+    .tabs{display:flex;gap:8px;margin:8px 0 16px}
+    .tab{padding:.5rem .9rem;border:1px solid #ddd;border-radius:10px;background:#f7f7f7}
+    .tab.active{background:#0AAEEF;color:#fff;border-color:#0AAEEF}
+    label{font-weight:600;display:block;margin-top:10px}
+    input{width:100%;padding:.6rem .7rem;border:1px solid #ddd;border-radius:10px}
+    .btn{margin-top:12px;display:inline-block;padding:.65rem 1rem;border-radius:10px;border:1px solid transparent;background:#0AAEEF;color:#fff;font-weight:600}
+    :focus{outline:3px auto;outline-offset:2px}
+    .error{color:#b00020;margin-top:6px}
+  </style>
 </head>
 <body>
-<div class="wrap">
-  <a class="btn" href="index.html">← Retour à l’accueil</a>
-  <h1>Connexion / Inscription</h1>
-
-  <div class="banner" id="verifyBanner" hidden>
-    <div>E-mail <span id="who" class="muted"></span> non vérifié.</div>
-    <div style="display:flex;gap:8px">
-      <button id="btnResend" class="btn">Envoyer le lien</button>
-      <a class="btn" href="index.html">Accueil</a>
+  <div class="wrap">
+    <a href="/" aria-label="Retour accueil">← Accueil</a>
+    <h1>Connexion / Inscription</h1>
+    <div class="tabs" role="tablist" aria-label="Choix du mode">
+      <button id="tab-login" class="tab" role="tab" aria-controls="panel-login">Connexion</button>
+      <button id="tab-signup" class="tab" role="tab" aria-controls="panel-signup">Inscription</button>
     </div>
+
+    <section id="panel-login" role="tabpanel" aria-labelledby="tab-login" hidden>
+      <form onsubmit="event.preventDefault(); alert('Connexion… (branche ton backend)')">
+        <label for="lemail">Email</label>
+        <input id="lemail" type="email" required>
+        <label for="lpass">Mot de passe</label>
+        <input id="lpass" type="password" required minlength="6">
+        <button class="btn" type="submit">Se connecter</button>
+      </form>
+    </section>
+
+    <section id="panel-signup" role="tabpanel" aria-labelledby="tab-signup" hidden>
+      <form id="signupForm" onsubmit="return validateSignup(event)">
+        <label for="semail">Email</label>
+        <input id="semail" type="email" required>
+        <label for="spass">Mot de passe (≥ 6)</label>
+        <input id="spass" type="password" required minlength="6">
+        <label for="sage">Âge (18+)</label>
+        <input id="sage" type="number" inputmode="numeric" min="18" max="99" placeholder="18" required aria-describedby="ageHelp">
+        <small id="ageHelp" class="muted">Le service est réservé aux personnes de 18 ans et plus.</small>
+        <div id="signupError" class="error" role="status" aria-live="polite"></div>
+        <button class="btn" type="submit">Créer un compte</button>
+      </form>
+    </section>
   </div>
 
-  <div class="tabs" role="tablist" aria-label="Choisir une action">
-    <button id="tab-login" role="tab" class="tab" aria-selected="true">Connexion</button>
-    <button id="tab-signup" role="tab" class="tab" aria-selected="false">Inscription</button>
-  </div>
+  <script>
+    // Tabs + hash #signup
+    const tLogin = document.getElementById('tab-login');
+    const tSignup = document.getElementById('tab-signup');
+    const pLogin = document.getElementById('panel-login');
+    const pSignup = document.getElementById('panel-signup');
 
-  <div id="panel-login" role="tabpanel" class="card">
-    <form id="login">
-      <label for="liEmail">Email</label><input id="liEmail" type="email" required autocomplete="username">
-      <label for="liPass">Mot de passe</label><input id="liPass" type="password" required autocomplete="current-password" minlength="6">
-      <div style="margin-top:12px;display:flex;gap:8px"><button class="btn btn-primary" type="submit">Se connecter</button><a class="btn" href="index.html">Accueil</a></div>
-    </form>
-  </div>
+    function show(which){
+      const isSignup = which==='signup';
+      tSignup.classList.toggle('active', isSignup);
+      tLogin.classList.toggle('active', !isSignup);
+      pSignup.hidden = !isSignup;
+      pLogin.hidden = isSignup;
+    }
+    function fromHash(){
+      if(location.hash === '#signup') show('signup'); else show('login');
+    }
+    window.addEventListener('hashchange', fromHash);
+    fromHash();
 
-  <div id="panel-signup" role="tabpanel" class="card" hidden>
-    <form id="signup">
-      <label for="suEmail">Email</label><input id="suEmail" type="email" required autocomplete="email">
-      <label for="suPass">Mot de passe (≥ 6 caractères)</label><input id="suPass" type="password" required minlength="6" autocomplete="new-password">
-      <label for="suName">Nom / Pseudo</label><input id="suName" type="text" required>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-        <div><label for="suAge">Âge</label><input id="suAge" type="number" min="18" max="99" required aria-describedby="suAgeErr"><div id="suAgeErr" class="muted" aria-live="polite" style="display:none"></div></div>
-        <div><label for="suCity">Ville</label><input id="suCity" type="text" required></div>
-      </div>
-      <label for="suGender">Genre</label><select id="suGender"><option value="F">Femme</option><option value="M">Homme</option><option value="O">Autre</option></select>
-      <div style="margin-top:12px;display:flex;gap:8px"><button class="btn btn-primary" type="submit">Créer mon compte</button><a class="btn" href="index.html">Accueil</a></div>
-    </form>
-  </div>
-
-  <div style="margin-top:16px"><button id="btnLogout" class="btn">Se déconnecter</button></div>
-</div>
-<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+    function validateSignup(e){
+      const age = parseInt(document.getElementById('sage').value, 10);
+      const err = document.getElementById('signupError');
+      if(!Number.isFinite(age) || age < 18){
+        err.textContent = 'Vous devez avoir 18 ans ou plus pour créer un compte.';
+        document.getElementById('sage').focus();
+        return false;
+      }
+      err.textContent = '';
+      alert('Inscription… (branche ton backend)'); // à remplacer par ton flux réel
+      e.preventDefault();
+      return false;
+    }
+  </script>
 </body>
 </html>
