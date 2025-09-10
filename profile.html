@@ -19,7 +19,7 @@
     .btn-primary{background:linear-gradient(135deg,var(--brand),var(--brand2));border:none}
     .card{background:var(--card);border:1px solid #202334;border-radius:.9rem;padding:16px}
     label{display:block;margin:10px 0 6px;color:var(--muted)}
-    input,select,textarea{width:100%;padding:.7rem;border-radius:.6rem;background:#0f1115;border:1px solid #2b2f44;color:var(--text)}
+    input,select,textarea{width:100%;padding:.7rem;border-radius:.6rem;background:#0f1115;border:1px solid #2b2f44;color:#e9edf6}
     .row{display:grid;grid-template-columns:1fr;gap:12px}
     @media(min-width:720px){.row{grid-template-columns:1fr 1fr}}
     .photo{display:flex;gap:12px;align-items:center}
@@ -37,7 +37,7 @@
       <a class="btn" href="index.html">← Accueil</a>
       <strong>Mon profil</strong>
       <span class="spacer"></span>
-      <a class="btn" href="conversations.html" onclick="event.preventDefault();location.href='login.html#conversations'">Mes conversations</a>
+      <a class="btn" href="login.html#conversations">Mes conversations</a>
       <button id="btnLogout" class="btn">Se déconnecter</button>
     </nav>
   </div>
@@ -57,7 +57,7 @@
       <img id="avatar" src="" alt="Ta photo">
       <div>
         <input id="file" type="file" accept="image/*">
-        <div class="muted" style="font-size:.9rem">JPG/PNG ≤ 5 Mo. La photo est hébergée sur Cloudinary.</div>
+        <div class="muted" style="font-size:.9rem">JPG/PNG/WebP ≤ 5 Mo — hébergé sur Cloudinary.</div>
         <button id="btnUpload" class="btn" style="margin-top:8px">Téléverser la photo</button>
       </div>
     </div>
@@ -115,53 +115,47 @@
   const $ = s => document.querySelector(s);
   const toast = (t)=>{ const el=$("#toast"); el.textContent=t; el.style.display="block"; setTimeout(()=>el.style.display="none",2200); };
 
-  // --- Cloudinary config (public only) ---
+  // Cloudinary (unsigned)
   const CLOUD = {
-    cloudName: (window.APP_CONFIG?.cloudinary?.cloudName || "dyqxadd0j"),
-    apiKey:    (window.APP_CONFIG?.cloudinary?.apiKey    || "596927578766188")
+    cloudName: window.APP_CONFIG?.cloudinary?.cloudName,
+    preset:    window.APP_CONFIG?.cloudinary?.unsignedPreset
   };
 
-  // --- UI refs
+  // UI refs
   const avatar=$("#avatar"), file=$("#file");
   const name=$("#name"), city=$("#city"), age=$("#age"), gender=$("#gender"), bio=$("#bio");
   const verifyBanner=$("#verifyBanner"), btnResend=$("#btnResend"), btnRefresh=$("#btnRefresh");
 
-  // --- Auth gate
+  // Auth gate
   onAuthStateChanged(auth, async (user)=>{
     if(!user){ location.href="login.html#login"; return; }
 
-    // Banner verify
     const verified = !!user.emailVerified;
     document.documentElement.dataset.verified = verified ? "true" : "false";
     verifyBanner.hidden = verified;
 
-    // Charge ou initialise le profil
+    // Charge/Init profil
     const ref = doc(db,"profiles",user.uid);
     const snap = await getDoc(ref);
     if(!snap.exists()){
       await setDoc(ref,{
         uid: user.uid,
+        email: user.email || "",
         name: user.displayName || "",
-        age:  null,
-        gender:"O",
-        city: "",
-        bio:  "",
+        age: null, gender:"O", city:"", bio:"",
         photoURL: user.photoURL || "",
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
+        createdAt: serverTimestamp(), updatedAt: serverTimestamp()
       }, { merge:true });
     }
     const data = (await getDoc(ref)).data() || {};
-
-    // Remplit la UI
     avatar.src = data.photoURL || user.photoURL || "https://images.unsplash.com/photo-1502685104226-ee32379fefbe?q=80&w=800&auto=format&fit=crop";
     name.value = data.name || user.displayName || "";
     city.value = data.city || "";
     age.value  = data.age  || "";
-    gender.value = (data.gender || "O");
+    gender.value = (data.gender||"O");
     bio.value  = data.bio  || "";
 
-    // Actions
+    // Save profil
     $("#btnSave").onclick = async ()=>{
       const payload = {
         name: name.value.trim(),
@@ -178,8 +172,10 @@
       toast("Profil enregistré ✅");
     };
 
+    // Logout
     $("#btnLogout").onclick = async ()=>{ await signOut(auth); location.href="login.html"; };
 
+    // Verify banner actions
     btnResend?.addEventListener("click", async ()=>{
       try{
         const actionCodeSettings={ url:"https://lovenow.netlify.app/login.html?verified=1", handleCodeInApp:false };
@@ -189,41 +185,30 @@
     });
     btnRefresh?.addEventListener("click",()=>location.reload());
 
-    // Upload photo -> Cloudinary (signature via Netlify Function)
+    // Upload vers Cloudinary (unsigned preset)
     $("#btnUpload").onclick = async ()=>{
       const f = file.files?.[0];
       if(!f){ alert("Choisis d’abord une image."); return; }
       if(f.size > 5*1024*1024){ alert("Fichier trop lourd (max 5 Mo)."); return; }
 
       try{
-        // 1) récupère signature sécurisée depuis Netlify Function
-        const sigRes = await fetch("/.netlify/functions/sign-upload", { method:"POST" });
-        if(!sigRes.ok){ throw new Error("Signature error"); }
-        const { timestamp, signature, folder, api_key, cloud_name } = await sigRes.json();
-
-        // 2) upload signé vers Cloudinary
         const fd = new FormData();
         fd.append("file", f);
-        fd.append("api_key", api_key);
-        fd.append("timestamp", timestamp);
-        fd.append("signature", signature);
-        fd.append("folder", folder);
-
-        const up = await fetch(`https://api.cloudinary.com/v1_1/${cloud_name}/image/upload`, {
-          method:"POST",
-          body: fd
+        fd.append("upload_preset", CLOUD.preset); // preset unsigned → pas de secret ni public_id
+        const up = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD.cloudName}/image/upload`, {
+          method:"POST", body: fd
         });
         const out = await up.json();
-        if(!out.secure_url){ throw new Error(out.error?.message || "Upload échec"); }
+        if(!out.secure_url){ throw new Error(out.error?.message || "Upload échoué"); }
 
-        // 3) persiste l’URL dans Firestore + UI
+        // Persiste l’URL Cloudinary et maj UI
         await setDoc(ref, { photoURL: out.secure_url, updatedAt: serverTimestamp() }, { merge:true });
         avatar.src = out.secure_url;
-        await updateProfile(auth.currentUser, { photoURL: out.secure_url }).catch(()=>{});
+        try{ await updateProfile(auth.currentUser, { photoURL: out.secure_url }); }catch{}
         toast("Photo mise à jour ✅");
       }catch(e){
         console.error(e);
-        alert("Impossible de téléverser la photo. Vérifie la configuration.");
+        alert("Impossible de téléverser la photo : " + e.message);
       }
     };
   });
