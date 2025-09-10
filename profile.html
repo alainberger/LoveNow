@@ -62,120 +62,71 @@
       </div>
     </div>
     <div class="row" style="margin-top:12px">
-      <div>
-        <label for="name">Nom / Pseudo</label>
-        <input id="name" required>
-      </div>
-      <div>
-        <label for="city">Ville</label>
-        <input id="city" placeholder="ex. Paris">
-      </div>
+      <div><label for="name">Nom / Pseudo</label><input id="name" required></div>
+      <div><label for="city">Ville</label><input id="city" placeholder="ex. Paris"></div>
     </div>
     <div class="row">
-      <div>
-        <label for="age">Âge</label>
-        <input id="age" type="number" min="18" max="99" required>
-      </div>
-      <div>
-        <label for="gender">Genre</label>
-        <select id="gender">
-          <option value="F">Femme</option>
-          <option value="M">Homme</option>
-          <option value="O">Autre</option>
-        </select>
-      </div>
+      <div><label for="age">Âge</label><input id="age" type="number" min="18" max="99" required></div>
+      <div><label for="gender">Genre</label><select id="gender"><option value="F">Femme</option><option value="M">Homme</option><option value="O">Autre</option></select></div>
     </div>
-    <label for="bio">Bio</label>
-    <textarea id="bio" rows="4" placeholder="Parle un peu de toi…"></textarea>
-
-    <div style="display:flex;gap:8px;margin-top:12px">
-      <button id="btnSave" class="btn btn-primary">Enregistrer</button>
-      <a class="btn" href="index.html">Retour</a>
-    </div>
+    <label for="bio">Bio</label><textarea id="bio" rows="4" placeholder="Parle un peu de toi…"></textarea>
+    <div style="display:flex;gap:8px;margin-top:12px"><button id="btnSave" class="btn btn-primary">Enregistrer</button><a class="btn" href="index.html">Retour</a></div>
     <p class="muted" style="margin-top:8px">Astuce : enregistre ton profil pour qu’il apparaisse dans la découverte.</p>
   </div>
 </main>
 
 <div id="toast" class="toast" style="display:none"></div>
 
-<!-- Firebase + Firestore + AppCheck -->
 <script type="module">
-  const cfg = window.APP_CONFIG?.firebase;
-  const siteKey = window.APP_CONFIG?.appCheck?.recaptchaV3SiteKey;
+  const cfg=window.APP_CONFIG?.firebase;
+  const siteKey=window.APP_CONFIG?.appCheck?.recaptchaV3SiteKey;
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
   import { getAuth, onAuthStateChanged, updateProfile, sendEmailVerification, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
   import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app-check.js";
   import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-  const app = initializeApp(cfg);
-  if (siteKey) initializeAppCheck(app, { provider: new ReCaptchaV3Provider(siteKey), isTokenAutoRefreshEnabled: true });
-  const auth = getAuth(app);
-  const db   = getFirestore(app);
+  const app=initializeApp(cfg);
+  if(siteKey) initializeAppCheck(app,{provider:new ReCaptchaV3Provider(siteKey),isTokenAutoRefreshEnabled:true});
+  const auth=getAuth(app); const db=getFirestore(app);
 
-  const $ = s => document.querySelector(s);
-  const toast = (t)=>{ const el=$("#toast"); el.textContent=t; el.style.display="block"; setTimeout(()=>el.style.display="none",2200); };
+  const $=s=>document.querySelector(s);
+  const toast=(t)=>{ const el=$("#toast"); el.textContent=t; el.style.display="block"; setTimeout(()=>el.style.display="none",2200); };
 
-  // Cloudinary (unsigned)
-  const CLOUD = {
-    cloudName: window.APP_CONFIG?.cloudinary?.cloudName,
-    preset:    window.APP_CONFIG?.cloudinary?.unsignedPreset
-  };
+  const CLOUD={ cloudName:window.APP_CONFIG?.cloudinary?.cloudName, preset:window.APP_CONFIG?.cloudinary?.unsignedPreset };
 
-  // UI refs
   const avatar=$("#avatar"), file=$("#file");
   const name=$("#name"), city=$("#city"), age=$("#age"), gender=$("#gender"), bio=$("#bio");
   const verifyBanner=$("#verifyBanner"), btnResend=$("#btnResend"), btnRefresh=$("#btnRefresh");
 
-  // Auth gate
   onAuthStateChanged(auth, async (user)=>{
     if(!user){ location.href="login.html#login"; return; }
 
-    const verified = !!user.emailVerified;
+    const verified=!!user.emailVerified;
     document.documentElement.dataset.verified = verified ? "true" : "false";
     verifyBanner.hidden = verified;
 
-    // Charge/Init profil
-    const ref = doc(db,"profiles",user.uid);
-    const snap = await getDoc(ref);
+    const ref=doc(db,"profiles",user.uid);
+    const snap=await getDoc(ref);
     if(!snap.exists()){
-      await setDoc(ref,{
-        uid: user.uid,
-        email: user.email || "",
-        name: user.displayName || "",
-        age: null, gender:"O", city:"", bio:"",
-        photoURL: user.photoURL || "",
-        createdAt: serverTimestamp(), updatedAt: serverTimestamp()
-      }, { merge:true });
+      await setDoc(ref,{ uid:user.uid, email:user.email||"", name:user.displayName||"", age:null, gender:"O", city:"", bio:"", photoURL:user.photoURL||"", createdAt:serverTimestamp(), updatedAt:serverTimestamp() },{merge:true});
     }
-    const data = (await getDoc(ref)).data() || {};
+    const data=(await getDoc(ref)).data()||{};
     avatar.src = data.photoURL || user.photoURL || "https://images.unsplash.com/photo-1502685104226-ee32379fefbe?q=80&w=800&auto=format&fit=crop";
     name.value = data.name || user.displayName || "";
     city.value = data.city || "";
     age.value  = data.age  || "";
-    gender.value = (data.gender||"O");
+    gender.value = data.gender || "O";
     bio.value  = data.bio  || "";
 
-    // Save profil
     $("#btnSave").onclick = async ()=>{
-      const payload = {
-        name: name.value.trim(),
-        city: city.value.trim(),
-        age:  Number(age.value)||null,
-        gender: gender.value,
-        bio:  bio.value.trim(),
-        updatedAt: serverTimestamp()
-      };
-      await setDoc(ref, payload, { merge:true });
-      if (auth.currentUser && payload.name !== (auth.currentUser.displayName||"")){
-        try{ await updateProfile(auth.currentUser, { displayName: payload.name }); }catch{}
-      }
+      const payload={ name:name.value.trim(), city:city.value.trim(), age:Number(age.value)||null, gender:gender.value, bio:bio.value.trim(), updatedAt:serverTimestamp() };
+      await setDoc(ref,payload,{merge:true});
+      if(auth.currentUser && payload.name !== (auth.currentUser.displayName||"")){ try{ await updateProfile(auth.currentUser,{displayName:payload.name}); }catch{} }
       toast("Profil enregistré ✅");
     };
 
-    // Logout
     $("#btnLogout").onclick = async ()=>{ await signOut(auth); location.href="login.html"; };
 
-    // Verify banner actions
     btnResend?.addEventListener("click", async ()=>{
       try{
         const actionCodeSettings={ url:"https://lovenow.netlify.app/login.html?verified=1", handleCodeInApp:false };
@@ -185,31 +136,17 @@
     });
     btnRefresh?.addEventListener("click",()=>location.reload());
 
-    // Upload vers Cloudinary (unsigned preset)
     $("#btnUpload").onclick = async ()=>{
-      const f = file.files?.[0];
-      if(!f){ alert("Choisis d’abord une image."); return; }
-      if(f.size > 5*1024*1024){ alert("Fichier trop lourd (max 5 Mo)."); return; }
-
+      const f=file.files?.[0]; if(!f){ alert("Choisis d’abord une image."); return; }
+      if(f.size>5*1024*1024){ alert("Fichier trop lourd (max 5 Mo)."); return; }
       try{
-        const fd = new FormData();
-        fd.append("file", f);
-        fd.append("upload_preset", CLOUD.preset); // preset unsigned → pas de secret ni public_id
-        const up = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD.cloudName}/image/upload`, {
-          method:"POST", body: fd
-        });
-        const out = await up.json();
-        if(!out.secure_url){ throw new Error(out.error?.message || "Upload échoué"); }
-
-        // Persiste l’URL Cloudinary et maj UI
-        await setDoc(ref, { photoURL: out.secure_url, updatedAt: serverTimestamp() }, { merge:true });
-        avatar.src = out.secure_url;
-        try{ await updateProfile(auth.currentUser, { photoURL: out.secure_url }); }catch{}
+        const fd=new FormData(); fd.append("file",f); fd.append("upload_preset",CLOUD.preset);
+        const up=await fetch(`https://api.cloudinary.com/v1_1/${CLOUD.cloudName}/image/upload`,{method:"POST",body:fd});
+        const out=await up.json(); if(!out.secure_url) throw new Error(out.error?.message||"Upload échoué");
+        await setDoc(ref,{ photoURL:out.secure_url, updatedAt:serverTimestamp() },{merge:true});
+        avatar.src=out.secure_url; try{ await updateProfile(auth.currentUser,{photoURL:out.secure_url}); }catch{}
         toast("Photo mise à jour ✅");
-      }catch(e){
-        console.error(e);
-        alert("Impossible de téléverser la photo : " + e.message);
-      }
+      }catch(e){ console.error(e); alert("Impossible de téléverser la photo : "+e.message); }
     };
   });
 </script>
