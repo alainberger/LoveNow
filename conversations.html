@@ -1,25 +1,24 @@
-<!-- conversations.html — LoveNow (Vérification e-mail + toasts) -->
 <!doctype html>
 <html lang="fr" data-theme="light">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>LoveNow — Conversations</title>
-  <meta name="description" content="Accédez à vos conversations LoveNow. Vérifiez votre e-mail pour écrire des messages." />
-  <link rel="canonical" href="https://lovenow.netlify.app/conversations" />
+  <meta name="description" content="Accédez à vos conversations LoveNow. Vérifiez votre e-mail pour écrire des messages.">
+  <link rel="canonical" href="https://lovenow.netlify.app/conversations">
   <meta property="og:title" content="LoveNow — Conversations">
   <meta property="og:description" content="Vérifiez votre e-mail pour démarrer la conversation.">
   <meta property="og:url" content="https://lovenow.netlify.app/conversations">
   <meta property="og:image" content="/assets/og-default.jpg">
   <meta name="twitter:card" content="summary_large_image">
   <style>
-    body{margin:0;font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial;color:#111}
-    .wrap{max-width:900px;margin:0 auto;padding:24px 16px}
-    .card{border:1px solid #eee;border-radius:14px;padding:16px}
-    .btn{display:inline-block;padding:.6rem .9rem;border-radius:10px;border:1px solid transparent;background:#0AAEEF;color:#fff;font-weight:600}
-    .btn.ghost{background:#fff;color:#0AAEEF;border-color:#0AAEEF}
-    :focus{outline:3px auto;outline-offset:2px}
-    #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:14px;background:#111;color:#fff;padding:.7rem 1rem;border-radius:10px;display:none}
+    body{ margin:0; font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial; color:#111 }
+    .wrap{ max-width:900px; margin:0 auto; padding:24px 16px }
+    .card{ border:1px solid #eee; border-radius:14px; padding:16px }
+    .btn{ display:inline-block; padding:.6rem .9rem; border-radius:10px; border:1px solid transparent; background:#0AAEEF; color:#fff; font-weight:600 }
+    .btn.ghost{ background:#fff; color:#0AAEEF; border-color:#0AAEEF }
+    :focus{ outline:3px auto; outline-offset:2px }
+    #toast{ position:fixed; left:50%; transform:translateX(-50%); bottom:14px; background:#111; color:#fff; padding:.7rem 1rem; border-radius:10px; display:none }
   </style>
 </head>
 <body>
@@ -27,7 +26,7 @@
     <a href="/" aria-label="Retour accueil">← Accueil</a>
     <h1>Conversations</h1>
 
-    <article class="card" id="verifyCard" aria-live="polite">
+    <article class="card" aria-live="polite">
       <p><strong>E-mail non vérifié :</strong> vérifiez votre e-mail pour pouvoir envoyer des messages.</p>
       <div class="actions" style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn" id="btnResend">Renvoyer le lien de vérification</button>
@@ -40,36 +39,22 @@
 
   <div id="toast" role="status" aria-live="polite"></div>
 
-  <script src="/js/firebase-config.js"></script>
+  <script src="/config.js"></script>
   <script type="module">
-    import { auth, sendEmailVerification, onAuthStateChanged } from './js/firebase.js';
+    import { resendEmailVerification, auth } from '/js/firebase.js';
     const toast = document.getElementById('toast');
     const showToast = m => { toast.textContent=m; toast.style.display='block'; setTimeout(()=>toast.style.display='none', 2200); };
-    let current = null;
-
-    onAuthStateChanged(u=>{
-      if(!u){ location.href='/login.html#signup'; return; }
-      current = u;
-      document.getElementById('verifyCard').style.display = u.emailVerified ? 'none':'block';
-    });
 
     document.getElementById('btnResend').addEventListener('click', async ()=>{
-      if(!current) return;
       showToast('Envoi en cours…');
-      try{
-        await sendEmailVerification(current);
-        showToast('Lien envoyé ✅');
-      }catch(e){
-        showToast('Échec d’envoi ❌');
-      }
+      try{ await resendEmailVerification(); showToast('Lien envoyé ✅'); }
+      catch(e){ showToast('Échec d’envoi ❌'); }
     });
 
     document.getElementById('btnRefresh').addEventListener('click', async ()=>{
-      if(!current) return;
       showToast('Actualisation…');
-      await current.reload();
-      showToast('État mis à jour');
-      document.getElementById('verifyCard').style.display = current.emailVerified ? 'none':'block';
+      try{ await auth.currentUser?.reload(); showToast('État mis à jour'); }
+      catch(e){ showToast('Erreur'); }
     });
   </script>
 </body>
