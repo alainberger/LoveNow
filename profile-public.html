@@ -1,34 +1,25 @@
 <!doctype html>
-<html lang="fr" data-theme="dark">
+<html lang="fr">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Profil — LoveNow</title>
-  <meta name="description" content="Profil public d’un membre LoveNow."/>
-  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" as="style" onload="this.rel='stylesheet'"/>
-  <style>
-    :root{--bg:#0f1115;--card:#171922;--muted:#aab1c3;--text:#e9edf6;--brand:#ff2d55;--brand2:#7a5cf0;--line:#23283d}
-    *{box-sizing:border-box}
-    html,body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui}
-    a{color:inherit;text-decoration:none}
-    .wrap{max-width:900px;margin:0 auto;padding:16px}
-    header{position:sticky;top:0;z-index:5;background:rgba(15,17,21,.7);backdrop-filter:saturate(140%) blur(8px);border-bottom:1px solid #202334}
-    nav{display:flex;gap:8px;align-items:center;padding:10px 0}
-    .spacer{flex:1}
-    .btn{display:inline-flex;align-items:center;justify-content:center;padding:.6rem .9rem;border-radius:.6rem;background:#232739;border:1px solid #2b2f44;cursor:pointer}
-    .btn-primary{background:linear-gradient(135deg,var(--brand),var(--brand2));border:none}
-    .card{background:var(--card);border:1px solid #202334;border-radius:.9rem;padding:16px}
-    .row{display:grid;grid-template-columns:1fr;gap:10px}
-    @media(min-width:820px){.row{grid-template-columns:280px 1fr}}
-    .avatar{width:100%;max-width:260px;aspect-ratio:1/1;border-radius:14px;object-fit:cover;background:#0c0e12;border:1px solid #2b2f44}
-    .meta{display:grid;gap:6px}
-    .muted{color:var(--muted)}
-    .skeleton{border-radius:12px;background:linear-gradient(90deg,#151826 25%,#1a1f31 37%,#151826 63%);background-size:400% 100%;animation:sh 1.2s ease infinite}
-    @keyframes sh{0%{background-position:100% 50%}100%{background-position:0 50%}}
-    .toast{position:fixed;right:16px;bottom:16px;background:#111522;border:1px solid #22304a;padding:8px 12px;border-radius:8px;display:none}
-    .chip{display:inline-flex;align-items:center;gap:6px;padding:.35rem .6rem;border:1px solid #2b2f44;border-radius:999px;background:#1a1e2b}
-  </style>
-  <script src="config.js"></script>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Profil — LoveNow</title>
+<meta name="description" content="Profil public LoveNow"/>
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" as="style" onload="this.rel='stylesheet'"/>
+<style>
+:root{--bg:#0f1115;--card:#171922;--muted:#aab1c3;--text:#e9edf6;--brand:#ff2d55;--brand2:#7a5cf0;--line:#202334}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui}
+.wrap{max-width:860px;margin:0 auto;padding:16px}
+header{position:sticky;top:0;z-index:5;background:rgba(15,17,21,.7);backdrop-filter:saturate(140%) blur(8px);border-bottom:1px solid var(--line)}
+nav{display:flex;gap:8px;align-items:center;padding:10px 0}
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:.55rem .85rem;border-radius:.6rem;background:#232739;border:1px solid #2b2f44;cursor:pointer}
+.btn-primary{background:linear-gradient(135deg,var(--brand),var(--brand2));border:none}
+.card{background:var(--card);border:1px solid var(--line);border-radius:.9rem;padding:16px}
+.hero{display:grid;grid-template-columns:160px 1fr;gap:14px}
+.hero img{width:160px;height:160px;border-radius:14px;object-fit:cover;background:#0c0e12}
+.muted{color:var(--muted)}
+</style>
+<script src="config.js"></script>
 </head>
 <body>
 <header>
@@ -36,124 +27,64 @@
     <nav>
       <a class="btn" href="index.html">← Accueil</a>
       <strong>Profil</strong>
-      <span class="spacer"></span>
-      <a class="btn" href="conversations.html">Mes conversations</a>
-      <a class="btn" href="profile.html">Mon profil</a>
+      <span style="flex:1"></span>
+      <a class="btn" href="conversations.html">Conversations</a>
     </nav>
   </div>
 </header>
 
 <main class="wrap">
-  <div class="card">
-    <div class="row">
-      <div>
-        <img id="avatar" class="avatar skeleton" alt="Photo du membre">
-      </div>
-      <div class="meta">
-        <h1 id="title" style="margin:.2rem 0 4px">Profil</h1>
-        <div class="muted" id="subtitle">Chargement…</div>
-        <div id="chips" style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0"></div>
-        <div>
-          <h3 style="margin:12px 0 6px">Bio</h3>
-          <p id="bio" class="muted" style="white-space:pre-wrap">—</p>
-        </div>
-        <div style="display:flex;gap:8px;margin-top:6px">
-          <button id="btnMessage" class="btn btn-primary">Message</button>
-          <button id="btnShare" class="btn" title="Copier le lien">Partager</button>
-        </div>
+  <div class="card hero">
+    <img id="photo" alt="Photo de profil">
+    <div>
+      <h1 id="name">Utilisateur</h1>
+      <div class="muted" id="meta">—</div>
+      <p id="bio" style="margin-top:10px"></p>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <a id="btnMsg" class="btn btn-primary" href="#">Envoyer un message</a>
       </div>
     </div>
   </div>
-
-  <p class="muted" style="margin-top:10px">
-    Signale un comportement abusif via <a href="mailto:contact@lovenow.app">contact@lovenow.app</a>.
-  </p>
 </main>
 
-<div id="toast" class="toast" role="status" aria-live="polite"></div>
-
 <script type="module">
-  // === Helpers
-  const $ = s=>document.querySelector(s);
-  const toast=(t)=>{ const el=$("#toast"); el.textContent=t; el.style.display="block"; setTimeout(()=>el.style.display="none",2200); };
-  const bust=(url)=> url ? url + (url.includes("?")?"&":"?") + "v=" + Date.now() : "";
-  const qs = new URLSearchParams(location.search);
-  const uid = qs.get("id");
+const $=s=>document.querySelector(s);
+const uid = new URLSearchParams(location.search).get("id");
 
-  if(!uid){
-    $("#title").textContent = "Profil introuvable";
-    $("#subtitle").textContent = "Identifiant manquant dans l’URL.";
-    $("#avatar").classList.remove("skeleton");
-    $("#avatar").src="https://images.unsplash.com/photo-1502685104226-ee32379fefbe?q=80&w=800&auto=format&fit=crop";
-  }
+const cfg = window.APP_CONFIG?.firebase;
+const siteKey = window.APP_CONFIG?.appCheck?.recaptchaV3SiteKey;
 
-  // === Firebase
-  const cfg = window.APP_CONFIG?.firebase;
-  const siteKey = window.APP_CONFIG?.appCheck?.recaptchaV3SiteKey;
+import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app-check.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-  import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-  import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app-check.js";
-  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+const app = getApps().length ? getApp() : initializeApp(cfg);
+if (siteKey) initializeAppCheck(app,{provider:new ReCaptchaV3Provider(siteKey),isTokenAutoRefreshEnabled:true});
+const auth = getAuth(app);
+const db   = getFirestore(app);
 
-  const app  = getApps().length ? getApp() : initializeApp(cfg);
-  if (siteKey) initializeAppCheck(app, { provider:new ReCaptchaV3Provider(siteKey), isTokenAutoRefreshEnabled:true });
-  const auth = getAuth(app);
-  const db   = getFirestore(app);
+async function load(){
+  if(!uid){ location.href="index.html"; return; }
+  const snap = await getDoc(doc(db,"profiles",uid));
+  const p = snap.exists()? snap.data() : {};
 
-  // Charge le profil cible
-  async function loadProfile(u){
-    try{
-      const snap = await getDoc(doc(db,"profiles", u));
-      if(!snap.exists()) throw new Error("not-found");
-      const d = snap.data()||{};
-      const name = d.name || "Utilisateur";
-      const age  = (d.age!=null)? `${d.age} ans` : "Âge —";
-      const city = d.city || "Ville —";
-      const gender = (d.gender||"O");
-      const avatar = d.photoURL || "https://images.unsplash.com/photo-1502685104226-ee32379fefbe?q=80&w=800&auto=format&fit=crop";
+  $("#photo").src = p.photoURL || "https://images.unsplash.com/photo-1502685104226-ee32379fefbe?q=80&w=800&auto=format&fit=crop";
+  $("#name").textContent = p.name || "Utilisateur";
+  const age = (p.age!=null) ? `${p.age} ans` : "";
+  const city= p.city || "";
+  const gender = p.gender || "";
+  $("#meta").textContent = [age, city, gender].filter(Boolean).join(" · ") || "—";
+  $("#bio").textContent  = p.bio || "";
 
-      $("#title").textContent = name;
-      $("#subtitle").textContent = `${city} · ${age}`;
-      $("#avatar").classList.remove("skeleton");
-      $("#avatar").src = bust(avatar);
-      $("#bio").textContent = d.bio || "—";
+  $("#btnMsg").href = `conversations.html?with=${encodeURIComponent(uid)}`;
+}
+load();
 
-      // chips
-      const chips=$("#chips"); chips.innerHTML="";
-      const c1=document.createElement("span"); c1.className="chip"; c1.textContent = city;
-      const c2=document.createElement("span"); c2.className="chip"; c2.textContent = gender;
-      chips.appendChild(c1); chips.appendChild(c2);
-      document.title = `${name} — LoveNow`;
-    }catch(e){
-      $("#title").textContent = "Profil indisponible";
-      $("#subtitle").textContent = (e.message==="not-found") ? "Ce profil n’existe pas ou a été supprimé." : "Erreur de chargement.";
-      $("#avatar").classList.remove("skeleton");
-      $("#avatar").src="https://images.unsplash.com/photo-1502685104226-ee32379fefbe?q=80&w=800&auto=format&fit=crop";
-    }
-  }
-
-  // Actions : Message / Partage
-  $("#btnMessage").addEventListener("click", ()=>{
-    const user = auth.currentUser;
-    if(!user){ location.href="login.html#login"; return; }
-    if(!user.emailVerified){ alert("Valide ton e-mail pour envoyer des messages."); location.href="login.html"; return; }
-    location.href = `conversations.html?with=${encodeURIComponent(uid)}`;
-  });
-
-  $("#btnShare").addEventListener("click", async ()=>{
-    const url = `${location.origin}/u/${encodeURIComponent(uid)}`;
-    try{
-      if(navigator.share){ await navigator.share({ title: document.title, url }); return; }
-      await navigator.clipboard.writeText(url);
-      toast("Lien copié ✅");
-    }catch{ toast("Impossible de partager"); }
-  });
-
-  // Auth pour mise à jour du bouton (optionnel)
-  onAuthStateChanged(auth, ()=>{ /* no-op, on check on click */ });
-
-  if(uid) loadProfile(uid);
+onAuthStateChanged(auth,(u)=>{
+  // s'il n'est pas connecté, on laisse quand même voir le profil public;
+  // le bouton message ouvrira conversations.html qui gèrera l'auth/vérif
+});
 </script>
 </body>
 </html>
