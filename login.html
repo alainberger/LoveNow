@@ -4,6 +4,13 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>LoveNow — Connexion / Inscription</title>
+<meta name="description" content="Connecte-toi ou crée ton compte LoveNow."/>
+<link rel="canonical" href="https://lovenow.netlify.app/login"/>
+<meta property="og:title" content="LoveNow — Connexion / Inscription"/>
+<meta property="og:description" content="Connecte-toi ou crée ton compte LoveNow."/>
+<meta property="og:url" content="https://lovenow.netlify.app/login"/>
+<meta property="og:image" content="https://via.placeholder.com/1200x630.png?text=LoveNow"/>
+<meta name="twitter:card" content="summary_large_image"/>
 <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" as="style" onload="this.rel='stylesheet'">
 <style>
 body{margin:0;background:#0f1115;color:#e9edf6;font-family:Inter,system-ui}
@@ -18,6 +25,7 @@ label{display:block;margin:10px 0 6px;color:#aab1c3}
 .card{background:#171922;border:1px solid #202334;border-radius:.9rem;padding:16px}
 .muted{color:#aab1c3}
 .banner{background:#1a1e2b;border:1px solid #27314a;border-radius:.8rem;padding:.6rem .8rem;margin:12px 0;display:flex;gap:8px;justify-content:space-between;align-items:center}
+:focus{outline:3px auto;outline-offset:2px}
 .toast{position:fixed;right:16px;bottom:16px;background:#111522;border:1px solid #22304a;padding:8px 12px;border-radius:8px}
 </style>
 
@@ -41,7 +49,7 @@ const show=(t)=>{ $("#tab-login").setAttribute("aria-selected",t==="login"); $("
 $("#tab-login").addEventListener("click",()=>show("login")); $("#tab-signup").addEventListener("click",()=>show("signup"));
 show(location.hash==="#signup" ? "signup" : "login");
 
-const toast=(t)=>{ const el=document.createElement('div'); el.className='toast'; el.textContent=t; document.body.appendChild(el); setTimeout(()=>el.remove(),2200); };
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.hidden=false;setTimeout(()=>t.hidden=true,3000);}
 
 onAuthStateChanged(auth,(user)=>{ const b=$("#verifyBanner"); if(user && !user.emailVerified){ b.hidden=false; $("#who").textContent=user.email||""; } else { b.hidden=true; $("#who").textContent=""; } });
 
@@ -49,6 +57,9 @@ $("#signup").addEventListener("submit", async (e)=>{
   e.preventDefault();
   const email=$("#suEmail").value.trim(), pass=$("#suPass").value, name=$("#suName").value.trim();
   const age=Number($("#suAge").value)||null, city=$("#suCity").value.trim(), gender=$("#suGender").value;
+  if(!Number.isFinite(age)||age<18){
+    const err=document.getElementById('suAgeErr'); err.textContent="Vous devez avoir 18 ans ou plus."; err.style.display='block'; document.getElementById('suAge').focus(); return;
+  }else{document.getElementById('suAgeErr').style.display='none';}
   try{
     const {user}=await createUserWithEmailAndPassword(auth,email,pass);
     await updateProfile(user,{displayName:name});
@@ -72,11 +83,14 @@ $("#login").addEventListener("submit", async (e)=>{
 
 $("#btnResend").addEventListener("click", async ()=>{
   const u=auth.currentUser; if(!u) return alert("Connecte-toi d’abord.");
+  const btn=$("#btnResend"); const prev=btn.textContent; btn.disabled=true; btn.textContent="Envoi…";
+  showToast("Envoi en cours…");
   try{
     const actionCodeSettings={ url:"https://lovenow.netlify.app/login.html?verified=1", handleCodeInApp:false };
     await sendEmailVerification(u, actionCodeSettings);
-    toast("Lien envoyé ✅");
-  }catch{ toast("Échec envoi lien"); }
+    showToast("Lien envoyé ✅");
+  }catch{ showToast("Échec d'envoi. Réessaye."); }
+  finally{ btn.disabled=false; btn.textContent=prev; }
 });
 $("#btnLogout").addEventListener("click", async ()=>{ await signOut(auth); alert("Déconnecté"); location.href="/"; });
 </script>
@@ -113,7 +127,7 @@ $("#btnLogout").addEventListener("click", async ()=>{ await signOut(auth); alert
       <label for="suPass">Mot de passe (≥ 6 caractères)</label><input id="suPass" type="password" required minlength="6" autocomplete="new-password">
       <label for="suName">Nom / Pseudo</label><input id="suName" type="text" required>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-        <div><label for="suAge">Âge</label><input id="suAge" type="number" min="18" max="99" required></div>
+        <div><label for="suAge">Âge</label><input id="suAge" type="number" min="18" max="99" required aria-describedby="suAgeErr"><div id="suAgeErr" class="muted" aria-live="polite" style="display:none"></div></div>
         <div><label for="suCity">Ville</label><input id="suCity" type="text" required></div>
       </div>
       <label for="suGender">Genre</label><select id="suGender"><option value="F">Femme</option><option value="M">Homme</option><option value="O">Autre</option></select>
@@ -123,5 +137,6 @@ $("#btnLogout").addEventListener("click", async ()=>{ await signOut(auth); alert
 
   <div style="margin-top:16px"><button id="btnLogout" class="btn">Se déconnecter</button></div>
 </div>
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 </body>
 </html>

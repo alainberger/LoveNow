@@ -38,8 +38,9 @@
 [[headers]]
   for = "/*"
   [headers.values]
-    Content-Security-Policy = "default-src 'self'; img-src 'self' https: data:; style-src 'self' https: 'unsafe-inline'; script-src 'self' https: 'unsafe-inline'; font-src 'self' https: data:; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com https://www.gstatic.com https://firebasestorage.googleapis.com https://*.firebasestorage.app https://api.cloudinary.com; frame-src https://www.google.com/recaptcha/ https://recaptcha.google.com/recaptcha/; child-src https://www.google.com/recaptcha/ https://recaptcha.google.com/recaptcha/; frame-ancestors 'none'"
-    Referrer-Policy = "strict-origin-when-cross-origin"
-    Permissions-Policy = "geolocation=(), microphone=(), camera=()"
-    X-Frame-Options = "DENY"
-    X-Content-Type-Options = "nosniff"
+      Content-Security-Policy-Report-Only = "default-src 'self'; img-src 'self' https: data:; style-src 'self' https: 'unsafe-inline'; script-src 'self' https: 'unsafe-inline'; font-src 'self' https: data:; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com https://www.gstatic.com https://firebasestorage.googleapis.com https://*.firebasestorage.app https://api.cloudinary.com; frame-src https://www.google.com/recaptcha/ https://recaptcha.google.com/recaptcha/; child-src https://www.google.com/recaptcha/ https://recaptcha.google.com/recaptcha/; frame-ancestors 'none'"
+      Referrer-Policy = "strict-origin-when-cross-origin"
+      Permissions-Policy = "geolocation=(), microphone=(), camera=()"
+      X-Frame-Options = "DENY"
+      X-Content-Type-Options = "nosniff"
+      Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"

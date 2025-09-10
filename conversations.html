@@ -4,7 +4,13 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Conversations — LoveNow</title>
-<meta name="description" content="Messages privés LoveNow"/>
+<meta name="description" content="Messages privés LoveNow."/>
+<link rel="canonical" href="https://lovenow.netlify.app/conversations"/>
+<meta property="og:title" content="Conversations — LoveNow"/>
+<meta property="og:description" content="Messages privés LoveNow."/>
+<meta property="og:url" content="https://lovenow.netlify.app/conversations"/>
+<meta property="og:image" content="https://via.placeholder.com/1200x630.png?text=LoveNow"/>
+<meta name="twitter:card" content="summary_large_image"/>
 <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" as="style" onload="this.rel='stylesheet'"/>
 <style>
 :root{--bg:#0f1115;--panel:#151a22;--muted:#aab1c3;--text:#e9edf6;--brand:#ff2d55;--brand2:#7a5cf0;--line:#202734}
@@ -41,6 +47,8 @@ nav{display:flex;gap:8px;align-items:center;padding:10px 0}
 .composer input{flex:1}
 .banner{background:#1a1e2b;border:1px solid #27314a;border-radius:.8rem;padding:.6rem .8rem;margin:8px 0;display:flex;gap:8px;justify-content:space-between;align-items:center}
 .muted{color:var(--muted)}
+.toast{position:fixed;right:16px;bottom:16px;background:#111522;border:1px solid #22304a;padding:8px 12px;border-radius:8px}
+a:focus,button:focus,input:focus,select:focus,textarea:focus{outline:3px auto;outline-offset:2px}
 </style>
 <script src="config.js"></script>
 </head>
@@ -65,7 +73,13 @@ nav{display:flex;gap:8px;align-items:center;padding:10px 0}
     </div>
   </div>
 
-  <div class="grid">
+  <div id="emptyConv" class="card" style="text-align:center;padding:40px" hidden>
+    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    <p>Aucune conversation pour l'instant.</p>
+    <a href="/#discover" class="btn btn-primary">Découvrir des profils</a>
+  </div>
+
+  <div id="convGrid" class="grid">
     <!-- Liste -->
     <aside class="card sidebar" aria-label="Conversations">
       <div class="search"><input id="q" class="input" placeholder="Rechercher…"></div>
@@ -97,6 +111,7 @@ nav{display:flex;gap:8px;align-items:center;padding:10px 0}
 const $ = s => document.querySelector(s);
 const params = new URLSearchParams(location.search);
 const withUid = params.get("with"); // pour démarrer un chat direct
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.hidden=false;setTimeout(()=>t.hidden=true,3000);}
 
 const cfg = window.APP_CONFIG?.firebase;
 const siteKey = window.APP_CONFIG?.appCheck?.recaptchaV3SiteKey;
@@ -153,11 +168,14 @@ onAuthStateChanged(auth, async (user)=>{
   $("#composer").style.display = verified ? "flex" : "none";
 
   $("#btnResend")?.addEventListener("click", async ()=>{
+    const btn=$("#btnResend"); const prev=btn.textContent; btn.disabled=true; btn.textContent="Envoi…";
+    showToast("Envoi en cours…");
     try{
       const actionCodeSettings={ url:"https://lovenow.netlify.app/login.html?verified=1", handleCodeInApp:false };
       await sendEmailVerification(user, actionCodeSettings);
-      alert("Lien envoyé ✅");
-    }catch(e){ alert("Échec envoi lien"); }
+      showToast("Lien envoyé ✅");
+    }catch(e){ showToast("Échec d'envoi. Réessaye."); }
+    finally{ btn.disabled=false; btn.textContent=prev; }
   });
   $("#btnRefresh")?.addEventListener("click", ()=>location.reload());
 
@@ -189,6 +207,9 @@ async function loadList(){
       return itemRow({cid:d.id, peer, last:data.lastText||""});
     }));
     rows.sort((a,b)=>0).forEach(r=>list.appendChild(r));
+    const empty=rows.length===0;
+    document.getElementById('emptyConv').hidden=!empty;
+    document.getElementById('convGrid').hidden=empty;
   });
 }
 
@@ -268,5 +289,6 @@ $("#q").addEventListener("input",()=>{
   }
 });
 </script>
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 </body>
 </html>
