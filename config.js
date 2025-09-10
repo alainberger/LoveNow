@@ -34,3 +34,27 @@ window.APP_CONFIG.CHAT_SITE_ID = window.APP_CONFIG.chat.siteId;
 window.lovenowReady = function(eventName){
   window.dispatchEvent(new CustomEvent(eventName));
 };
+
+// Charge Crisp si activé dans la config
+window.loadCrispIfEnabled = function(){
+  if(window.APP_CONFIG?.chat?.provider==='crisp' && window.APP_CONFIG?.chat?.siteId){
+    if(document.querySelector('script[src="https://client.crisp.chat/l.js"]')) return; // évite doublon
+    window.$crisp = window.$crisp || [];
+    window.CRISP_WEBSITE_ID = window.APP_CONFIG.chat.siteId;
+    const s=document.createElement('script');
+    s.src='https://client.crisp.chat/l.js';
+    s.async=1;
+    document.head.appendChild(s);
+  }
+};
+
+// Installe App Check reCAPTCHA v3 si la clé est fournie
+window.loadAppCheck = function(app){
+  const key = window.APP_CONFIG?.appCheck?.recaptchaV3SiteKey;
+  if(!key) return;
+  import('https://www.gstatic.com/firebasejs/10.12.5/firebase-app-check.js')
+    .then(({initializeAppCheck, ReCaptchaV3Provider})=>{
+      initializeAppCheck(app,{provider:new ReCaptchaV3Provider(key), isTokenAutoRefreshEnabled:true});
+    })
+    .catch(err=>console.error('AppCheck init failed',err));
+};

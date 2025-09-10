@@ -50,12 +50,6 @@
 
   <!-- Config globale -->
   <script src="config.js"></script>
-  <script>
-    if(window.APP_CONFIG?.chat?.provider === 'crisp' && window.APP_CONFIG.chat.siteId){
-      window.$crisp=[];window.CRISP_WEBSITE_ID=window.APP_CONFIG.chat.siteId;
-      (function(){var d=document,s=d.createElement('script');s.src='https://client.crisp.chat/l.js';s.async=1;d.head.appendChild(s);})();
-    }
-  </script>
 </head>
 <body>
 <header>
@@ -85,7 +79,7 @@
         <input id="emailStart" type="email" placeholder="ex. ami@exemple.com" autocomplete="off">
         <button id="btnStart" class="btn">OK</button>
       </div>
-        <div class="muted" style="margin-top:6px;font-size:.85rem">Astuce : tu peux aussi ouvrir <span class="badge">/conversations.html?with=UID</span></div>
+        <div class="muted" style="margin-top:6px;font-size:.85rem">Astuce : tu peux aussi ouvrir <span class="badge">/conversations.html?startWith=UID</span></div>
     </div>
     <div id="convList" class="list" role="listbox" aria-label="Conversations"></div>
   </aside>
@@ -115,17 +109,15 @@
 <script type="module">
 /* ====== Imports & boot Firebase ====== */
 const cfg = window.APP_CONFIG?.firebase;
-const siteKey = window.APP_CONFIG?.appCheck?.recaptchaV3SiteKey;
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import { getAuth, onAuthStateChanged, sendEmailVerification, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app-check.js";
 import {
   getFirestore, doc, getDoc, setDoc, serverTimestamp, addDoc, collection, onSnapshot, query, where, orderBy, getDocs, limit
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 const app = initializeApp(cfg);
-if (siteKey) initializeAppCheck(app, { provider:new ReCaptchaV3Provider(siteKey), isTokenAutoRefreshEnabled:true });
+loadAppCheck(app);
 const auth = getAuth(app);
 const db   = getFirestore(app);
 
@@ -150,13 +142,12 @@ const peerCity  =$("#peerCity");
 
 /* ====== State ====== */
 let ME = null;                 // { uid, email, emailVerified }
-let activeConvId = null;       // "uidA_uidB" (triés)
+let activeConvId = null;       // id du document conversation
 let activePeerUid = null;
 let unsubMessages = null;
 const profileCache = new Map(); // uid -> profile data
 
 /* ====== Helpers ====== */
-const convIdFor = (a,b)=>[a,b].sort().join("_");
 const fmtTime = (d)=> d ? new Intl.DateTimeFormat('fr-FR',{hour:'2-digit',minute:'2-digit'}).format(d) : '';
 
 async function getProfile(uid){
@@ -175,8 +166,8 @@ function renderConvItem(c){
   node.dataset.peer = other || "";
   node.setAttribute("role","option");
 
-  const lastTxt = (c.lastMessage?.text || "").slice(0,80);
-  const time = c.lastAt?.toDate ? fmtTime(c.lastAt.toDate()) : "";
+  const lastTxt = (c.lastMessageText || "").slice(0,80);
+  const time = c.lastMessageAt?.toDate ? fmtTime(c.lastMessageAt.toDate()) : (c.createdAt?.toDate ? fmtTime(c.createdAt.toDate()) : "");
 
   const avatar = c._peer?.photoURL || "https://images.unsplash.com/photo-1502685104226-ee32379fefbe?q=80&w=200&auto=format&fit=crop";
   const name   = c._peer?.name || c._peer?.displayName || "Utilisateur";
@@ -224,10 +215,10 @@ async function watchConversations(){
       }
       items.push(c);
     }
-    // tri client par lastAt décroissant si dispo
+    // tri client par dernière activité
     items.sort((a,b)=>{
-      const ta = a.lastAt?.toMillis ? a.lastAt.toMillis() : 0;
-      const tb = b.lastAt?.toMillis ? b.lastAt.toMillis() : 0;
+      const ta = a.lastMessageAt?.toMillis ? a.lastMessageAt.toMillis() : (a.createdAt?.toMillis ? a.createdAt.toMillis() : 0);
+      const tb = b.lastMessageAt?.toMillis ? b.lastMessageAt.toMillis() : (b.createdAt?.toMillis ? b.createdAt.toMillis() : 0);
       return tb - ta;
     });
 
@@ -251,24 +242,23 @@ async function watchConversations(){
 /* ====== Open / Create conversation ====== */
 async function ensureConversationWith(peerUid){
   if (!peerUid || peerUid===ME.uid) throw new Error("UID cible invalide.");
-  const cid = convIdFor(ME.uid, peerUid);
-  const ref = doc(db,"conversations", cid);
-  const s = await getDoc(ref);
-  if(!s.exists()){
-    // Respecte les règles : exactly 2 members et l’auteur est dans members
-    await setDoc(ref, {
-      members: [ME.uid, peerUid],
-      createdAt: serverTimestamp(),
-      lastAt: serverTimestamp(),
-      lastMessage: { from: ME.uid, text: "👋", createdAt: serverTimestamp() }
-    }, { merge:false });
+  // Cherche une conversation existante entre nous deux
+  const q = query(collection(db,"conversations"), where("members","array-contains", ME.uid));
+  const snap = await getDocs(q);
+  const existing = snap.docs.find(d => {
+    const m = d.data().members||[];
+    return m.length===2 && m.includes(peerUid);
+  });
+  if(existing) return existing.id;
 
-    // crée aussi le premier message “hello” pour éviter une convo vide
-    await addDoc(collection(ref,"messages"), {
-      from: ME.uid, text: "👋", createdAt: serverTimestamp()
-    });
-  }
-  return cid;
+  // Crée la convo
+  const ref = await addDoc(collection(db,"conversations"), {
+    members:[ME.uid, peerUid],
+    createdAt: serverTimestamp(),
+    lastMessageText:"",
+    lastMessageAt:null
+  });
+  return ref.id;
 }
 
 async function openConversation(cid, peerUid){
@@ -314,14 +304,16 @@ async function sendMessage(){
   if (!activeConvId || !activePeerUid) return alert("Choisis une conversation d’abord.");
   if (!ME.emailVerified){ alert("Valide ton e-mail avant d’envoyer des messages."); return; }
 
-  const ref = doc(db,"conversations", activeConvId);
-  // Ajout message
-  await addDoc(collection(ref,"messages"), { from: ME.uid, text, createdAt: serverTimestamp() });
-  // Mise à jour convo (autorisé par tes règles: membre → update ok)
-  await setDoc(ref, { lastMessage:{ from: ME.uid, text, createdAt: serverTimestamp() }, lastAt: serverTimestamp() }, { merge:true });
-
-  msgInput.value = "";
-  msgInput.focus();
+  btnSend.disabled = true;
+  try{
+    const ref = doc(db,"conversations", activeConvId);
+    await addDoc(collection(ref,"messages"), { from: ME.uid, text, createdAt: serverTimestamp() });
+    await setDoc(ref, { lastMessageText: text, lastMessageAt: serverTimestamp() }, { merge:true });
+    msgInput.value = "";
+    msgInput.focus();
+  }finally{
+    btnSend.disabled = false;
+  }
 }
 
 /* ====== Start chat by email ====== */
@@ -346,6 +338,7 @@ onAuthStateChanged(auth, async (user)=>{
   if(!user){ location.href="login.html#login"; return; }
 
   ME = { uid:user.uid, email:user.email||"", emailVerified: !!user.emailVerified };
+  document.documentElement.dataset.verified = ME.emailVerified ? 'true' : 'false';
   verifyBanner.hidden = ME.emailVerified;
 
   // boutons
@@ -366,18 +359,28 @@ onAuthStateChanged(auth, async (user)=>{
   // Liste des conversations
   watchConversations();
 
-  // Si ?with=UID présent : crée/ouvre la convo automatiquement
-  const peerParam = getParam("with");
-  if(peerParam){
+  const startParam = getParam('startWith');
+  const cidParam = getParam('cid');
+  if(startParam){
     try{
-      const cid = await ensureConversationWith(peerParam);
-      await openConversation(cid, peerParam);
+      const cid = await ensureConversationWith(startParam);
+      location.replace(`conversations.html?cid=${cid}`);
+    }catch(e){ console.error(e); }
+  }else if(cidParam){
+    try{
+      const ref = doc(db,'conversations', cidParam);
+      const snap = await getDoc(ref);
+      if(snap.exists()){
+        const peer = (snap.data().members||[]).find(x=>x!==ME.uid);
+        if(peer) await openConversation(cidParam, peer);
+      }
     }catch(e){ console.error(e); }
   }
 });
 
-/* ====== URL param ?with=UID ====== */
+/* ====== URL params ====== */
 function getParam(name){ return new URL(location.href).searchParams.get(name); }
 </script>
+<script>loadCrispIfEnabled();</script>
 </body>
 </html>
