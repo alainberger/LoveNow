@@ -26,7 +26,13 @@ window.APP_CONFIG = {
   // Cloudinary (client — aucun secret ici)
   cloudinary: {
     cloudName: "dyqxadd0j",
-    unsignedPreset: "lovenow-direct-upload"
+    unsignedPreset: "lovenow-direct-upload",
+    useSigned: true
+  },
+
+  chat: {
+    provider: "crisp",
+    siteId: "42383cbe-1349-42c2-a0ef-04386b58ccd6"
   },
 
   analyticsEnabled: false,
