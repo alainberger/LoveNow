@@ -1,62 +1,376 @@
 <!doctype html>
-<html lang="fr" data-theme="light">
+<html lang="fr" data-theme="dark">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>LoveNow — Conversations</title>
-  <meta name="description" content="Accédez à vos conversations LoveNow. Vérifiez votre e-mail pour écrire des messages.">
-  <link rel="canonical" href="https://lovenow.netlify.app/conversations">
-  <meta property="og:title" content="LoveNow — Conversations">
-  <meta property="og:description" content="Vérifiez votre e-mail pour démarrer la conversation.">
-  <meta property="og:url" content="https://lovenow.netlify.app/conversations">
-  <meta property="og:image" content="/assets/og-default.jpg">
-  <meta name="twitter:card" content="summary_large_image">
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Conversations — LoveNow</title>
+  <meta name="description" content="Discute en temps réel avec les membres LoveNow."/>
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" as="style" onload="this.rel='stylesheet'"/>
   <style>
-    body{ margin:0; font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial; color:#111 }
-    .wrap{ max-width:900px; margin:0 auto; padding:24px 16px }
-    .card{ border:1px solid #eee; border-radius:14px; padding:16px }
-    .btn{ display:inline-block; padding:.6rem .9rem; border-radius:10px; border:1px solid transparent; background:#0AAEEF; color:#fff; font-weight:600 }
-    .btn.ghost{ background:#fff; color:#0AAEEF; border-color:#0AAEEF }
-    :focus{ outline:3px auto; outline-offset:2px }
-    #toast{ position:fixed; left:50%; transform:translateX(-50%); bottom:14px; background:#111; color:#fff; padding:.7rem 1rem; border-radius:10px; display:none }
+    :root{--bg:#0f1115;--card:#171922;--muted:#aab1c3;--text:#e9edf6;--brand:#ff2d55;--brand2:#7a5cf0;--line:#202334}
+    *{box-sizing:border-box} html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:Inter,system-ui}
+    a{color:inherit;text-decoration:none}
+    header{position:sticky;top:0;z-index:5;background:rgba(15,17,21,.7);backdrop-filter:saturate(140%) blur(8px);border-bottom:1px solid var(--line)}
+    nav{display:flex;gap:8px;align-items:center;padding:10px 16px}
+    .btn{display:inline-flex;align-items:center;justify-content:center;padding:.55rem .85rem;border-radius:.6rem;background:#232739;border:1px solid #2b2f44;cursor:pointer}
+    .btn-primary{background:linear-gradient(135deg,var(--brand),var(--brand2));border:none}
+    .spacer{flex:1}
+
+    .wrap{display:grid;grid-template-columns:320px 1fr;gap:0;height:calc(100vh - 58px)}
+    @media(max-width:900px){.wrap{grid-template-columns:1fr}}
+    .sidebar{border-right:1px solid var(--line);background:#121420}
+    .panel{display:flex;flex-direction:column}
+
+    .card{background:var(--card);border:1px solid var(--line);border-radius:.9rem}
+    .section{padding:12px 12px}
+
+    .search{padding:12px;border-bottom:1px solid var(--line)}
+    .search input{width:100%;padding:.6rem .8rem;border-radius:.6rem;background:#0f1115;border:1px solid #2b2f44;color:var(--text)}
+    .list{overflow:auto}
+    .conv{display:flex;gap:10px;align-items:center;padding:10px 12px;border-bottom:1px solid #161a27;cursor:pointer}
+    .conv:hover{background:#151a26}
+    .conv img{width:40px;height:40px;border-radius:50%;object-fit:cover;background:#0c0e12;border:1px solid #2b2f44}
+    .conv .meta{display:flex;flex-direction:column;font-size:.95rem}
+    .conv .meta .name{font-weight:600}
+    .conv.active{background:#182034}
+
+    .chatHead{display:flex;align-items:center;gap:10px;padding:12px;border-bottom:1px solid var(--line)}
+    .chatHead img{width:42px;height:42px;border-radius:50%;object-fit:cover;border:1px solid #2b2f44}
+    .chatMain{flex:1;overflow:auto;padding:14px}
+    .msg{max-width:70%;margin:8px 0;padding:.55rem .7rem;border-radius:.7rem;border:1px solid #27314a;background:#151926}
+    .mine{margin-left:auto;background:linear-gradient(135deg,#ff2d55,#7a5cf0);border:none}
+    .stamp{font-size:.8rem;color:#aab1c3;margin-top:2px}
+    .chatInput{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line)}
+    .chatInput input{flex:1;padding:.7rem;border-radius:.6rem;background:#0f1115;border:1px solid #2b2f44;color:var(--text)}
+    .muted{color:#aab1c3}
+    .banner{background:#1a1e2b;border:1px solid #27314a;border-radius:.8rem;padding:.6rem .8rem;margin:8px}
+    .empty{padding:18px;color:#aab1c3}
+    .badge{display:inline-block;padding:.15rem .45rem;border-radius:.35rem;background:#232739;border:1px solid #2b2f44;font-size:.75rem;color:#cbd3e6}
   </style>
+
+  <!-- Config globale -->
+  <script src="config.js"></script>
 </head>
 <body>
-  <div class="wrap">
-    <a href="/" aria-label="Retour accueil">← Accueil</a>
-    <h1>Conversations</h1>
+<header>
+  <nav>
+    <a class="btn" href="index.html">← Accueil</a>
+    <strong>Conversations</strong>
+    <span class="spacer"></span>
+    <a class="btn" href="profile.html">Mon profil</a>
+    <button id="btnLogout" class="btn">Se déconnecter</button>
+  </nav>
+</header>
 
-    <article class="card" aria-live="polite">
-      <p><strong>E-mail non vérifié :</strong> vérifiez votre e-mail pour pouvoir envoyer des messages.</p>
-      <div class="actions" style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn" id="btnResend">Renvoyer le lien de vérification</button>
-        <button class="btn ghost" id="btnRefresh">Rafraîchir l’état</button>
-        <a class="btn ghost" href="/#discover">Découvrir des profils</a>
-      </div>
-      <p class="muted" style="color:#666;margin-top:8px">Aucune conversation pour l’instant.</p>
-    </article>
+<div id="verifyBanner" class="banner" hidden>
+  <div><strong>E-mail non vérifié.</strong> Vérifie ton e-mail pour pouvoir envoyer des messages.</div>
+  <div style="display:flex;gap:8px;margin-top:6px">
+    <button id="btnResend" class="btn">Renvoyer le lien</button>
+    <button id="btnRefresh" class="btn">Rafraîchir</button>
   </div>
+</div>
 
-  <div id="toast" role="status" aria-live="polite"></div>
+<main class="wrap">
+  <!-- Sidebar : start chat + list -->
+  <aside class="sidebar">
+    <div class="search">
+      <label for="emailStart" class="muted" style="display:block;margin:0 0 6px">Démarrer une discussion (par e-mail)</label>
+      <div style="display:flex;gap:8px">
+        <input id="emailStart" type="email" placeholder="ex. ami@exemple.com" autocomplete="off">
+        <button id="btnStart" class="btn">OK</button>
+      </div>
+      <div class="muted" style="margin-top:6px;font-size:.85rem">Astuce : tu peux aussi ouvrir <span class="badge">/conversations?to=UID</span></div>
+    </div>
+    <div id="convList" class="list" role="listbox" aria-label="Conversations"></div>
+  </aside>
 
-  <script src="/config.js"></script>
-  <script type="module">
-    import { resendEmailVerification, auth } from '/js/firebase.js';
-    const toast = document.getElementById('toast');
-    const showToast = m => { toast.textContent=m; toast.style.display='block'; setTimeout(()=>toast.style.display='none', 2200); };
+  <!-- Panel chat -->
+  <section class="panel">
+    <div id="chatHead" class="chatHead" hidden>
+      <img id="peerAvatar" src="" alt="">
+      <div>
+        <div id="peerName" style="font-weight:600">Sélectionne une conversation</div>
+        <div id="peerCity" class="muted" style="font-size:.9rem"></div>
+      </div>
+      <span class="spacer"></span>
+      <span id="chatStatus" class="badge">Temps réel</span>
+    </div>
 
-    document.getElementById('btnResend').addEventListener('click', async ()=>{
-      showToast('Envoi en cours…');
-      try{ await resendEmailVerification(); showToast('Lien envoyé ✅'); }
-      catch(e){ showToast('Échec d’envoi ❌'); }
+    <div id="emptyChat" class="empty">Aucune discussion ouverte. Choisis une conversation à gauche ou lance une discussion.</div>
+    <div id="chatMain" class="chatMain" hidden></div>
+
+    <div id="chatInput" class="chatInput" hidden>
+      <input id="msg" type="text" placeholder="Écrire un message…" maxlength="2000" autocomplete="off">
+      <button id="btnSend" class="btn btn-primary">Envoyer</button>
+    </div>
+  </section>
+</main>
+
+<script type="module">
+/* ====== Imports & boot Firebase ====== */
+const cfg = window.APP_CONFIG?.firebase;
+const siteKey = window.APP_CONFIG?.appCheck?.recaptchaV3SiteKey;
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { getAuth, onAuthStateChanged, sendEmailVerification, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app-check.js";
+import {
+  getFirestore, doc, getDoc, setDoc, serverTimestamp, addDoc, collection, onSnapshot, query, where, orderBy, getDocs, limit
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+const app = initializeApp(cfg);
+if (siteKey) initializeAppCheck(app, { provider:new ReCaptchaV3Provider(siteKey), isTokenAutoRefreshEnabled:true });
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+/* ====== UI refs ====== */
+const $ = s => document.querySelector(s);
+const convList   = $("#convList");
+const chatHead   = $("#chatHead");
+const emptyChat  = $("#emptyChat");
+const chatMain   = $("#chatMain");
+const chatInput  = $("#chatInput");
+const msgInput   = $("#msg");
+const btnSend    = $("#btnSend");
+const btnStart   = $("#btnStart");
+const emailStart = $("#emailStart");
+const verifyBanner = $("#verifyBanner");
+const btnResend = $("#btnResend");
+const btnRefresh = $("#btnRefresh");
+const btnLogout = $("#btnLogout");
+const peerAvatar=$("#peerAvatar");
+const peerName  =$("#peerName");
+const peerCity  =$("#peerCity");
+
+/* ====== State ====== */
+let ME = null;                 // { uid, email, emailVerified }
+let activeConvId = null;       // "uidA_uidB" (triés)
+let activePeerUid = null;
+let unsubMessages = null;
+const profileCache = new Map(); // uid -> profile data
+
+/* ====== Helpers ====== */
+const convIdFor = (a,b)=>[a,b].sort().join("_");
+const fmtTime = (d)=> d ? new Intl.DateTimeFormat('fr-FR',{hour:'2-digit',minute:'2-digit'}).format(d) : '';
+
+async function getProfile(uid){
+  if(profileCache.has(uid)) return profileCache.get(uid);
+  const snap = await getDoc(doc(db,"profiles",uid));
+  const data = snap.exists() ? snap.data() : {};
+  profileCache.set(uid, data);
+  return data;
+}
+
+function renderConvItem(c){
+  const other = c.members.find(x=>x!==ME.uid);
+  const node  = document.createElement("div");
+  node.className = "conv";
+  node.dataset.cid = c.id;
+  node.dataset.peer = other || "";
+  node.setAttribute("role","option");
+
+  const lastTxt = (c.lastMessage?.text || "").slice(0,80);
+  const time = c.lastAt?.toDate ? fmtTime(c.lastAt.toDate()) : "";
+
+  const avatar = c._peer?.photoURL || "https://images.unsplash.com/photo-1502685104226-ee32379fefbe?q=80&w=200&auto=format&fit=crop";
+  const name   = c._peer?.name || c._peer?.displayName || "Utilisateur";
+
+  node.innerHTML = `
+    <img src="${avatar}" alt="">
+    <div class="meta">
+      <div class="name">${name}</div>
+      <div class="muted" style="font-size:.9rem">${lastTxt || "—"} ${time?`· ${time}`:""}</div>
+    </div>
+  `;
+  node.addEventListener("click", ()=> openConversation(c.id, other));
+  return node;
+}
+
+function appendMessage(m){
+  const me = m.from === ME.uid;
+  const el = document.createElement("div");
+  el.className = "msg" + (me ? " mine" : "");
+  const t = m.text || "";
+  const when = m.createdAt?.toDate ? fmtTime(m.createdAt.toDate()) : "";
+  el.innerHTML = `
+    <div>${t.replace(/</g,"&lt;")}</div>
+    <div class="stamp">${when}</div>
+  `;
+  chatMain.appendChild(el);
+  chatMain.scrollTop = chatMain.scrollHeight;
+}
+
+/* ====== Conversations list (realtime) ====== */
+let unsubConv = null;
+async function watchConversations(){
+  if (unsubConv) unsubConv();
+
+  // Requête simple (évite d’exiger un index) : array-contains sans orderBy
+  const q = query(collection(db,"conversations"), where("members","array-contains", ME.uid));
+  unsubConv = onSnapshot(q, async (snap)=>{
+    // On “enrichit” côté client pour l’affichage (nom/photo de l’autre)
+    const items = [];
+    for (const d of snap.docs){
+      const c = { id:d.id, ...d.data() };
+      const other = (c.members||[]).find(x=>x!==ME.uid);
+      if (other){
+        c._peer = await getProfile(other);
+      }
+      items.push(c);
+    }
+    // tri client par lastAt décroissant si dispo
+    items.sort((a,b)=>{
+      const ta = a.lastAt?.toMillis ? a.lastAt.toMillis() : 0;
+      const tb = b.lastAt?.toMillis ? b.lastAt.toMillis() : 0;
+      return tb - ta;
     });
 
-    document.getElementById('btnRefresh').addEventListener('click', async ()=>{
-      showToast('Actualisation…');
-      try{ await auth.currentUser?.reload(); showToast('État mis à jour'); }
-      catch(e){ showToast('Erreur'); }
+    convList.innerHTML = "";
+    if(items.length===0){
+      const empty = document.createElement("div");
+      empty.className="empty";
+      empty.textContent = "Pas encore de conversations. Lance la première via l’e-mail à gauche.";
+      convList.appendChild(empty);
+    } else {
+      for (const c of items) convList.appendChild(renderConvItem(c));
+    }
+
+    // Marque active si déjà ouverte
+    [...convList.querySelectorAll(".conv")].forEach(n=>{
+      if(n.dataset.cid===activeConvId) n.classList.add("active"); else n.classList.remove("active");
     });
-  </script>
-  <script src="chat.js"></script>
+  }, (err)=>console.error("Conversations watch error:", err));
+}
+
+/* ====== Open / Create conversation ====== */
+async function ensureConversationWith(peerUid){
+  if (!peerUid || peerUid===ME.uid) throw new Error("UID cible invalide.");
+  const cid = convIdFor(ME.uid, peerUid);
+  const ref = doc(db,"conversations", cid);
+  const s = await getDoc(ref);
+  if(!s.exists()){
+    // Respecte les règles : exactly 2 members et l’auteur est dans members
+    await setDoc(ref, {
+      members: [ME.uid, peerUid],
+      createdAt: serverTimestamp(),
+      lastAt: serverTimestamp(),
+      lastMessage: { from: ME.uid, text: "👋", createdAt: serverTimestamp() }
+    }, { merge:false });
+
+    // crée aussi le premier message “hello” pour éviter une convo vide
+    await addDoc(collection(ref,"messages"), {
+      from: ME.uid, text: "👋", createdAt: serverTimestamp()
+    });
+  }
+  return cid;
+}
+
+async function openConversation(cid, peerUid){
+  // Nettoie l’ancien flux si besoin
+  if (unsubMessages) { unsubMessages(); unsubMessages=null; }
+  activeConvId = cid;
+  activePeerUid = peerUid;
+
+  // UI header destinataire
+  const peer = await getProfile(peerUid);
+  peerAvatar.src = peer.photoURL || "https://images.unsplash.com/photo-1502685104226-ee32379fefbe?q=80&w=200&auto=format&fit=crop";
+  peerName.textContent = peer.name || peer.displayName || "Utilisateur";
+  peerCity.textContent = peer.city ? `📍 ${peer.city}` : "";
+
+  chatHead.hidden = false;
+  emptyChat.hidden = true;
+  chatMain.hidden = false;
+  chatMain.innerHTML = "";
+  chatInput.hidden = false;
+
+  // Si mail non vérifié → on laisse lire mais on bloque l’envoi
+  btnSend.disabled = !ME.emailVerified;
+  msgInput.disabled = !ME.emailVerified;
+
+  // Ecoute temps réel des messages
+  const ref = doc(db,"conversations", cid);
+  const q = query(collection(ref,"messages"), orderBy("createdAt","asc"), limit(500));
+  unsubMessages = onSnapshot(q, (snap)=>{
+    chatMain.innerHTML = "";
+    snap.forEach(doc=> appendMessage(doc.data()));
+  }, (err)=>console.error("Messages watch error:", err));
+
+  // Marque active dans la liste
+  [...convList.querySelectorAll(".conv")].forEach(n=>{
+    if(n.dataset.cid===activeConvId) n.classList.add("active"); else n.classList.remove("active");
+  });
+}
+
+/* ====== Send message ====== */
+async function sendMessage(){
+  const text = (msgInput.value || "").trim();
+  if (!text) return;
+  if (!activeConvId || !activePeerUid) return alert("Choisis une conversation d’abord.");
+  if (!ME.emailVerified){ alert("Valide ton e-mail avant d’envoyer des messages."); return; }
+
+  const ref = doc(db,"conversations", activeConvId);
+  // Ajout message
+  await addDoc(collection(ref,"messages"), { from: ME.uid, text, createdAt: serverTimestamp() });
+  // Mise à jour convo (autorisé par tes règles: membre → update ok)
+  await setDoc(ref, { lastMessage:{ from: ME.uid, text, createdAt: serverTimestamp() }, lastAt: serverTimestamp() }, { merge:true });
+
+  msgInput.value = "";
+  msgInput.focus();
+}
+
+/* ====== Start chat by email ====== */
+async function startByEmail(){
+  const email = (emailStart.value||"").trim().toLowerCase();
+  if(!email) return;
+  if(!ME?.uid) return;
+
+  // Recherche dans "profiles" (lecture publique selon tes règles)
+  const q = query(collection(db,"profiles"), where("email","==", email), limit(1));
+  const s = await getDocs(q);
+  if(s.empty){ return alert("Aucun profil trouvé pour cet e-mail."); }
+  const peerUid = s.docs[0].data().uid;
+  if(!peerUid) return alert("Profil cible invalide.");
+  const cid = await ensureConversationWith(peerUid);
+  await openConversation(cid, peerUid);
+}
+
+/* ====== URL param ?to=UID ====== */
+function getParam(name){ return new URL(location.href).searchParams.get(name); }
+
+/* ====== Auth flow ====== */
+onAuthStateChanged(auth, async (user)=>{
+  if(!user){ location.href="login.html#login"; return; }
+
+  ME = { uid:user.uid, email:user.email||"", emailVerified: !!user.emailVerified };
+  verifyBanner.hidden = ME.emailVerified;
+
+  // boutons
+  btnLogout.onclick = async ()=>{ await signOut(auth); location.href="login.html"; };
+  btnResend?.addEventListener("click", async ()=>{
+    try{
+      const actionCodeSettings={ url:"https://lovenow.netlify.app/login.html?verified=1", handleCodeInApp:false };
+      await sendEmailVerification(auth.currentUser, actionCodeSettings);
+      alert("Lien de vérification envoyé ✅");
+    }catch(e){ console.error(e); alert("Échec envoi lien"); }
+  });
+  btnRefresh?.addEventListener("click",()=>location.reload());
+
+  btnSend.addEventListener("click", sendMessage);
+  msgInput.addEventListener("keydown",(e)=>{ if(e.key==="Enter") sendMessage(); });
+  btnStart.addEventListener("click", startByEmail);
+
+  // Liste des conversations
+  watchConversations();
+
+  // Si ?to=UID présent : crée/ouvre la convo automatiquement
+  const to = getParam("to");
+  if(to){
+    try{
+      const cid = await ensureConversationWith(to);
+      await openConversation(cid, to);
+    }catch(e){ console.error(e); }
+  }
+});
+</script>
 </body>
 </html>
