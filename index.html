@@ -62,10 +62,9 @@
         <div class="grow"></div>
         <a href="/#discover" class="ghost btn">Découvrir</a>
         <a href="/conversations.html" class="ghost btn">Conversations</a>
-        <a href="/profile.html" class="ghost btn">Mon profil</a>
         <a href="/privacy.html" class="ghost btn">Confidentialité</a>
         <a href="/cgu.html" class="ghost btn">CGU</a>
-        <a href="/login.html#signup" class="btn">Rejoins-nous gratuitement</a>
+        <span id="header-session"></span>
       </nav>
     </div>
   </header>
@@ -117,6 +116,7 @@
 
         <div id="results" class="cards" aria-live="polite"></div>
         <p id="empty-hint" class="muted" style="display:none">Ajuste les filtres ou complète ton profil pour voir plus de résultats.</p>
+        <p style="text-align:center"><button id="btnMore" class="btn" type="button" style="display:none">Charger plus…</button></p>
       </div>
     </section>
   </main>
@@ -129,19 +129,35 @@
     </div>
   </footer>
 
-  <script>
-    // --- STATE & DATA (demo local) ---
-    const state = { filters: {}, data: [] }; // data: à brancher sur ta source réelle
+  <script src="/js/firebase-config.js"></script>
+  <script type="module">
+    import { onAuthStateChanged, listenProfiles, queryProfilesOnce, signOut } from './js/firebase.js';
 
-    // Placeholder minimal pour la démo : tableau vide -> skeletons
-    state.data = []; // laisse vide par défaut
+    // --- STATE ---
+    const state = { filters: {}, lastDoc: null };
 
     const $ = s => document.querySelector(s);
     const resultsEl = $('#results');
     const emptyHintEl = $('#empty-hint');
     const toast = $('#toast');
+    const btnMore = $('#btnMore');
+    let currentUser = null;
 
     function showToast(msg){ toast.textContent = msg; toast.style.display='block'; setTimeout(()=>toast.style.display='none', 2500); }
+
+    onAuthStateChanged(u => {
+      currentUser = u;
+      const slot = document.getElementById('header-session');
+      if(slot){
+        if(u){
+          const initial = (u.displayName||u.email||'?')[0].toUpperCase();
+          slot.innerHTML = `<a href="/profile.html" class="ghost btn">${initial}</a> <button id="btnSignOut" class="ghost btn">Se déconnecter</button>`;
+          document.getElementById('btnSignOut').onclick = ()=>signOut();
+        }else{
+          slot.innerHTML = `<a href="/login.html#signup" class="btn">Rejoins-nous gratuitement</a>`;
+        }
+      }
+    });
 
     // URL <-> state
     function readURL(){
@@ -172,24 +188,37 @@
       resultsEl.innerHTML = Array.from({length:n}).map(()=>'<div class="skel" aria-hidden="true"></div>').join('');
       emptyHintEl.style.display = 'block';
     }
-    function renderCards(items){
-      if(!items.length){ renderSkeletons(); return; }
-      emptyHintEl.style.display = 'none';
-      resultsEl.innerHTML = items.map(it => `
+    function renderCards(items, append=false){
+      if(!append){ resultsEl.innerHTML = ''; }
+      if(!items.length && !append){ renderSkeletons(); return; }
+      emptyHintEl.style.display = items.length ? 'none':'block';
+      const html = items.map(it => `
         <article class="card" tabindex="0" aria-label="Profil">
-          <div style="font-weight:700">${it.name || 'Prénom'}</div>
+          <div style="font-weight:700">${it.displayName || 'Prénom'}</div>
           <div class="muted">${(it.age||'—')} ans · ${it.city||'—'}</div>
           <p>${it.bio || '—'}</p>
-          <a class="btn ghost" href="/login.html#signup">Dire bonjour</a>
+          <a class="btn ghost" href="${currentUser?'/conversations.html':'/login.html#signup'}">Dire bonjour</a>
         </article>
       `).join('');
+      resultsEl.insertAdjacentHTML('beforeend', html);
     }
 
-    function applyFilters(){
-      // Ici, filtre state.data selon state.filters si tu as des données
-      const items = []; // filtrage réel à implémenter si data existe
-      renderCards(items);
+    async function applyFilters(){
+      renderSkeletons();
+      const { profiles, lastDoc } = await queryProfilesOnce({ filters: state.filters, pageSize: 6 });
+      state.lastDoc = lastDoc;
+      renderCards(profiles);
+      btnMore.style.display = lastDoc ? 'inline-block' : 'none';
     }
+
+    btnMore.addEventListener('click', async ()=>{
+      btnMore.disabled = true;
+      const { profiles, lastDoc } = await queryProfilesOnce({ filters: state.filters, pageSize:6, startAfterDoc: state.lastDoc });
+      state.lastDoc = lastDoc;
+      renderCards(profiles, true);
+      btnMore.disabled = false;
+      if(!lastDoc) btnMore.style.display='none';
+    });
 
     // Events
     $('#btnSearch').addEventListener('click', () => {
