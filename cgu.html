@@ -1,45 +1,38 @@
+<!-- cgu.html — LoveNow (Conditions Générales, rappel 18+, SEO/OG) -->
 <!doctype html>
-<html lang="fr">
+<html lang="fr" data-theme="light">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>LoveNow — CGU</title>
-<meta name="description" content="Conditions Générales d’Utilisation de LoveNow."/>
-<link rel="canonical" href="https://lovenow.netlify.app/cgu"/>
-<meta property="og:title" content="LoveNow — CGU"/>
-<meta property="og:description" content="Conditions Générales d’Utilisation de LoveNow."/>
-<meta property="og:url" content="https://lovenow.netlify.app/cgu"/>
-<meta property="og:image" content="https://via.placeholder.com/1200x630.png?text=LoveNow"/>
-<meta name="twitter:card" content="summary_large_image"/>
-<style>
-body{margin:0;background:#0f1115;color:#e9edf6;font-family:Inter,system-ui}
-.wrap{max-width:900px;margin:0 auto;padding:20px}
-a{color:#9ecbff}.card{background:#171922;border:1px solid #202334;border-radius:.9rem;padding:16px}
-.btn{display:inline-flex;align-items:center;gap:6px;padding:.6rem .9rem;border-radius:.6rem;background:#1a1e2b;border:1px solid #27314a}
-:focus{outline:3px auto;outline-offset:2px}
-</style>
-<script src="config.js"></script>
-<script>
-document.addEventListener("DOMContentLoaded",()=>{
-  const email = window.APP_CONFIG?.legal?.editorEmail || "contact@lovenow.app";
-  document.getElementById("legalEmail").textContent = email;
-});
-</script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>LoveNow — Conditions Générales d’Utilisation</title>
+  <meta name="description" content="CGU LoveNow : règles d’utilisation, responsabilités, et conditions du service (18+)." />
+  <link rel="canonical" href="https://lovenow.netlify.app/cgu" />
+  <meta property="og:title" content="LoveNow — CGU">
+  <meta property="og:description" content="Règles d’utilisation du service LoveNow (18+).">
+  <meta property="og:url" content="https://lovenow.netlify.app/cgu">
+  <meta property="og:image" content="/assets/og-default.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <style>
+    body{margin:0;font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Arial;color:#111}
+    .wrap{max-width:900px;margin:0 auto;padding:24px 16px}
+    h1,h2{line-height:1.2}
+    :focus{outline:3px auto;outline-offset:2px}
+  </style>
 </head>
 <body>
-<div class="wrap">
-  <a class="btn" href="index.html">← Retour à l’accueil</a>
-  <h1>Conditions Générales d’Utilisation</h1>
-  <div class="card">
-    <h2>1. Objet</h2><p>Accès et utilisation de LoveNow.</p>
-    <h2>2. Inscription</h2><p>Réservée aux 18 ans et plus. Messagerie après vérification e-mail.</p>
-    <h2>3. Règles de conduite</h2>
-    <ul><li>Respect d’autrui, pas de spam/fraude.</li><li>Signalement et blocage possibles.</li></ul>
-    <h2>4. Responsabilités</h2><p>Service « en l’état ». L’éditeur n’est pas responsable des rencontres effectuées via la plateforme.</p>
-    <h2>5. Suspension</h2><p>En cas de violation, le compte peut être suspendu/supprimé.</p>
-    <h2>6. Données personnelles</h2><p>Voir la <a href="privacy.html">Politique de confidentialité</a>.</p>
-    <h2>7. Contact</h2><p>Contact : <span id="legalEmail">contact@lovenow.app</span></p>
+  <div class="wrap">
+    <a href="/" aria-label="Retour accueil">← Accueil</a>
+    <h1>Conditions Générales d’Utilisation</h1>
+    <p>En utilisant LoveNow, vous acceptez les présentes CGU. Le service est réservé aux personnes de <strong>18 ans et plus</strong>.</p>
+
+    <h2>Utilisation</h2>
+    <p>Respect des autres membres, absence de spam, contenus conformes aux lois en vigueur.</p>
+
+    <h2>Responsabilités</h2>
+    <p>LoveNow fournit une mise en relation ; chaque utilisateur reste responsable de son comportement et de ses contenus.</p>
+
+    <h2>Confidentialité</h2>
+    <p>Consultez notre <a href="/privacy.html">Politique de confidentialité</a> pour les informations relatives aux données personnelles.</p>
   </div>
-</div>
 </body>
 </html>
