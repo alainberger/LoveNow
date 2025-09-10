@@ -1,86 +1,244 @@
 <!doctype html>
-<html lang="fr" data-theme="light">
+<html lang="fr" data-theme="dark">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>LoveNow — Mon profil</title>
-  <meta name="description" content="Éditez votre profil LoveNow : prénom/pseudo, ville, âge, bio.">
-  <link rel="canonical" href="https://lovenow.netlify.app/profile">
-  <meta property="og:title" content="LoveNow — Mon profil">
-  <meta property="og:description" content="Mettez à jour votre profil LoveNow.">
-  <meta property="og:url" content="https://lovenow.netlify.app/profile">
-  <meta property="og:image" content="/assets/og-default.jpg">
-  <meta name="twitter:card" content="summary_large_image">
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Mon profil — LoveNow</title>
+  <meta name="description" content="Gère ton profil LoveNow : photo, bio, ville, âge, genre."/>
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" as="style" onload="this.rel='stylesheet'"/>
   <style>
-    body{ margin:0; font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial; color:#111 }
-    .wrap{ max-width:760px; margin:0 auto; padding:24px 16px }
-    label{ font-weight:600; display:block; margin-top:10px }
-    input,textarea,select{ width:100%; padding:.6rem .7rem; border:1px solid #ddd; border-radius:10px }
-    textarea{ min-height:120px }
-    .btn{ margin-top:12px; display:inline-block; padding:.65rem 1rem; border-radius:10px; border:1px solid transparent; background:#0AAEEF; color:#fff; font-weight:600 }
-    .muted{ color:#666 }
-    :focus{ outline:3px auto; outline-offset:2px }
-    #toast{ position:fixed; left:50%; transform:translateX(-50%); bottom:14px; background:#111; color:#fff; padding:.7rem 1rem; border-radius:10px; display:none }
+    :root{--bg:#0f1115;--card:#171922;--muted:#aab1c3;--text:#e9edf6;--brand:#ff2d55;--brand2:#7a5cf0}
+    *{box-sizing:border-box}
+    html,body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui}
+    a{color:inherit;text-decoration:none}
+    .wrap{max-width:900px;margin:0 auto;padding:16px}
+    header{position:sticky;top:0;z-index:5;background:rgba(15,17,21,.7);backdrop-filter:saturate(140%) blur(8px);border-bottom:1px solid #202334}
+    nav{display:flex;gap:8px;align-items:center;padding:10px 0}
+    .spacer{flex:1}
+    .btn{display:inline-flex;align-items:center;justify-content:center;padding:.6rem .9rem;border-radius:.6rem;background:#232739;border:1px solid #2b2f44;cursor:pointer}
+    .btn-primary{background:linear-gradient(135deg,var(--brand),var(--brand2));border:none}
+    .card{background:var(--card);border:1px solid #202334;border-radius:.9rem;padding:16px}
+    label{display:block;margin:10px 0 6px;color:var(--muted)}
+    input,select,textarea{width:100%;padding:.7rem;border-radius:.6rem;background:#0f1115;border:1px solid #2b2f44;color:#e9edf6}
+    .row{display:grid;grid-template-columns:1fr;gap:12px}
+    @media(min-width:720px){.row{grid-template-columns:1fr 1fr}}
+    .photo{display:flex;gap:12px;align-items:center}
+    .photo img{width:108px;height:108px;border-radius:12px;object-fit:cover;background:#0c0e12;border:1px solid #2b2f44}
+    .muted{color:var(--muted)}
+    .banner{background:#1a1e2b;border:1px solid #27314a;border-radius:.8rem;padding:.6rem .8rem;margin:12px 0;display:flex;gap:8px;justify-content:space-between;align-items:center}
+    .toast{position:fixed;right:16px;bottom:16px;background:#111522;border:1px solid #22304a;padding:8px 12px;border-radius:8px;display:none}
+    .tiny{font-size:.85rem;color:#aab1c3}
   </style>
+  <script src="config.js"></script>
 </head>
 <body>
+<header>
   <div class="wrap">
-    <a href="/" aria-label="Retour accueil">← Accueil</a>
-    <h1>Mon profil</h1>
-    <form id="profileForm">
-      <label for="name">Prénom/Pseudo</label>
-      <input id="name" required>
-      <label for="city">Ville</label>
-      <input id="city" placeholder="Paris">
-      <label for="age">Âge</label>
-      <input id="age" type="number" min="18" max="99" required>
-      <label for="gender">Genre</label>
-      <select id="gender">
-        <option value="">—</option><option value="f">Femme</option><option value="m">Homme</option><option value="o">Autre</option>
-      </select>
-      <label for="bio">Bio</label>
-      <textarea id="bio" maxlength="600" placeholder="Parlez un peu de vous…"></textarea>
-      <button class="btn" id="btnSave" type="submit">Enregistrer</button>
-    </form>
+    <nav>
+      <a class="btn" href="index.html">← Accueil</a>
+      <strong>Mon profil</strong>
+      <span class="spacer"></span>
+      <a class="btn" href="conversations.html">Mes conversations</a>
+      <button id="btnLogout" class="btn">Se déconnecter</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <div id="verifyBanner" class="banner" hidden>
+    <div>E-mail non vérifié. Vérifie ton e-mail pour débloquer toutes les fonctions.</div>
+    <div style="display:flex;gap:8px">
+      <button id="btnResend" class="btn">Renvoyer le lien</button>
+      <button id="btnRefresh" class="btn">Rafraîchir</button>
+    </div>
   </div>
 
-  <div id="toast" role="status" aria-live="polite"></div>
+  <div class="card">
+    <div class="tiny" id="debugId"></div>
 
-  <script src="/config.js"></script>
-  <script type="module">
-    import { onAuthStateChanged, getProfileDoc, updateProfileDoc } from '/js/firebase.js';
-    const $ = s=>document.querySelector(s);
-    const toast = document.getElementById('toast');
-    const showToast = m => { toast.textContent=m; toast.style.display='block'; setTimeout(()=>toast.style.display='none', 2200); };
+    <div class="photo">
+      <img id="avatar" src="" alt="Ta photo">
+      <div>
+        <input id="file" type="file" accept="image/*">
+        <div class="muted" style="font-size:.9rem">JPG/PNG/WebP ≤ 5 Mo — hébergé sur Cloudinary.</div>
+        <button id="btnUpload" class="btn" style="margin-top:8px">Téléverser la photo</button>
+      </div>
+    </div>
 
-    onAuthStateChanged(async (u)=>{
-      if(!u) { location.href='/login.html#signup'; return; }
-      const doc = await getProfileDoc(u.uid);
-      if(doc){
-        $('#name').value = doc.displayName||'';
-        $('#city').value = doc.city||'';
-        $('#age').value = doc.age||'';
-        $('#gender').value = doc.gender||'';
-        $('#bio').value = doc.bio||'';
-      }
-    });
+    <div class="row" style="margin-top:12px">
+      <div>
+        <label for="name">Nom / Pseudo</label>
+        <input id="name" required>
+      </div>
+      <div>
+        <label for="city">Ville</label>
+        <input id="city" placeholder="ex. Paris">
+      </div>
+    </div>
 
-    document.getElementById('profileForm').addEventListener('submit', async (e)=>{
-      e.preventDefault();
-      const btn = document.getElementById('btnSave'); btn.disabled=true; const t=btn.textContent; btn.textContent='Enregistrement…';
+    <div class="row">
+      <div>
+        <label for="age">Âge</label>
+        <input id="age" type="number" min="18" max="99" required>
+      </div>
+      <div>
+        <label for="gender">Genre</label>
+        <select id="gender">
+          <option value="F">Femme</option>
+          <option value="M">Homme</option>
+          <option value="O">Autre</option>
+        </select>
+      </div>
+    </div>
+
+    <label for="bio">Bio</label>
+    <textarea id="bio" rows="4" placeholder="Parle un peu de toi…"></textarea>
+
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button id="btnSave" class="btn btn-primary">Enregistrer</button>
+      <a class="btn" href="index.html">Retour</a>
+    </div>
+    <p class="muted" style="margin-top:8px">Astuce : ton profil s’affiche en découverte si nom/âge/ville/genre/bio sont renseignés.</p>
+  </div>
+</main>
+
+<div id="toast" class="toast"></div>
+
+<!-- Firebase + Firestore + AppCheck -->
+<script type="module">
+  // ====== Boot ======
+  const cfg = window.APP_CONFIG?.firebase;
+  const siteKey = window.APP_CONFIG?.appCheck?.recaptchaV3SiteKey;
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+  import { getAuth, onAuthStateChanged, updateProfile, sendEmailVerification, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+  import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app-check.js";
+  import { getFirestore, doc, getDoc, setDoc, serverTimestamp, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+  const app = initializeApp(cfg);
+  if (siteKey) initializeAppCheck(app, { provider: new ReCaptchaV3Provider(siteKey), isTokenAutoRefreshEnabled: true });
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  const $ = s => document.querySelector(s);
+  const toast = (t)=>{ const el=$("#toast"); el.textContent=t; el.style.display="block"; setTimeout(()=>el.style.display="none",2200); };
+
+  // Cloudinary (unsigned)
+  const CLOUD = {
+    cloudName: window.APP_CONFIG?.cloudinary?.cloudName,
+    preset:    window.APP_CONFIG?.cloudinary?.unsignedPreset
+  };
+
+  // Refs UI
+  const avatar=$("#avatar"), file=$("#file");
+  const name=$("#name"), city=$("#city"), age=$("#age"), gender=$("#gender"), bio=$("#bio");
+  const verifyBanner=$("#verifyBanner"), btnResend=$("#btnResend"), btnRefresh=$("#btnRefresh");
+  const debugId=$("#debugId");
+
+  // ====== Helpers ======
+  const fillInputs = (data={}, user={})=>{
+    // n’écrase pas pendant un upload/sauvegarde locale
+    name.value   = data.name   ?? user.displayName ?? "";
+    city.value   = data.city   ?? "";
+    age.value    = (data.age ?? "") === null ? "" : (data.age ?? "");
+    gender.value = data.gender ?? "O";
+    bio.value    = data.bio    ?? "";
+    avatar.src   = data.photoURL || user.photoURL || "https://images.unsplash.com/photo-1502685104226-ee32379fefbe?q=80&w=800&auto=format&fit=crop";
+  };
+
+  const ensureProfileDoc = async (uid, user)=>{
+    const ref = doc(db,"profiles",uid);
+    const s = await getDoc(ref);
+    if (!s.exists()){
+      await setDoc(ref,{
+        uid, email: user.email || "",
+        name: user.displayName || "",
+        age: null, gender:"O", city:"", bio:"",
+        photoURL: user.photoURL || "",
+        createdAt: serverTimestamp(), updatedAt: serverTimestamp()
+      }, { merge:true });
+    }
+    return ref;
+  };
+
+  // ====== Main flow ======
+  onAuthStateChanged(auth, async (user)=>{
+    if(!user){ location.href="login.html#login"; return; }
+
+    // Debug utile pour éviter le mauvais UID
+    debugId.textContent = `Connecté : ${user.email || ""} — UID: ${user.uid}`;
+    const verified = !!user.emailVerified;
+    document.documentElement.dataset.verified = verified ? "true" : "false";
+    verifyBanner.hidden = verified;
+
+    // Crée le doc au besoin puis abonne-toi en TEMPS RÉEL
+    const ref = await ensureProfileDoc(user.uid, user);
+
+    // Live listener → remplit les champs à chaque update (upload, save, autre device)
+    onSnapshot(ref, (snap)=>{
+      const data = snap.data() || {};
+      fillInputs(data, user);
+    }, (err)=>console.error("onSnapshot error:", err));
+
+    // Save profil
+    $("#btnSave").onclick = async ()=>{
+      const payload = {
+        name: name.value.trim(),
+        city: city.value.trim(),
+        age:  Number(age.value)||null,
+        gender: gender.value,
+        bio:  bio.value.trim(),
+        updatedAt: serverTimestamp()
+      };
+      await setDoc(ref, payload, { merge:true });
+      // Réplique côté Auth (affichage nom/photo sur d’autres pages)
       try{
-        await updateProfileDoc({
-          displayName: $('#name').value.trim(),
-          city: $('#city').value.trim(),
-          age: parseInt($('#age').value,10),
-          gender: $('#gender').value,
-          bio: $('#bio').value.trim()
-        });
-        showToast('Profil enregistré');
-      }catch(ex){ alert(ex?.message||'Erreur'); }
-    finally{ btn.disabled=false; btn.textContent=t; }
+        if (auth.currentUser) {
+          const upd = {};
+          if (payload.name && payload.name !== (auth.currentUser.displayName||"")) upd.displayName = payload.name;
+          if (Object.keys(upd).length) await updateProfile(auth.currentUser, upd);
+        }
+      }catch(e){ console.warn("updateProfile name:", e); }
+      toast("Profil enregistré ✅");
+    };
+
+    // Logout
+    $("#btnLogout").onclick = async ()=>{ await signOut(auth); location.href="login.html"; };
+
+    // Verify banner actions
+    btnResend?.addEventListener("click", async ()=>{
+      try{
+        const actionCodeSettings={ url:"https://lovenow.netlify.app/login.html?verified=1", handleCodeInApp:false };
+        await sendEmailVerification(auth.currentUser, actionCodeSettings);
+        toast("Lien envoyé ✅");
+      }catch(e){ console.error(e); toast("Échec envoi lien"); }
+    });
+    btnRefresh?.addEventListener("click",()=>location.reload());
+
+    // Upload Cloudinary (unsigned preset)
+    $("#btnUpload").onclick = async ()=>{
+      const f = file.files?.[0];
+      if(!f){ alert("Choisis d’abord une image."); return; }
+      if(f.size > 5*1024*1024){ alert("Fichier trop lourd (max 5 Mo)."); return; }
+      if(!CLOUD.cloudName || !CLOUD.preset){ alert("Cloudinary non configuré dans config.js"); return; }
+
+      try{
+        const fd = new FormData();
+        fd.append("file", f);
+        fd.append("upload_preset", CLOUD.preset);
+        const up = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD.cloudName}/image/upload`, { method:"POST", body: fd });
+        const out = await up.json();
+        if(!out.secure_url){ throw new Error(out.error?.message || "Upload échoué"); }
+
+        // Écrit l’URL et laisse onSnapshot rafraîchir l’UI
+        await setDoc(ref, { photoURL: out.secure_url, updatedAt: serverTimestamp() }, { merge:true });
+        try{ await updateProfile(auth.currentUser, { photoURL: out.secure_url }); }catch{}
+        toast("Photo mise à jour ✅");
+      }catch(e){
+        console.error(e);
+        alert("Impossible de téléverser la photo : " + e.message);
+      }
+    };
   });
-  </script>
-  <script src="chat.js"></script>
+</script>
 </body>
 </html>
