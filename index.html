@@ -35,11 +35,19 @@
     input,select{ width:100%; padding:.6rem .7rem; border:1px solid #ddd; border-radius:10px }
     .actions{ display:flex; gap:8px; flex-wrap:wrap }
     .muted{ color:var(--muted) }
+    .banner{background:#fff5c4;border:1px solid #ffe58f;border-radius:8px;padding:.6rem .8rem;margin:8px 16px;display:flex;gap:8px;justify-content:space-between;align-items:center}
     .skel{ border-radius:12px; background:linear-gradient(90deg,#eee 25%,#f6f6f6 37%,#eee 63%); background-size:400% 100%; animation:shimmer 1.2s infinite; height:140px }
     @keyframes shimmer{ 0%{background-position:100% 0} 100%{background-position:-100% 0} }
     :focus{ outline:3px auto; outline-offset:2px }
     #toast{ position:fixed; left:50%; transform:translateX(-50%); bottom:14px; min-width:260px; background:#111; color:#fff; padding:.7rem 1rem; border-radius:10px; box-shadow:0 10px 30px rgba(0,0,0,.25); z-index:99; display:none }
   </style>
+  <script src="config.js"></script>
+  <script>
+    if(window.APP_CONFIG?.chat?.provider === 'crisp' && window.APP_CONFIG.chat.siteId){
+      window.$crisp=[];window.CRISP_WEBSITE_ID=window.APP_CONFIG.chat.siteId;
+      (function(){var d=document,s=d.createElement('script');s.src='https://client.crisp.chat/l.js';s.async=1;d.head.appendChild(s);})();
+    }
+  </script>
 </head>
 <body>
   <header>
@@ -56,6 +64,14 @@
       </nav>
     </div>
   </header>
+
+  <div id="verifyBanner" class="banner" hidden>
+    <div>Adresse e-mail non vérifiée.</div>
+    <div style="display:flex;gap:8px">
+      <button id="btnResend" class="btn">Envoyer le lien</button>
+      <button id="btnRefresh" class="btn">Rafraîchir</button>
+    </div>
+  </div>
 
   <main>
     <section class="hero">
@@ -113,77 +129,108 @@
     </div>
   </footer>
 
-  <script src="/config.js"></script>
   <script type="module">
-    import { onAuthStateChanged, signOut, listenProfiles } from '/js/firebase.js';
-    import { loadChat } from '/js/chat.js';
-    const $ = s => document.querySelector(s);
-    const resultsEl = $('#results'), emptyHintEl = $('#empty-hint'), toast = $('#toast');
+    const cfg = window.APP_CONFIG?.firebase;
+    const siteKey = window.APP_CONFIG?.appCheck?.recaptchaV3SiteKey;
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app-check.js";
+    import { getFirestore, collection, query, where, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-    const showToast = msg => { toast.textContent=msg; toast.style.display='block'; setTimeout(()=>toast.style.display='none', 2200); };
-    function renderSkeletons(n=6){ resultsEl.innerHTML = Array.from({length:n}).map(()=>'<div class="skel" aria-hidden="true"></div>').join(''); emptyHintEl.style.display='block'; }
+    const app = initializeApp(cfg);
+    if(siteKey) initializeAppCheck(app,{provider:new ReCaptchaV3Provider(siteKey), isTokenAutoRefreshEnabled:true});
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
+
+    const $ = s=>document.querySelector(s);
+    const resultsEl=$('#results'), emptyHintEl=$('#empty-hint'), toast=$('#toast');
+    const verifyBanner=$('#verifyBanner'), btnResend=$('#btnResend'), btnRefresh=$('#btnRefresh');
+
+    let currentUser=null;
+
+    const showToast = msg=>{toast.textContent=msg;toast.style.display='block';setTimeout(()=>toast.style.display='none',2200);};
+    function renderSkeletons(n=6){resultsEl.innerHTML=Array.from({length:n}).map(()=>'<div class="skel" aria-hidden="true"></div>').join('');emptyHintEl.style.display='block';}
+    const DEMO=[
+      {uid:'demo1',name:'Alice',age:25,city:'Paris',bio:'Profil démo'},
+      {uid:'demo2',name:'Bob',age:30,city:'Lyon',bio:'Profil démo'}
+    ];
     function renderCards(items){
-      if(!items.length){ renderSkeletons(); return; }
+      if(!items.length){renderSkeletons();return;}
       emptyHintEl.style.display='none';
-      resultsEl.innerHTML = items.map(p => `
-        <article class="card" tabindex="0" aria-label="Profil">
-          <div style="font-weight:700">${p.displayName||'—'}</div>
+      resultsEl.innerHTML=items.map(p=>{
+        const id=p.uid||p.id||'';
+        const msgLink=(currentUser&&currentUser.emailVerified)?`/conversations.html?with=${id}`:'/login.html#login';
+        return `<article class="card" tabindex="0" aria-label="Profil">
+          <div style="font-weight:700">${p.name||p.displayName||'—'}</div>
           <div class="muted">${(p.age??'—')} ans · ${p.city||'—'}</div>
           <p>${p.bio||'—'}</p>
-          <a class="btn ghost" href="/login.html#signup">Dire bonjour</a>
-        </article>
-      `).join('');
+          <div class="actions"><a class="btn ghost" href="/profile-public.html?id=${id}">Voir le profil</a><a class="btn" href="${msgLink}">Message</a></div>
+        </article>`;
+      }).join('');
     }
 
-    // Header session
-    onAuthStateChanged(u=>{
-      const slot = document.getElementById('header-session');
-      if(!slot) return;
-      if(u){
-        const initial = (u.displayName||u.email||'?')[0].toUpperCase();
-        slot.innerHTML = `<a href="/profile.html" class="ghost btn">${initial}</a> <button class="ghost btn" id="btnSignOut">Se déconnecter</button>`;
-        document.getElementById('btnSignOut').onclick = ()=> signOut().then(()=>location.reload());
-      }else{
-        slot.innerHTML = `<a href="/login.html#signup" class="btn">Rejoins-nous gratuitement</a>`;
-      }
-    });
-
-    // Filtres -> temps réel
-    const state = { filters:{} };
-    function apply(filters){
-      renderSkeletons();
-      listenProfiles({ filters, pageSize:12, onNext: (profiles)=>renderCards(filterByAge(profiles)) });
+    async function fetchProfiles(filters={}){
+      const clauses=[];
+      if(filters.gender) clauses.push(where('gender','==',filters.gender));
+      if(filters.city) clauses.push(where('city','==',filters.city));
+      const q=query(collection(db,'profiles'),...clauses,orderBy('createdAt','desc'),limit(200));
+      const snap=await getDocs(q);
+      return snap.docs.map(d=>d.data());
     }
     function filterByAge(list){
-      const min = parseInt($('#ageMin').value,10);
-      const max = parseInt($('#ageMax').value,10);
+      const min=parseInt($('#ageMin').value,10);
+      const max=parseInt($('#ageMax').value,10);
       return list.filter(p=>{
-        const a = parseInt(p.age,10);
-        if(Number.isFinite(min) && a < min) return false;
-        if(Number.isFinite(max) && a > max) return false;
+        const a=parseInt(p.age,10);
+        if(Number.isFinite(min) && a<min) return false;
+        if(Number.isFinite(max) && a>max) return false;
         return true;
       });
     }
-    document.getElementById('btnSearch').onclick = ()=>{
-      const f = document.getElementById('filters');
-      state.filters = { gender:f.gender.value.trim(), city:f.city.value.trim() };
-      const p = new URLSearchParams();
-      const vals = {gender:state.filters.gender, ageMin:f.ageMin.value.trim(), ageMax:f.ageMax.value.trim(), city:state.filters.city};
-      for(const [k,v] of Object.entries(vals)){ if(v) p.set(k,v); }
-      history.replaceState({},'',p.toString()?`?${p}`:location.pathname);
+    async function apply(filters){
+      renderSkeletons();
+      try{
+        const list=await fetchProfiles(filters);
+        const final=filterByAge(list);
+        renderCards(final.length?final:DEMO);
+      }catch(e){console.error(e);renderCards(DEMO);}
+    }
+
+    const state={filters:{}};
+    document.getElementById('btnSearch').onclick=()=>{
+      const f=document.getElementById('filters');
+      state.filters={gender:f.gender.value.trim(),city:f.city.value.trim()};
+      const p=new URLSearchParams();
+      const vals={gender:state.filters.gender,ageMin:f.ageMin.value.trim(),ageMax:f.ageMax.value.trim(),city:state.filters.city};
+      for(const [k,v] of Object.entries(vals)){if(v) p.set(k,v);} history.replaceState({},'',p.toString()?`?${p}`:location.pathname);
       apply(state.filters);
     };
-    document.getElementById('btnReset').onclick = ()=>{
-      document.getElementById('filters').reset();
-      state.filters={}; history.replaceState({},'',location.pathname);
-      renderCards([]); showToast('Filtres réinitialisés');
-    };
+    document.getElementById('btnReset').onclick=()=>{document.getElementById('filters').reset();state.filters={};history.replaceState({},'',location.pathname);renderCards([]);showToast('Filtres réinitialisés');};
 
-    // Init
     renderSkeletons();
     apply(state.filters);
-  loadChat();
+
+    onAuthStateChanged(auth, user=>{
+      currentUser=user;
+      const slot=document.getElementById('header-session');
+      if(user){
+        const initial=(user.displayName||user.email||'?')[0].toUpperCase();
+        slot.innerHTML=`<a href="/profile.html" class="ghost btn">${initial}</a> <button class="ghost btn" id="btnSignOut">Se déconnecter</button>`;
+        document.getElementById('btnSignOut').onclick=()=>signOut(auth);
+        if(!user.emailVerified){
+          verifyBanner.hidden=false;
+          btnResend.onclick=async()=>{
+            try{const actionCodeSettings={url:'https://lovenow.netlify.app/login.html?verified=1',handleCodeInApp:false};await sendEmailVerification(user,actionCodeSettings);alert('Lien envoyé ✅');}catch(e){alert('Échec envoi lien');}
+          };
+          btnRefresh.onclick=()=>location.reload();
+        }else{
+          verifyBanner.hidden=true;
+        }
+      }else{
+        slot.innerHTML=`<a href="/login.html#signup" class="btn">Rejoins-nous gratuitement</a>`;
+        verifyBanner.hidden=true;
+      }
+    });
   </script>
-  <script src="chat.js"></script>
 </body>
 </html>

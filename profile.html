@@ -30,6 +30,12 @@
     .tiny{font-size:.85rem;color:#aab1c3}
   </style>
   <script src="config.js"></script>
+  <script>
+    if(window.APP_CONFIG?.chat?.provider === 'crisp' && window.APP_CONFIG.chat.siteId){
+      window.$crisp=[];window.CRISP_WEBSITE_ID=window.APP_CONFIG.chat.siteId;
+      (function(){var d=document,s=d.createElement('script');s.src='https://client.crisp.chat/l.js';s.async=1;d.head.appendChild(s);})();
+    }
+  </script>
 </head>
 <body>
 <header>

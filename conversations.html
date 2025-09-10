@@ -50,6 +50,12 @@
 
   <!-- Config globale -->
   <script src="config.js"></script>
+  <script>
+    if(window.APP_CONFIG?.chat?.provider === 'crisp' && window.APP_CONFIG.chat.siteId){
+      window.$crisp=[];window.CRISP_WEBSITE_ID=window.APP_CONFIG.chat.siteId;
+      (function(){var d=document,s=d.createElement('script');s.src='https://client.crisp.chat/l.js';s.async=1;d.head.appendChild(s);})();
+    }
+  </script>
 </head>
 <body>
 <header>
@@ -79,7 +85,7 @@
         <input id="emailStart" type="email" placeholder="ex. ami@exemple.com" autocomplete="off">
         <button id="btnStart" class="btn">OK</button>
       </div>
-      <div class="muted" style="margin-top:6px;font-size:.85rem">Astuce : tu peux aussi ouvrir <span class="badge">/conversations?to=UID</span></div>
+        <div class="muted" style="margin-top:6px;font-size:.85rem">Astuce : tu peux aussi ouvrir <span class="badge">/conversations.html?with=UID</span></div>
     </div>
     <div id="convList" class="list" role="listbox" aria-label="Conversations"></div>
   </aside>
@@ -334,8 +340,6 @@ async function startByEmail(){
   await openConversation(cid, peerUid);
 }
 
-/* ====== URL param ?to=UID ====== */
-function getParam(name){ return new URL(location.href).searchParams.get(name); }
 
 /* ====== Auth flow ====== */
 onAuthStateChanged(auth, async (user)=>{
@@ -362,15 +366,18 @@ onAuthStateChanged(auth, async (user)=>{
   // Liste des conversations
   watchConversations();
 
-  // Si ?to=UID présent : crée/ouvre la convo automatiquement
-  const to = getParam("to");
-  if(to){
+  // Si ?with=UID présent : crée/ouvre la convo automatiquement
+  const peerParam = getParam("with");
+  if(peerParam){
     try{
-      const cid = await ensureConversationWith(to);
-      await openConversation(cid, to);
+      const cid = await ensureConversationWith(peerParam);
+      await openConversation(cid, peerParam);
     }catch(e){ console.error(e); }
   }
 });
+
+/* ====== URL param ?with=UID ====== */
+function getParam(name){ return new URL(location.href).searchParams.get(name); }
 </script>
 </body>
 </html>
