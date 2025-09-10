@@ -6,7 +6,7 @@
 <title>Profil — LoveNow</title>
 <meta name="description" content="Profil public LoveNow"/>
 <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" as="style" onload="this.rel='stylesheet'"/>
-<style>
+  <style>
 :root{--bg:#0f1115;--card:#171922;--muted:#aab1c3;--text:#e9edf6;--brand:#ff2d55;--brand2:#7a5cf0;--line:#202334}
 *{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui}
 .wrap{max-width:860px;margin:0 auto;padding:16px}
@@ -18,9 +18,15 @@ nav{display:flex;gap:8px;align-items:center;padding:10px 0}
 .hero{display:grid;grid-template-columns:160px 1fr;gap:14px}
 .hero img{width:160px;height:160px;border-radius:14px;object-fit:cover;background:#0c0e12}
 .muted{color:var(--muted)}
-</style>
-<script src="config.js"></script>
-</head>
+  </style>
+  <script src="config.js"></script>
+  <script>
+    if(window.APP_CONFIG?.chat?.provider === 'crisp' && window.APP_CONFIG.chat.siteId){
+      window.$crisp=[];window.CRISP_WEBSITE_ID=window.APP_CONFIG.chat.siteId;
+      (function(){var d=document,s=d.createElement('script');s.src='https://client.crisp.chat/l.js';s.async=1;d.head.appendChild(s);})();
+    }
+  </script>
+  </head>
 <body>
 <header>
   <div class="wrap">
@@ -77,15 +83,20 @@ async function load(){
   $("#meta").textContent = [age, city, gender].filter(Boolean).join(" · ") || "—";
   $("#bio").textContent  = p.bio || "";
 
-  $("#btnMsg").href = `conversations.html?with=${encodeURIComponent(uid)}`;
+  updateMsgLink(auth.currentUser);
 }
 load();
 
-  onAuthStateChanged(auth,(u)=>{
-    // s'il n'est pas connecté, on laisse quand même voir le profil public;
-    // le bouton message ouvrira conversations.html qui gèrera l'auth/vérif
-  });
-  </script>
- <script src="chat.js"></script>
- </body>
- </html>
+function updateMsgLink(u){
+  const btn=document.getElementById('btnMsg');
+  if(u && u.emailVerified){
+    btn.href=`conversations.html?with=${encodeURIComponent(uid)}`;
+  }else{
+    btn.href=`login.html#login`;
+  }
+}
+
+onAuthStateChanged(auth,u=>updateMsgLink(u));
+</script>
+</body>
+</html>

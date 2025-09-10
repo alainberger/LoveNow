@@ -23,9 +23,15 @@
   @media (max-width:560px){.row{grid-template-columns:1fr}}
 </style>
 
-<!-- ta config publique -->
-<script src="config.js"></script>
-</head>
+  <!-- ta config publique -->
+  <script src="config.js"></script>
+  <script>
+    if(window.APP_CONFIG?.chat?.provider === 'crisp' && window.APP_CONFIG.chat.siteId){
+      window.$crisp=[];window.CRISP_WEBSITE_ID=window.APP_CONFIG.chat.siteId;
+      (function(){var d=document,s=d.createElement('script');s.src='https://client.crisp.chat/l.js';s.async=1;d.head.appendChild(s);})();
+    }
+  </script>
+  </head>
 <body>
   <div class="wrap">
     <a class="btn" href="index.html">← Accueil</a>
@@ -123,6 +129,7 @@
     showTab(location.hash==="#signup" ? "signup" : "login");
     $("#tab-login").addEventListener("click",()=>showTab("login"));
     $("#tab-signup").addEventListener("click",()=>showTab("signup"));
+    window.addEventListener('hashchange',()=>showTab(location.hash==="#signup"?"signup":"login"));
 
     // bannière vérif
     onAuthStateChanged(auth,(user)=>{
@@ -190,8 +197,5 @@
     $("#btnLogout").addEventListener("click", async ()=>{ await signOut(auth); alert("Déconnecté"); location.href="/"; });
   </script>
 
-  <!-- (optionnel) snippet Crisp si tu veux le chat ici aussi 
-  <script type="text/javascript">window.$crisp=[];window.CRISP_WEBSITE_ID="TON_ID_CRISP";(function(){d=document;s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();</script>
-  -->
 </body>
 </html>
