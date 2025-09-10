@@ -25,12 +25,6 @@
 
   <!-- ta config publique -->
   <script src="config.js"></script>
-  <script>
-    if(window.APP_CONFIG?.chat?.provider === 'crisp' && window.APP_CONFIG.chat.siteId){
-      window.$crisp=[];window.CRISP_WEBSITE_ID=window.APP_CONFIG.chat.siteId;
-      (function(){var d=document,s=d.createElement('script');s.src='https://client.crisp.chat/l.js';s.async=1;d.head.appendChild(s);})();
-    }
-  </script>
   </head>
 <body>
   <div class="wrap">
@@ -105,16 +99,14 @@
   <!-- Firebase / AppCheck / Firestore (module) -->
   <script type="module">
     const cfg = window.APP_CONFIG?.firebase;
-    const siteKey = window.APP_CONFIG?.appCheck?.recaptchaV3SiteKey;
 
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
     import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, sendEmailVerification, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-    import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app-check.js";
     import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
     // init
     const app = initializeApp(cfg);
-    if (siteKey) initializeAppCheck(app, { provider:new ReCaptchaV3Provider(siteKey), isTokenAutoRefreshEnabled:true });
+    loadAppCheck(app);
     const auth = getAuth(app);
     const db   = getFirestore(app);
 
@@ -196,6 +188,7 @@
     // logout
     $("#btnLogout").addEventListener("click", async ()=>{ await signOut(auth); alert("Déconnecté"); location.href="/"; });
   </script>
+  <script>loadCrispIfEnabled();</script>
 
 </body>
 </html>
