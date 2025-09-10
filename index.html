@@ -1,70 +1,58 @@
-<!-- index.html — LoveNow (Home + Découvrir) -->
 <!doctype html>
 <html lang="fr" data-theme="light">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>LoveNow — Rencontres 100% simples, 18+</title>
-  <meta name="description" content="LoveNow : rencontrez des profils près de chez vous. Gratuit au départ, 18+. Filtres par ville, âge et plus." />
-  <link rel="canonical" href="https://lovenow.netlify.app/" />
-  <meta property="og:title" content="LoveNow — Rencontrez simplement, 18+">
-  <meta property="og:description" content="Filtres clairs, profils près de chez vous. Essayez LoveNow.">
+  <meta name="description" content="Rencontrez des profils près de chez vous. Gratuit au départ, 18+. Filtres par ville, âge et plus.">
+  <link rel="canonical" href="https://lovenow.netlify.app/">
+  <meta property="og:title" content="LoveNow — Rencontres 18+">
+  <meta property="og:description" content="Profils en temps réel, messages sécurisés.">
   <meta property="og:url" content="https://lovenow.netlify.app/">
   <meta property="og:image" content="/assets/og-default.jpg">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="theme-color" content="#0AAEEF" />
-  <link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><circle cx='32' cy='32' r='32' fill='%230AAEEF'/><path d='M16 30c0-6 4-10 10-10 3 0 6 2 6 4 0-2 3-4 6-4 6 0 10 4 10 10 0 11-16 18-16 18S16 41 16 30z' fill='white'/></svg>"/>
   <style>
-    :root{
-      --brand:#0AAEEF;
-      --brand-2:#7A5CF0;
-      --text:#111; --muted:#666; --bg:#fff;
-    }
-    html{scroll-behavior:smooth}
-    body{margin:0;font:16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;color:var(--text);background:var(--bg)}
-    a{color:var(--brand);text-decoration:none}
-    header{position:sticky;top:0;background:#fff9;border-bottom:1px solid #eee;backdrop-filter:saturate(150%) blur(6px);z-index:10}
-    .wrap{max-width:1120px;margin:0 auto;padding:0 16px}
-    nav{display:flex;align-items:center;gap:16px;padding:12px 0}
-    nav .grow{flex:1}
-    .btn{display:inline-block;padding:.65rem 1rem;border-radius:10px;border:1px solid transparent;background:var(--brand);color:#fff;font-weight:600}
-    .btn.ghost{background:transparent;border-color:var(--brand);color:var(--brand)}
-    /* Hero */
-    .hero{position:relative;min-height:56vh;display:grid;place-items:center;text-align:center;color:#fff;background:
-      linear-gradient(120deg, rgba(10,174,239,.85), rgba(122,92,240,.85)), url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="%230AAEEF"/><stop offset="1" stop-color="%237A5CF0"/></linearGradient></defs><rect width="100%" height="100%" fill="url(%23g)"/></svg>') center/cover;}
-    .hero::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.45),rgba(0,0,0,.25));}
-    .hero > *{position:relative}
-    h1{font-size:clamp(28px,5vw,44px);margin:.2em 0}
-    p.lead{font-size:clamp(16px,2.5vw,20px);opacity:.95;margin:0 auto 1rem;max-width:720px}
-    /* Discover */
-    section{padding:48px 0}
-    .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
-    .card{border:1px solid #eee;border-radius:14px;padding:14px;min-height:140px}
-    .filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;align-items:end;margin:12px 0 16px}
-    label{font-weight:600;font-size:.9rem}
-    input,select{width:100%;padding:.6rem .7rem;border:1px solid #ddd;border-radius:10px}
-    .actions{display:flex;gap:8px;flex-wrap:wrap}
-    .muted{color:var(--muted)}
-    /* Skeletons */
-    .skel{border-radius:12px;background:linear-gradient(90deg,#eee 25%,#f6f6f6 37%,#eee 63%);background-size:400% 100%;animation:shimmer 1.2s infinite;height:140px}
-    @keyframes shimmer{0%{background-position:100% 0}100%{background-position:-100% 0}}
-    /* A11y focus */
-    :focus{outline:3px auto;outline-offset:2px}
-    /* Toast */
-    #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:14px;min-width:260px;max-width:90vw;background:#111;color:#fff;padding:.7rem 1rem;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.25);z-index:99;display:none}
+    :root{ --brand:#0AAEEF; --text:#111; --muted:#666; --bg:#fff; }
+    html{ scroll-behavior:smooth }
+    body{ margin:0; font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial; color:var(--text); background:var(--bg) }
+    a{ color:var(--brand); text-decoration:none }
+    header{ position:sticky; top:0; background:#fff9; border-bottom:1px solid #eee; backdrop-filter:saturate(150%) blur(6px); z-index:10 }
+    .wrap{ max-width:1120px; margin:0 auto; padding:0 16px }
+    nav{ display:flex; align-items:center; gap:16px; padding:12px 0 }
+    nav .grow{ flex:1 }
+    .btn{ display:inline-block; padding:.65rem 1rem; border-radius:10px; border:1px solid transparent; background:var(--brand); color:#fff; font-weight:600 }
+    .btn.ghost{ background:transparent; border-color:var(--brand); color:var(--brand) }
+    .hero{ min-height:56vh; display:grid; place-items:center; text-align:center; color:#fff; background: linear-gradient(120deg, rgba(10,174,239,.85), rgba(122,92,240,.85)); position:relative }
+    .hero::before{ content:""; position:absolute; inset:0; background:linear-gradient(180deg,rgba(0,0,0,.45),rgba(0,0,0,.25)); }
+    .hero>*{ position:relative }
+    h1{ font-size:clamp(28px,5vw,44px); margin:.2em 0 }
+    p.lead{ font-size:clamp(16px,2.5vw,20px); opacity:.95; margin:0 auto 1rem; max-width:720px }
+    section{ padding:48px 0 }
+    .cards{ display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:16px }
+    .card{ border:1px solid #eee; border-radius:14px; padding:14px; min-height:140px }
+    .filters{ display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; align-items:end; margin:12px 0 16px }
+    label{ font-weight:600; font-size:.9rem }
+    input,select{ width:100%; padding:.6rem .7rem; border:1px solid #ddd; border-radius:10px }
+    .actions{ display:flex; gap:8px; flex-wrap:wrap }
+    .muted{ color:var(--muted) }
+    .skel{ border-radius:12px; background:linear-gradient(90deg,#eee 25%,#f6f6f6 37%,#eee 63%); background-size:400% 100%; animation:shimmer 1.2s infinite; height:140px }
+    @keyframes shimmer{ 0%{background-position:100% 0} 100%{background-position:-100% 0} }
+    :focus{ outline:3px auto; outline-offset:2px }
+    #toast{ position:fixed; left:50%; transform:translateX(-50%); bottom:14px; min-width:260px; background:#111; color:#fff; padding:.7rem 1rem; border-radius:10px; box-shadow:0 10px 30px rgba(0,0,0,.25); z-index:99; display:none }
   </style>
 </head>
 <body>
   <header>
     <div class="wrap">
       <nav aria-label="Navigation principale">
-        <a href="/" class="logo" aria-label="LoveNow Accueil" style="font-weight:800">LoveNow</a>
+        <a href="/" style="font-weight:800">LoveNow</a>
         <div class="grow"></div>
         <a href="/#discover" class="ghost btn">Découvrir</a>
         <a href="/conversations.html" class="ghost btn">Conversations</a>
+        <a href="/profile.html" class="ghost btn">Mon profil</a>
         <a href="/privacy.html" class="ghost btn">Confidentialité</a>
         <a href="/cgu.html" class="ghost btn">CGU</a>
-        <span id="header-session"></span>
+        <span id="header-session"><a href="/login.html#signup" class="btn">Rejoins-nous gratuitement</a></span>
       </nav>
     </div>
   </header>
@@ -76,16 +64,15 @@
         <p class="lead">Des profils proches de chez vous. Filtres clairs, messages sécurisés, confidentialité maîtrisée.</p>
         <p>
           <a class="btn" href="/login.html#signup">Créer mon compte</a>
-          <a class="btn ghost" href="/#discover" aria-describedby="hint-discover">Découvrir des profils</a>
+          <a class="btn ghost" href="/#discover">Découvrir des profils</a>
         </p>
-        <div id="hint-discover" class="sr-only" aria-hidden="true">Ce lien fait défiler la page jusqu’à la section Découvrir</div>
       </div>
     </section>
 
     <section id="discover" aria-labelledby="discover-title">
       <div class="wrap">
         <h2 id="discover-title">Découvrir des profils</h2>
-        <form id="filters" class="filters" onsubmit="return false" aria-describedby="filters-help">
+        <form id="filters" class="filters" onsubmit="return false">
           <div>
             <label for="gender">Genre</label>
             <select id="gender" name="gender">
@@ -112,11 +99,8 @@
             <button class="btn ghost" id="btnReset" type="button">Réinitialiser</button>
           </div>
         </form>
-        <p id="filters-help" class="muted">Astuce : utilisez 2–3 filtres pour des résultats pertinents.</p>
-
         <div id="results" class="cards" aria-live="polite"></div>
         <p id="empty-hint" class="muted" style="display:none">Ajuste les filtres ou complète ton profil pour voir plus de résultats.</p>
-        <p style="text-align:center"><button id="btnMore" class="btn" type="button" style="display:none">Charger plus…</button></p>
       </div>
     </section>
   </main>
@@ -129,122 +113,76 @@
     </div>
   </footer>
 
-  <script src="/js/firebase-config.js"></script>
+  <script src="/config.js"></script>
   <script type="module">
-    import { onAuthStateChanged, listenProfiles, queryProfilesOnce, signOut } from './js/firebase.js';
-
-    // --- STATE ---
-    const state = { filters: {}, lastDoc: null };
-
+    import { onAuthStateChanged, signOut, listenProfiles } from '/js/firebase.js';
+    import { loadChat } from '/js/chat.js';
     const $ = s => document.querySelector(s);
-    const resultsEl = $('#results');
-    const emptyHintEl = $('#empty-hint');
-    const toast = $('#toast');
-    const btnMore = $('#btnMore');
-    let currentUser = null;
+    const resultsEl = $('#results'), emptyHintEl = $('#empty-hint'), toast = $('#toast');
 
-    function showToast(msg){ toast.textContent = msg; toast.style.display='block'; setTimeout(()=>toast.style.display='none', 2500); }
-
-    onAuthStateChanged(u => {
-      currentUser = u;
-      const slot = document.getElementById('header-session');
-      if(slot){
-        if(u){
-          const initial = (u.displayName||u.email||'?')[0].toUpperCase();
-          slot.innerHTML = `<a href="/profile.html" class="ghost btn">${initial}</a> <button id="btnSignOut" class="ghost btn">Se déconnecter</button>`;
-          document.getElementById('btnSignOut').onclick = ()=>signOut();
-        }else{
-          slot.innerHTML = `<a href="/login.html#signup" class="btn">Rejoins-nous gratuitement</a>`;
-        }
-      }
-    });
-
-    // URL <-> state
-    function readURL(){
-      const p = new URLSearchParams(location.search);
-      state.filters = {
-        gender: p.get('gender') || '',
-        ageMin: p.get('ageMin') || '',
-        ageMax: p.get('ageMax') || '',
-        city:   p.get('city') || ''
-      };
-      // Pré-remplir UI
-      for(const k in state.filters){
-        const el = document.getElementById(k);
-        if(el) el.value = state.filters[k];
-      }
-    }
-    function writeURL(){
-      const p = new URLSearchParams();
-      for(const [k,v] of Object.entries(state.filters)){
-        if(v) p.set(k, v);
-      }
-      const url = p.toString() ? `?${p.toString()}` : location.pathname;
-      history.replaceState({}, '', url);
-    }
-
-    // Rendering
-    function renderSkeletons(n=6){
-      resultsEl.innerHTML = Array.from({length:n}).map(()=>'<div class="skel" aria-hidden="true"></div>').join('');
-      emptyHintEl.style.display = 'block';
-    }
-    function renderCards(items, append=false){
-      if(!append){ resultsEl.innerHTML = ''; }
-      if(!items.length && !append){ renderSkeletons(); return; }
-      emptyHintEl.style.display = items.length ? 'none':'block';
-      const html = items.map(it => `
+    const showToast = msg => { toast.textContent=msg; toast.style.display='block'; setTimeout(()=>toast.style.display='none', 2200); };
+    function renderSkeletons(n=6){ resultsEl.innerHTML = Array.from({length:n}).map(()=>'<div class="skel" aria-hidden="true"></div>').join(''); emptyHintEl.style.display='block'; }
+    function renderCards(items){
+      if(!items.length){ renderSkeletons(); return; }
+      emptyHintEl.style.display='none';
+      resultsEl.innerHTML = items.map(p => `
         <article class="card" tabindex="0" aria-label="Profil">
-          <div style="font-weight:700">${it.displayName || 'Prénom'}</div>
-          <div class="muted">${(it.age||'—')} ans · ${it.city||'—'}</div>
-          <p>${it.bio || '—'}</p>
-          <a class="btn ghost" href="${currentUser?'/conversations.html':'/login.html#signup'}">Dire bonjour</a>
+          <div style="font-weight:700">${p.displayName||'—'}</div>
+          <div class="muted">${(p.age??'—')} ans · ${p.city||'—'}</div>
+          <p>${p.bio||'—'}</p>
+          <a class="btn ghost" href="/login.html#signup">Dire bonjour</a>
         </article>
       `).join('');
-      resultsEl.insertAdjacentHTML('beforeend', html);
     }
 
-    async function applyFilters(){
+    // Header session
+    onAuthStateChanged(u=>{
+      const slot = document.getElementById('header-session');
+      if(!slot) return;
+      if(u){
+        const initial = (u.displayName||u.email||'?')[0].toUpperCase();
+        slot.innerHTML = `<a href="/profile.html" class="ghost btn">${initial}</a> <button class="ghost btn" id="btnSignOut">Se déconnecter</button>`;
+        document.getElementById('btnSignOut').onclick = ()=> signOut().then(()=>location.reload());
+      }else{
+        slot.innerHTML = `<a href="/login.html#signup" class="btn">Rejoins-nous gratuitement</a>`;
+      }
+    });
+
+    // Filtres -> temps réel
+    const state = { filters:{} };
+    function apply(filters){
       renderSkeletons();
-      const { profiles, lastDoc } = await queryProfilesOnce({ filters: state.filters, pageSize: 6 });
-      state.lastDoc = lastDoc;
-      renderCards(profiles);
-      btnMore.style.display = lastDoc ? 'inline-block' : 'none';
+      listenProfiles({ filters, pageSize:12, onNext: (profiles)=>renderCards(filterByAge(profiles)) });
     }
-
-    btnMore.addEventListener('click', async ()=>{
-      btnMore.disabled = true;
-      const { profiles, lastDoc } = await queryProfilesOnce({ filters: state.filters, pageSize:6, startAfterDoc: state.lastDoc });
-      state.lastDoc = lastDoc;
-      renderCards(profiles, true);
-      btnMore.disabled = false;
-      if(!lastDoc) btnMore.style.display='none';
-    });
-
-    // Events
-    $('#btnSearch').addEventListener('click', () => {
-      const form = $('#filters');
-      state.filters = {
-        gender: form.gender.value.trim(),
-        ageMin: form.ageMin.value.trim(),
-        ageMax: form.ageMax.value.trim(),
-        city:   form.city.value.trim()
-      };
-      writeURL();
-      applyFilters();
-    });
-
-    $('#btnReset').addEventListener('click', () => {
-      const form = $('#filters');
-      form.reset();             // UI
-      state.filters = {};       // LOGIQUE
-      history.replaceState({}, '', location.pathname); // URL nettoyée
-      renderCards([]);          // Rendu défaut -> skeletons
-      showToast('Filtres réinitialisés');
-    });
+    function filterByAge(list){
+      const min = parseInt($('#ageMin').value,10);
+      const max = parseInt($('#ageMax').value,10);
+      return list.filter(p=>{
+        const a = parseInt(p.age,10);
+        if(Number.isFinite(min) && a < min) return false;
+        if(Number.isFinite(max) && a > max) return false;
+        return true;
+      });
+    }
+    document.getElementById('btnSearch').onclick = ()=>{
+      const f = document.getElementById('filters');
+      state.filters = { gender:f.gender.value.trim(), city:f.city.value.trim() };
+      const p = new URLSearchParams();
+      const vals = {gender:state.filters.gender, ageMin:f.ageMin.value.trim(), ageMax:f.ageMax.value.trim(), city:state.filters.city};
+      for(const [k,v] of Object.entries(vals)){ if(v) p.set(k,v); }
+      history.replaceState({},'',p.toString()?`?${p}`:location.pathname);
+      apply(state.filters);
+    };
+    document.getElementById('btnReset').onclick = ()=>{
+      document.getElementById('filters').reset();
+      state.filters={}; history.replaceState({},'',location.pathname);
+      renderCards([]); showToast('Filtres réinitialisés');
+    };
 
     // Init
-    readURL();
-    applyFilters();
+    renderSkeletons();
+    apply(state.filters);
+    loadChat();
   </script>
 </body>
 </html>
