@@ -46,15 +46,18 @@
       <label for="bio">Bio</label>
       <textarea id="bio" maxlength="600" placeholder="Parlez un peu de vous…"></textarea>
 
-      <button class="btn" type="submit">Enregistrer</button>
+      <button id="btnSave" class="btn" type="submit">Enregistrer</button>
     </form>
   </div>
 
   <div id="toast" role="status" aria-live="polite"></div>
 
-  <script>
+  <script src="/config.js"></script>
+  <script type="module">
+    import { onAuthStateChanged, getProfile, updateProfileDoc } from './js/firebase.js';
+    import './js/chat.js';
     const toast = document.getElementById('toast');
-    function showToast(m){ toast.textContent=m; toast.style.display='block'; setTimeout(()=>toast.style.display='none', 2200); }
+    const showToast = m => { toast.textContent=m; toast.style.display='block'; setTimeout(()=>toast.style.display='none',2200); };
 
     const fileInput = document.getElementById('avatar');
     const preview = document.getElementById('preview');
@@ -90,14 +93,36 @@
       preview.src = URL.createObjectURL(blob);
       preview.hidden = false;
 
-      // À ce stade, "blob" = image prête pour upload (brancher ici Cloudinary/Firebase)
-      // window.uploadImage(blob) ...
+      // TODO: uploader l'image et obtenir l'URL puis sauvegarder via updateProfileDoc({photoURL})
     });
 
-    function saveProfile(e){
+    onAuthStateChanged(async u => {
+      if(!u){ location.href = '/login.html#signup'; return; }
+      const data = await getProfile(u.uid) || {};
+      if(data.photoURL){ preview.src = data.photoURL; preview.hidden = false; }
+      document.getElementById('name').value = data.displayName || '';
+      document.getElementById('city').value = data.city || '';
+      document.getElementById('age').value = data.age || '';
+      document.getElementById('bio').value = data.bio || '';
+    });
+
+    async function saveProfile(e){
       e.preventDefault();
-      // Brancher ici l’enregistrement réel (Firebase, etc.)
-      showToast('Profil enregistré (exemple)');
+      const btn = document.getElementById('btnSave');
+      btn.disabled = true; btn.textContent='Enregistrement…';
+      try{
+        await updateProfileDoc({
+          displayName: document.getElementById('name').value.trim(),
+          city: document.getElementById('city').value.trim(),
+          age: parseInt(document.getElementById('age').value,10),
+          bio: document.getElementById('bio').value.trim()
+        });
+        showToast('Profil enregistré');
+      }catch(ex){
+        showToast('Erreur: '+ex.message);
+      }finally{
+        btn.disabled = false; btn.textContent='Enregistrer';
+      }
       return false;
     }
   </script>
