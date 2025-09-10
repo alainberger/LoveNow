@@ -32,3 +32,15 @@ window.APP_CONFIG = {
   analyticsEnabled: false,
   resendCooldown: 30
 };
+
+// Mapping simplifié des clés publiques pour les modules JS
+window.env = {
+  FIREBASE_API_KEY: window.APP_CONFIG.firebase.apiKey,
+  FIREBASE_AUTH_DOMAIN: window.APP_CONFIG.firebase.authDomain,
+  FIREBASE_PROJECT_ID: window.APP_CONFIG.firebase.projectId,
+  FIREBASE_APP_ID: window.APP_CONFIG.firebase.appId,
+  FIREBASE_STORAGE_BUCKET: window.APP_CONFIG.firebase.storageBucket,
+  RECAPTCHA_SITE_KEY: '',       // à renseigner
+  CHAT_PROVIDER: '',            // ex: 'recapchat'
+  CHAT_SITE_ID: ''              // ex: 'abcdef'
+};
