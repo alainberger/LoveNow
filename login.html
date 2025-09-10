@@ -36,12 +36,13 @@
     </div>
 
     <section id="panel-login" role="tabpanel" aria-labelledby="tab-login" hidden>
-      <form onsubmit="event.preventDefault(); alert('Connexion… (branche ton backend)')">
+      <form id="loginForm" onsubmit="return doLogin(event)">
         <label for="lemail">Email</label>
         <input id="lemail" type="email" required>
         <label for="lpass">Mot de passe</label>
         <input id="lpass" type="password" required minlength="6">
-        <button class="btn" type="submit">Se connecter</button>
+        <div id="loginError" class="error" role="status" aria-live="polite"></div>
+        <button id="btnLogin" class="btn" type="submit">Se connecter</button>
       </form>
     </section>
 
@@ -55,12 +56,18 @@
         <input id="sage" type="number" inputmode="numeric" min="18" max="99" placeholder="18" required aria-describedby="ageHelp">
         <small id="ageHelp" class="muted">Le service est réservé aux personnes de 18 ans et plus.</small>
         <div id="signupError" class="error" role="status" aria-live="polite"></div>
-        <button class="btn" type="submit">Créer un compte</button>
+        <button id="btnSignup" class="btn" type="submit">Créer un compte</button>
       </form>
     </section>
   </div>
+  <div id="toast" role="status" aria-live="polite"></div>
 
-  <script>
+  <script src="/js/firebase-config.js"></script>
+  <script type="module">
+    import { signUp, signIn } from './js/firebase.js';
+    const toast = document.getElementById('toast');
+    const showToast = m => { toast.textContent=m; toast.style.display='block'; setTimeout(()=>toast.style.display='none',2200); };
+
     // Tabs + hash #signup
     const tLogin = document.getElementById('tab-login');
     const tSignup = document.getElementById('tab-signup');
@@ -80,17 +87,46 @@
     window.addEventListener('hashchange', fromHash);
     fromHash();
 
-    function validateSignup(e){
+    async function validateSignup(e){
+      e.preventDefault();
       const age = parseInt(document.getElementById('sage').value, 10);
       const err = document.getElementById('signupError');
+      const btn = document.getElementById('btnSignup');
       if(!Number.isFinite(age) || age < 18){
         err.textContent = 'Vous devez avoir 18 ans ou plus pour créer un compte.';
         document.getElementById('sage').focus();
         return false;
       }
       err.textContent = '';
-      alert('Inscription… (branche ton backend)'); // à remplacer par ton flux réel
+      btn.disabled = true;
+      btn.textContent = 'Création…';
+      try{
+        await signUp(document.getElementById('semail').value.trim(), document.getElementById('spass').value, { age });
+        showToast('Compte créé. Vérifiez votre e-mail.');
+        location.href = '/profile.html';
+      }catch(ex){
+        err.textContent = ex.message;
+      }finally{
+        btn.disabled = false;
+        btn.textContent = 'Créer un compte';
+      }
+      return false;
+    }
+
+    async function doLogin(e){
       e.preventDefault();
+      const err = document.getElementById('loginError');
+      const btn = document.getElementById('btnLogin');
+      err.textContent = '';
+      btn.disabled = true; btn.textContent = 'Connexion…';
+      try{
+        await signIn(document.getElementById('lemail').value.trim(), document.getElementById('lpass').value);
+        location.href = '/';
+      }catch(ex){
+        err.textContent = ex.message;
+      }finally{
+        btn.disabled = false; btn.textContent = 'Se connecter';
+      }
       return false;
     }
   </script>
