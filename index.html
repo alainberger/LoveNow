@@ -14,8 +14,7 @@ a{color:inherit;text-decoration:none}
 .wrap{max-width:1100px;margin:0 auto;padding:16px}
 header{position:sticky;top:0;z-index:10;background:rgba(15,17,21,.7);backdrop-filter:saturate(140%) blur(8px);border-bottom:1px solid #202334}
 nav{display:flex;align-items:center;gap:10px;padding:10px 0}
-.brand{font-weight:700}
-.spacer{flex:1}
+.brand{font-weight:700}.spacer{flex:1}
 .btn{display:inline-flex;align-items:center;justify-content:center;padding:.6rem .9rem;border-radius:.6rem;background:#232739;border:1px solid #2b2f44;cursor:pointer}
 .btn-primary{background:linear-gradient(135deg,var(--brand),var(--brand2));border:none}
 .btn[disabled]{opacity:.6;cursor:not-allowed}
@@ -43,22 +42,22 @@ input,select{width:100%;padding:.6rem;border-radius:.6rem;background:#0f1115;bor
 .toast.show{transform:translateY(0);opacity:1}
 </style>
 
-<!-- Config -->
 <script src="config.js"></script>
 
-<!-- Firebase + App Check + Auth bootstrap -->
 <script type="module">
   const cfg = window.APP_CONFIG?.firebase;
   const siteKey = window.APP_CONFIG?.appCheck?.recaptchaV3SiteKey;
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
   import { getAuth, onAuthStateChanged, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
   import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app-check.js";
-
   const app = initializeApp(cfg);
-  if (siteKey) initializeAppCheck(app, { provider:new ReCaptchaV3Provider(siteKey), isTokenAutoRefreshEnabled:true });
-  const auth = getAuth(app);
-  window.__AUTH__ = { auth, onAuthStateChanged, sendEmailVerification };
-  document.dispatchEvent(new CustomEvent("firebase-ready"));
+  if (siteKey) initializeAppCheck(app,{provider:new ReCaptchaV3Provider(siteKey),isTokenAutoRefreshEnabled:true});
+  const auth=getAuth(app);
+  window.__AUTH__={auth,onAuthStateChanged,sendEmailVerification};
+  document.addEventListener("DOMContentLoaded",()=>{
+    const link=document.getElementById("navProfile");
+    onAuthStateChanged(auth,(u)=>{ link.href = u ? "profile.html" : "login.html#login"; });
+  });
 </script>
 </head>
 <body>
@@ -68,12 +67,12 @@ input,select{width:100%;padding:.6rem;border-radius:.6rem;background:#0f1115;bor
       <strong class="brand">LoveNow</strong>
       <a class="btn" href="index.html" aria-current="page">Accueil</a>
       <a class="btn" href="#discover">Découvrir</a>
-      <a class="btn" href="login.html">Conversations</a>
-      <a class="btn" href="profile.html">Mon profil</a>
+      <a class="btn" href="login.html#conversations">Conversations</a>
+      <a class="btn" id="navProfile" href="login.html#login">Mon profil</a>
       <span class="spacer"></span>
       <a class="btn" href="privacy.html">Confidentialité</a>
       <a class="btn" href="cgu.html">CGU</a>
-      <a class="btn btn-primary" href="login.html">Rejoins-nous gratuitement</a>
+      <a class="btn btn-primary" href="login.html#signup">Rejoins-nous gratuitement</a>
     </nav>
 
     <div id="verifyBanner" class="banner" role="status" aria-live="polite" hidden>
@@ -97,7 +96,7 @@ input,select{width:100%;padding:.6rem;border-radius:.6rem;background:#0f1115;bor
         <span class="pill">🔒 Sécurité & respect</span>
       </div>
       <div style="margin-top:16px">
-        <a class="btn btn-primary" href="login.html">Rejoins-nous gratuitement</a>
+        <a class="btn btn-primary" href="login.html#signup">Rejoins-nous gratuitement</a>
       </div>
     </div>
   </section>
@@ -109,30 +108,15 @@ input,select{width:100%;padding:.6rem;border-radius:.6rem;background:#0f1115;bor
         <section>
           <h3 id="filtersTitle" style="margin:0 0 10px">Filtres</h3>
           <div class="filters" role="group" aria-label="Filtres de recherche">
-            <div>
-              <label for="fGender">Genre</label>
-              <select id="fGender">
-                <option value="all">Tous</option>
-                <option value="F">Femmes</option>
-                <option value="M">Hommes</option>
-                <option value="O">Autre</option>
-              </select>
+            <div><label for="fGender">Genre</label>
+              <select id="fGender"><option value="all">Tous</option><option value="F">Femmes</option><option value="M">Hommes</option><option value="O">Autre</option></select>
             </div>
-            <div>
-              <label for="fAgeMin">Âge min</label>
-              <input id="fAgeMin" type="number" inputmode="numeric" min="18" max="99" value="18">
-            </div>
-            <div>
-              <label for="fAgeMax">Âge max</label>
-              <input id="fAgeMax" type="number" inputmode="numeric" min="18" max="99" value="99">
-            </div>
-            <div>
-              <label for="fCity">Ville</label>
-              <input id="fCity" type="text" placeholder="ex. Paris" autocomplete="address-level2">
-            </div>
+            <div><label for="fAgeMin">Âge min</label><input id="fAgeMin" type="number" min="18" max="99" value="18"></div>
+            <div><label for="fAgeMax">Âge max</label><input id="fAgeMax" type="number" min="18" max="99" value="99"></div>
+            <div><label for="fCity">Ville</label><input id="fCity" type="text" placeholder="ex. Paris"></div>
             <div style="display:flex;gap:8px;align-items:end">
-              <button id="btnSearch" class="btn" aria-label="Rechercher">Rechercher</button>
-              <button id="btnReset" class="btn" aria-label="Réinitialiser les filtres">Réinitialiser</button>
+              <button id="btnSearch" class="btn">Rechercher</button>
+              <button id="btnReset" class="btn">Réinitialiser</button>
             </div>
           </div>
         </section>
@@ -150,56 +134,39 @@ input,select{width:100%;padding:.6rem;border-radius:.6rem;background:#0f1115;bor
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 <footer class="wrap foot">© <span id="year"></span> LoveNow — <a href="privacy.html">Confidentialité</a> · <a href="cgu.html">CGU</a></footer>
 
-<!-- App logic (Firestore) -->
 <script type="module">
 const $ = s => document.querySelector(s);
 const toast=(msg)=>{const t=$("#toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2400);};
 
-// Fallback démo si Firestore vide
-const DEMO = [
-  { id:"u2", name:"Alice",  age:26, city:"Paris", gender:"F", img:"https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=1200&auto=format&fit=crop"},
-  { id:"u1", name:"Benoît", age:25, city:"Lyon",  gender:"M", img:"https://images.unsplash.com/photo-1531123897727-8f129e1688ce?q=80&w=1200&auto=format&fit=crop"}
-];
-
-let LOADED = [];
+const DEMO=[{id:"u2",name:"Alice",age:26,city:"Paris",gender:"F",img:"https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=1200&auto=format&fit=crop"},{id:"u1",name:"Benoît",age:25,city:"Lyon",gender:"M",img:"https://images.unsplash.com/photo-1531123897727-8f129e1688ce?q=80&w=1200&auto=format&fit=crop"}];
+let LOADED=[];
 
 function renderProfiles(list){
   const wrap=$("#results"); wrap.innerHTML="";
   list.forEach(p=>{
-    const safeName = p.name || p.displayName || "Utilisateur";
-    const safeAge  = Number(p.age)||"—";
-    const safeCity = p.city || "—";
-    const safeGen  = p.gender || "O";
-    const img = p.photoURL || p.img || "https://images.unsplash.com/photo-1502685104226-ee32379fefbe?q=80&w=1200&auto=format&fit=crop";
-
+    const safeName=p.name||p.displayName||"Utilisateur";
+    const safeAge=Number(p.age)||"—";
+    const safeCity=p.city||"—";
+    const safeGen=p.gender||"O";
+    const img=p.photoURL||p.img||"https://images.unsplash.com/photo-1502685104226-ee32379fefbe?q=80&w=1200&auto=format&fit=crop";
     const el=document.createElement("article");
     el.className="profile";
-    el.innerHTML=`
-      <img src="${img}" alt="Photo de ${safeName}">
+    el.innerHTML=`<img src="${img}" alt="Photo de ${safeName}">
       <div class="meta"><div><strong>${safeName}</strong> · ${safeAge} ans</div><div>${safeCity} · ${safeGen}</div></div>
       <div class="actions">
-        <a class="btn" href="login.html#conversations">Voir le profil</a>
+        <a class="btn" href="profile.html">Voir le profil</a>
         <a class="btn btn-primary" href="login.html#conversations">Message</a>
       </div>`;
     wrap.appendChild(el);
   });
-  $("#emptyState").hidden = list.length !== 0;
+  $("#emptyState").hidden = list.length!==0;
 }
 
 function applyFilters(){
-  const g=$("#fGender").value;
-  const min=Math.max(18, Number($("#fAgeMin").value||18));
-  const max=Math.min(99, Number($("#fAgeMax").value||99));
-  const city=($("#fCity").value||"").trim().toLowerCase();
-
+  const g=$("#fGender").value, min=Math.max(18,Number($("#fAgeMin").value||18)), max=Math.min(99,Number($("#fAgeMax").value||99)), city=($("#fCity").value||"").trim().toLowerCase();
   const filtered=LOADED.filter(p=>{
-    const age = Number(p.age||0);
-    const gen = (p.gender||"").toUpperCase();
-    const cty = (p.city||"").toLowerCase();
-    const okG=(g==="all"||gen===g);
-    const okA=(age>=min && age<=max);
-    const okC=(!city||cty.includes(city));
-    return okG&&okA&&okC;
+    const age=Number(p.age||0), gen=(p.gender||"").toUpperCase(), cty=(p.city||"").toLowerCase();
+    return (g==="all"||gen===g) && (age>=min&&age<=max) && (!city||cty.includes(city));
   });
   renderProfiles(filtered);
 }
@@ -211,33 +178,22 @@ import { getApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.
 
 async function loadProfiles(){
   try{
-    const db = getFirestore(getApp());
-    const q  = query(collection(db,"profiles"), orderBy("createdAt","desc"), limit(200));
-    const snap = await getDocs(q);
-    const arr=[]; snap.forEach(d=>{ arr.push({ id:d.id, ...d.data() }); });
-    return arr;
-  }catch(e){ console.error(e); return null; }
+    const db=getFirestore(getApp());
+    const q=query(collection(db,"profiles"), orderBy("createdAt","desc"), limit(200));
+    const snap=await getDocs(q); const arr=[]; snap.forEach(d=>arr.push({id:d.id,...d.data()})); return arr;
+  }catch(e){ console.error("loadProfiles",e); return null; }
 }
 
-(async ()=>{
-  let data = await loadProfiles();
-  if (!data || data.length===0) data = DEMO;
-  LOADED = data; renderProfiles(LOADED);
-})();
+(async ()=>{ let data=await loadProfiles(); if(!data||data.length===0) data=DEMO; LOADED=data; renderProfiles(LOADED); })();
+$("#btnSearch").addEventListener("click",applyFilters);
+$("#btnReset").addEventListener("click",()=>{ $("#fGender").value="all"; $("#fAgeMin").value=18; $("#fAgeMax").value=99; $("#fCity").value=""; applyFilters(); });
 
-$("#btnSearch").addEventListener("click", applyFilters);
-$("#btnReset").addEventListener("click", ()=>{ $("#fGender").value="all"; $("#fAgeMin").value=18; $("#fAgeMax").value=99; $("#fCity").value=""; applyFilters(); });
-
-// bannière vérif
 document.addEventListener("firebase-ready", ()=>{
   const {auth,onAuthStateChanged,sendEmailVerification}=window.__AUTH__;
   const banner=$("#verifyBanner"), btnResend=$("#btnResend"), btnRefresh=$("#btnRefresh");
-  onAuthStateChanged(auth,(user)=>{
-    const show=!!(user && !user.emailVerified);
-    banner.hidden=!show;
-  });
+  onAuthStateChanged(auth,(user)=>{ banner.hidden = !(user && !user.emailVerified); });
   btnResend?.addEventListener("click", async ()=>{
-    const u=window.__AUTH__.auth.currentUser; if(!u){ location.href="login.html"; return; }
+    const u=window.__AUTH__.auth.currentUser; if(!u){ location.href="login.html#login"; return; }
     try{
       const actionCodeSettings={ url:"https://lovenow.netlify.app/login.html?verified=1", handleCodeInApp:false };
       await window.__AUTH__.sendEmailVerification(u, actionCodeSettings);
