@@ -1,39 +1,40 @@
 [build]
   publish = "."
 
-# Routes propres (URLs sans .html)
+# Routes propres
 [[redirects]]
   from = "/privacy"
-  to   = "/privacy.html"
+  to = "/privacy.html"
   status = 200
 
 [[redirects]]
   from = "/cgu"
-  to   = "/cgu.html"
+  to = "/cgu.html"
   status = 200
 
 [[redirects]]
   from = "/login"
-  to   = "/login.html"
-  status = 200
-
-[[redirects]]
-  from = "/profile"
-  to   = "/profile.html"
+  to = "/login.html"
   status = 200
 
 [[redirects]]
   from = "/conversations"
-  to   = "/conversations.html"
+  to = "/conversations.html"
   status = 200
 
-# Catch-all SPA -> index.html (évite 404 Netlify sur routes internes)
+# Lien court pour profils publics : /u/UID -> profile-public.html?id=UID
+[[redirects]]
+  from = "/u/:uid"
+  to   = "/profile-public.html?id=:uid"
+  status = 200
+
+# Catch-all SPA -> index.html
 [[redirects]]
   from = "/*"
-  to   = "/index.html"
+  to = "/index.html"
   status = 200
 
-# Headers sécurité + CSP (Firebase + Cloudinary)
+# Headers sécurité + CSP (Firebase + AppCheck + Cloudinary uploads + Google Fonts)
 [[headers]]
   for = "/*"
   [headers.values]
