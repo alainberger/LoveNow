@@ -81,10 +81,11 @@ async function load(){
 }
 load();
 
-onAuthStateChanged(auth,(u)=>{
-  // s'il n'est pas connecté, on laisse quand même voir le profil public;
-  // le bouton message ouvrira conversations.html qui gèrera l'auth/vérif
-});
-</script>
-</body>
-</html>
+  onAuthStateChanged(auth,(u)=>{
+    // s'il n'est pas connecté, on laisse quand même voir le profil public;
+    // le bouton message ouvrira conversations.html qui gèrera l'auth/vérif
+  });
+  </script>
+ <script src="chat.js"></script>
+ </body>
+ </html>

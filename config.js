@@ -30,7 +30,9 @@ window.APP_CONFIG = {
   },
 
   analyticsEnabled: false,
-  resendCooldown: 30
+  resendCooldown: 30,
+  CHAT_PROVIDER: "crisp",
+  CHAT_SITE_ID: "42383cbe-1349-42c2-a0ef-04386b58ccd6"
 };
 
 window.env = window.env || {};
