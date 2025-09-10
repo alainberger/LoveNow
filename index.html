@@ -7,14 +7,16 @@
 <meta name="description" content="Inscris-toi en 2 minutes, découvre des profils près de chez toi et commence à discuter."/>
 <meta name="theme-color" content="#14151a"/>
 <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" as="style" onload="this.rel='stylesheet'"/>
+
 <style>
-:root{--bg:#0f1115;--card:#171922;--muted:#aab1c3;--text:#e9edf6;--brand:#ff2d55;--brand2:#7a5cf0}
+:root{--bg:#0f1115;--card:#171922;--muted:#aab1c3;--text:#e9edf6;--brand:#ff2d55;--brand2:#7a5cf0;--line:#23283d}
 *{box-sizing:border-box}html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:Inter,system-ui}
 a{color:inherit;text-decoration:none}
 .wrap{max-width:1100px;margin:0 auto;padding:16px}
 header{position:sticky;top:0;z-index:10;background:rgba(15,17,21,.7);backdrop-filter:saturate(140%) blur(8px);border-bottom:1px solid #202334}
 nav{display:flex;align-items:center;gap:10px;padding:10px 0}
-.brand{font-weight:700}.spacer{flex:1}
+.brand{font-weight:700}
+.spacer{flex:1}
 .btn{display:inline-flex;align-items:center;justify-content:center;padding:.6rem .9rem;border-radius:.6rem;background:#232739;border:1px solid #2b2f44;cursor:pointer}
 .btn-primary{background:linear-gradient(135deg,var(--brand),var(--brand2));border:none}
 .btn[disabled]{opacity:.6;cursor:not-allowed}
@@ -30,35 +32,22 @@ h1{font-size:clamp(28px,4vw,44px);margin:.2rem 0 1rem}
 .filters{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 @media(min-width:700px){.filters{grid-template-columns:140px 140px 1fr 130px 130px}}
 label{display:block;margin-bottom:4px;color:var(--muted);font-size:.9rem}
-input,select{width:100%;padding:.6rem;border-radius:.6rem;background:#0f1115;border:1px solid #2b2f44;color:#e9edf6}
+input,select{width:100%;padding:.6rem;border-radius:.6rem;background:#0f1115;border:1px solid #2b2f44;color:var(--text)}
 .results{display:grid;grid-template-columns:1fr;gap:12px;padding:12px}
 @media(min-width:680px){.results{grid-template-columns:repeat(2,1fr)}}
-.profile{background:#141824;border:1px solid #23283d;border-radius:.8rem;overflow:hidden;display:flex;flex-direction:column}
+.profile{background:#141824;border:1px solid var(--line);border-radius:.8rem;overflow:hidden;display:flex;flex-direction:column}
 .profile img{width:100%;height:180px;object-fit:cover;background:#0c0e12}
 .profile .meta{padding:10px 12px;color:#cfd6ea;display:flex;flex-direction:column;gap:6px}
-.profile .actions{display:flex;gap:8px;padding:10px 12px;border-top:1px solid #23283d}
+.profile .actions{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--line)}
 .foot{opacity:.75;font-size:.9rem;margin-top:12px}
 .toast{position:fixed;right:16px;bottom:16px;background:#111522;border:1px solid #22304a;padding:.7rem 1rem;border-radius:.7rem;transform:translateY(20px);opacity:0;transition:.25s}
 .toast.show{transform:translateY(0);opacity:1}
+.skeleton{background:linear-gradient(90deg,#151826 25%,#1a1f31 37%,#151826 63%);background-size:400% 100%;animation:sh 1.2s ease infinite;border-radius:.8rem;height:248px}
+@keyframes sh{0%{background-position:100% 50%}100%{background-position:0 50%}}
 </style>
 
+<!-- Config globale (Firebase/AppCheck/Cloudinary) -->
 <script src="config.js"></script>
-
-<script type="module">
-  const cfg = window.APP_CONFIG?.firebase;
-  const siteKey = window.APP_CONFIG?.appCheck?.recaptchaV3SiteKey;
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-  import { getAuth, onAuthStateChanged, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-  import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app-check.js";
-  const app = initializeApp(cfg);
-  if (siteKey) initializeAppCheck(app,{provider:new ReCaptchaV3Provider(siteKey),isTokenAutoRefreshEnabled:true});
-  const auth=getAuth(app);
-  window.__AUTH__={auth,onAuthStateChanged,sendEmailVerification};
-  document.addEventListener("DOMContentLoaded",()=>{
-    const link=document.getElementById("navProfile");
-    onAuthStateChanged(auth,(u)=>{ link.href = u ? "profile.html" : "login.html#login"; });
-  });
-</script>
 </head>
 <body>
 <header>
@@ -67,14 +56,15 @@ input,select{width:100%;padding:.6rem;border-radius:.6rem;background:#0f1115;bor
       <strong class="brand">LoveNow</strong>
       <a class="btn" href="index.html" aria-current="page">Accueil</a>
       <a class="btn" href="#discover">Découvrir</a>
-      <a class="btn" href="login.html#conversations">Conversations</a>
-      <a class="btn" id="navProfile" href="login.html#login">Mon profil</a>
+      <a class="btn" href="conversations.html">Conversations</a>
+      <a class="btn" href="profile.html">Mon profil</a>
       <span class="spacer"></span>
       <a class="btn" href="privacy.html">Confidentialité</a>
       <a class="btn" href="cgu.html">CGU</a>
       <a class="btn btn-primary" href="login.html#signup">Rejoins-nous gratuitement</a>
     </nav>
 
+    <!-- Bannière : visible uniquement si user connecté ET e-mail non vérifié -->
     <div id="verifyBanner" class="banner" role="status" aria-live="polite" hidden>
       <div><strong>Action requise :</strong> valide ton e-mail pour envoyer des messages.</div>
       <div style="display:flex;gap:8px">
@@ -108,23 +98,43 @@ input,select{width:100%;padding:.6rem;border-radius:.6rem;background:#0f1115;bor
         <section>
           <h3 id="filtersTitle" style="margin:0 0 10px">Filtres</h3>
           <div class="filters" role="group" aria-label="Filtres de recherche">
-            <div><label for="fGender">Genre</label>
-              <select id="fGender"><option value="all">Tous</option><option value="F">Femmes</option><option value="M">Hommes</option><option value="O">Autre</option></select>
+            <div>
+              <label for="fGender">Genre</label>
+              <select id="fGender">
+                <option value="all">Tous</option>
+                <option value="F">Femmes</option>
+                <option value="M">Hommes</option>
+                <option value="O">Autre</option>
+              </select>
             </div>
-            <div><label for="fAgeMin">Âge min</label><input id="fAgeMin" type="number" min="18" max="99" value="18"></div>
-            <div><label for="fAgeMax">Âge max</label><input id="fAgeMax" type="number" min="18" max="99" value="99"></div>
-            <div><label for="fCity">Ville</label><input id="fCity" type="text" placeholder="ex. Paris"></div>
+            <div>
+              <label for="fAgeMin">Âge min</label>
+              <input id="fAgeMin" type="number" inputmode="numeric" min="18" max="99" value="18">
+            </div>
+            <div>
+              <label for="fAgeMax">Âge max</label>
+              <input id="fAgeMax" type="number" inputmode="numeric" min="18" max="99" value="99">
+            </div>
+            <div>
+              <label for="fCity">Ville</label>
+              <input id="fCity" type="text" placeholder="ex. Paris" autocomplete="address-level2">
+            </div>
             <div style="display:flex;gap:8px;align-items:end">
-              <button id="btnSearch" class="btn">Rechercher</button>
-              <button id="btnReset" class="btn">Réinitialiser</button>
+              <button id="btnSearch" class="btn" aria-label="Rechercher">Rechercher</button>
+              <button id="btnReset" class="btn" aria-label="Réinitialiser les filtres">Réinitialiser</button>
             </div>
           </div>
         </section>
       </div>
       <div class="card">
         <section>
-          <div id="emptyState" class="foot">Ajuste les filtres ou complète ton profil pour plus de matchs.</div>
-          <div id="results" class="results" aria-live="polite"></div>
+          <div id="emptyState" class="foot">Ajuste les filtres ou complète ton profil pour plus de matches.</div>
+          <div id="results" class="results" aria-live="polite">
+            <!-- skeletons -->
+            <div class="skeleton" role="presentation"></div>
+            <div class="skeleton" role="presentation"></div>
+            <div class="skeleton" role="presentation"></div>
+          </div>
         </section>
       </div>
     </div>
@@ -134,74 +144,165 @@ input,select{width:100%;padding:.6rem;border-radius:.6rem;background:#0f1115;bor
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 <footer class="wrap foot">© <span id="year"></span> LoveNow — <a href="privacy.html">Confidentialité</a> · <a href="cgu.html">CGU</a></footer>
 
+<!-- App : Firebase + Firestore + logique UI -->
 <script type="module">
+/* ===== Utils ===== */
 const $ = s => document.querySelector(s);
 const toast=(msg)=>{const t=$("#toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2400);};
+const bust=(url,ver)=>!url?"" : url + (url.includes("?")?"&":"?")+"v="+(ver||Date.now());
 
-const DEMO=[{id:"u2",name:"Alice",age:26,city:"Paris",gender:"F",img:"https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=1200&auto=format&fit=crop"},{id:"u1",name:"Benoît",age:25,city:"Lyon",gender:"M",img:"https://images.unsplash.com/photo-1531123897727-8f129e1688ce?q=80&w=1200&auto=format&fit=crop"}];
-let LOADED=[];
+/* ===== Firebase init ===== */
+const cfg = window.APP_CONFIG?.firebase;
+const siteKey = window.APP_CONFIG?.appCheck?.recaptchaV3SiteKey;
 
-function renderProfiles(list){
-  const wrap=$("#results"); wrap.innerHTML="";
-  list.forEach(p=>{
-    const safeName=p.name||p.displayName||"Utilisateur";
-    const safeAge=Number(p.age)||"—";
-    const safeCity=p.city||"—";
-    const safeGen=p.gender||"O";
-    const img=p.photoURL||p.img||"https://images.unsplash.com/photo-1502685104226-ee32379fefbe?q=80&w=1200&auto=format&fit=crop";
-    const el=document.createElement("article");
-    el.className="profile";
-    el.innerHTML=`<img src="${img}" alt="Photo de ${safeName}">
-      <div class="meta"><div><strong>${safeName}</strong> · ${safeAge} ans</div><div>${safeCity} · ${safeGen}</div></div>
-      <div class="actions">
-        <a class="btn" href="profile.html">Voir le profil</a>
-        <a class="btn btn-primary" href="login.html#conversations">Message</a>
-      </div>`;
-    wrap.appendChild(el);
-  });
-  $("#emptyState").hidden = list.length!==0;
-}
-
-function applyFilters(){
-  const g=$("#fGender").value, min=Math.max(18,Number($("#fAgeMin").value||18)), max=Math.min(99,Number($("#fAgeMax").value||99)), city=($("#fCity").value||"").trim().toLowerCase();
-  const filtered=LOADED.filter(p=>{
-    const age=Number(p.age||0), gen=(p.gender||"").toUpperCase(), cty=(p.city||"").toLowerCase();
-    return (g==="all"||gen===g) && (age>=min&&age<=max) && (!city||cty.includes(city));
-  });
-  renderProfiles(filtered);
-}
-
-document.getElementById("year").textContent=(new Date()).getFullYear();
-
+import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { getAuth, onAuthStateChanged, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app-check.js";
 import { getFirestore, collection, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-import { getApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 
-async function loadProfiles(){
-  try{
-    const db=getFirestore(getApp());
-    const q=query(collection(db,"profiles"), orderBy("createdAt","desc"), limit(200));
-    const snap=await getDocs(q); const arr=[]; snap.forEach(d=>arr.push({id:d.id,...d.data()})); return arr;
-  }catch(e){ console.error("loadProfiles",e); return null; }
-}
+const app = getApps().length ? getApp() : initializeApp(cfg);
+if (siteKey) initializeAppCheck(app, { provider:new ReCaptchaV3Provider(siteKey), isTokenAutoRefreshEnabled:true });
+const auth = getAuth(app);
+const db   = getFirestore(app);
 
-(async ()=>{ let data=await loadProfiles(); if(!data||data.length===0) data=DEMO; LOADED=data; renderProfiles(LOADED); })();
-$("#btnSearch").addEventListener("click",applyFilters);
-$("#btnReset").addEventListener("click",()=>{ $("#fGender").value="all"; $("#fAgeMin").value=18; $("#fAgeMax").value=99; $("#fCity").value=""; applyFilters(); });
+/* ===== Auth banner ===== */
+onAuthStateChanged(auth,(user)=>{
+  const banner=$("#verifyBanner");
+  const show=!!(user && !user.emailVerified);
+  document.documentElement.dataset.verified = user?.emailVerified ? "true" : "false";
+  banner.hidden = !show;
 
-document.addEventListener("firebase-ready", ()=>{
-  const {auth,onAuthStateChanged,sendEmailVerification}=window.__AUTH__;
-  const banner=$("#verifyBanner"), btnResend=$("#btnResend"), btnRefresh=$("#btnRefresh");
-  onAuthStateChanged(auth,(user)=>{ banner.hidden = !(user && !user.emailVerified); });
-  btnResend?.addEventListener("click", async ()=>{
-    const u=window.__AUTH__.auth.currentUser; if(!u){ location.href="login.html#login"; return; }
+  $("#btnResend")?.addEventListener("click", async ()=>{
+    const u=auth.currentUser; if(!u){ location.href="login.html#login"; return; }
     try{
       const actionCodeSettings={ url:"https://lovenow.netlify.app/login.html?verified=1", handleCodeInApp:false };
-      await window.__AUTH__.sendEmailVerification(u, actionCodeSettings);
+      await sendEmailVerification(u, actionCodeSettings);
       toast("Lien de vérification envoyé ✅");
     }catch(e){ console.error(e); toast("Impossible d’envoyer le lien"); }
   });
-  btnRefresh?.addEventListener("click",()=>location.reload());
+  $("#btnRefresh")?.addEventListener("click",()=>location.reload());
 });
+
+/* ===== Fallback démo si Firestore vide ===== */
+const DEMO = [
+  { id:"demo2", name:"Alice",  age:26, city:"Paris", gender:"F", photoURL:"https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=1200&auto=format&fit=crop"},
+  { id:"demo1", name:"Benoît", age:25, city:"Lyon",  gender:"M", photoURL:"https://images.unsplash.com/photo-1531123897727-8f129e1688ce?q=80&w=1200&auto=format&fit=crop"}
+];
+
+let LOADED = [];
+
+/* ===== Rendu des cartes ===== */
+function card(p){
+  const safeName = p.name || p.displayName || "Utilisateur";
+  const safeAge  = Number(p.age)||"—";
+  const safeCity = p.city || "—";
+  const safeGen  = (p.gender||"O");
+  const img = bust(p.photoURL || p.img || "https://images.unsplash.com/photo-1502685104226-ee32379fefbe?q=80&w=1200&auto=format&fit=crop", p?.updatedAt?.seconds||0);
+
+  const el=document.createElement("article");
+  el.className="profile";
+  el.innerHTML=`
+    <img src="${img}" alt="Photo de ${safeName}" loading="lazy" decoding="async">
+    <div class="meta">
+      <div><strong>${safeName}</strong> · ${safeAge} ans</div>
+      <div>${safeCity} · ${safeGen}</div>
+    </div>
+    <div class="actions">
+      <a class="btn" data-act="view" data-user="${p.id}">Voir le profil</a>
+      <button class="btn btn-primary" data-act="msg" data-user="${p.id}">Message</button>
+    </div>`;
+  return el;
+}
+
+function render(list){
+  const wrap=$("#results"); wrap.innerHTML="";
+  list.forEach(p=>wrap.appendChild(card(p)));
+  $("#emptyState").hidden = list.length !== 0;
+}
+
+/* ===== Filtres ===== */
+function applyFilters(){
+  const g=$("#fGender").value;
+  const min=Math.max(18, Number($("#fAgeMin").value||18));
+  const max=Math.min(99, Number($("#fAgeMax").value||99));
+  const city=($("#fCity").value||"").trim().toLowerCase();
+
+  const filtered=LOADED.filter(p=>{
+    const age = Number(p.age||0);
+    const gen = (p.gender||"").toUpperCase();
+    const cty = (p.city||"").toLowerCase();
+    const okG=(g==="all"||gen===g);
+    const okA=(age>=min && age<=max);
+    const okC=(!city||cty.includes(city));
+    return okG&&okA&&okC;
+  });
+  render(filtered);
+}
+
+$("#btnSearch").addEventListener("click", applyFilters);
+$("#btnReset").addEventListener("click", ()=>{
+  $("#fGender").value="all"; $("#fAgeMin").value=18; $("#fAgeMax").value=99; $("#fCity").value="";
+  applyFilters();
+});
+
+/* ===== Actions : voir / message ===== */
+$("#results").addEventListener("click",(e)=>{
+  const view = e.target.closest("[data-act='view']");
+  const msg  = e.target.closest("[data-act='msg']");
+  if (!view && !msg) return;
+
+  const uid = (view||msg).dataset.user;
+  const user = auth.currentUser;
+  const verified = document.documentElement.dataset.verified==="true";
+
+  if (msg){
+    if (!user){ location.href="login.html#login"; return; }
+    if (!verified){ alert("Valide ton e-mail avant d’envoyer des messages."); return; }
+    location.href = `conversations.html?to=${encodeURIComponent(uid)}`;
+    return;
+  }
+
+  if (view){
+    // Pas encore de page profil public → ouvre l’en-tête dans la page de conversation
+    if (!user){ location.href="login.html#login"; return; }
+    location.href = `conversations.html?to=${encodeURIComponent(uid)}`;
+  }
+});
+
+/* ===== Chargement des profils (Firestore) ===== */
+async function loadProfiles(){
+  try{
+    const q = query(collection(db,"profiles"), orderBy("createdAt","desc"), limit(200));
+    const snap = await getDocs(q);
+    const arr=[];
+    snap.forEach(d=>{
+      const v=d.data()||{};
+      arr.push({
+        id:d.id,
+        name: v.name || v.displayName || "",
+        age:  v.age,
+        city: v.city || "",
+        gender:(v.gender||"O").toUpperCase(),
+        photoURL: v.photoURL || "",
+        updatedAt: v.updatedAt || null
+      });
+    });
+    return arr;
+  }catch(err){
+    console.error("Erreur Firestore (profiles):", err);
+    return null;
+  }
+}
+
+(async ()=>{
+  let data = await loadProfiles();
+  if (!data || data.length===0) data = DEMO;
+  LOADED = data;
+  render(LOADED);
+})();
+
+/* ===== Divers ===== */
+document.getElementById("year").textContent=(new Date()).getFullYear();
 </script>
 </body>
 </html>
