@@ -5,13 +5,21 @@
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>LoveNow — Rencontres près de chez toi</title>
 <meta name="description" content="Inscris-toi en 2 minutes, découvre des profils près de chez toi et commence à discuter."/>
+<link rel="canonical" href="https://lovenow.netlify.app/"/>
+<meta property="og:title" content="LoveNow — Rencontres près de chez toi"/>
+<meta property="og:description" content="Inscris-toi en 2 minutes, découvre des profils près de chez toi et commence à discuter."/>
+<meta property="og:url" content="https://lovenow.netlify.app/"/>
+<meta property="og:image" content="https://via.placeholder.com/1200x630.png?text=LoveNow"/>
+<meta name="twitter:card" content="summary_large_image"/>
 <meta name="theme-color" content="#14151a"/>
 <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" as="style" onload="this.rel='stylesheet'"/>
 
 <style>
 :root{--bg:#0f1115;--card:#171922;--muted:#aab1c3;--text:#e9edf6;--brand:#ff2d55;--brand2:#7a5cf0}
 *{box-sizing:border-box}
+html{scroll-behavior:smooth}
 html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:Inter,system-ui}
+a:focus,button:focus,input:focus,select:focus,textarea:focus{outline:3px auto;outline-offset:2px}
 a{color:inherit;text-decoration:none}
 .wrap{max-width:1100px;margin:0 auto;padding:16px}
 header{position:sticky;top:0;z-index:10;background:rgba(15,17,21,.7);backdrop-filter:saturate(140%) blur(8px);border-bottom:1px solid #202334}
@@ -22,7 +30,9 @@ nav{display:flex;align-items:center;gap:10px;padding:10px 0}
 .btn-primary{background:linear-gradient(135deg,var(--brand),var(--brand2));border:none}
 .btn[disabled]{opacity:.6;cursor:not-allowed}
 .banner{display:flex;gap:8px;align-items:center;justify-content:space-between;background:#1a1e2b;border:1px solid #27314a;border-radius:.8rem;padding:.6rem .8rem;margin:.6rem 0}
-.hero{background:linear-gradient(135deg,#2b1742 0%,#0f3b5b 60%,#0f1115 100%);padding:64px 0;border-bottom:1px solid #202334}
+.hero{position:relative;background:linear-gradient(135deg,#2b1742 0%,#0f3b5b 60%,#0f1115 100%);padding:64px 0;border-bottom:1px solid #202334}
+.hero::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.45),rgba(0,0,0,.25))}
+.hero>*{position:relative}
 h1{font-size:clamp(28px,4vw,44px);margin:.2rem 0 1rem}
 .pills{display:flex;gap:8px;flex-wrap:wrap}
 .pill{display:inline-flex;gap:6px;align-items:center;background:#202334;border:1px solid #2b3550;color:#cbd3e6;padding:.4rem .6rem;border-radius:999px;font-size:.9rem}
@@ -38,6 +48,12 @@ input,select{width:100%;padding:.6rem;border-radius:.6rem;background:#0f1115;bor
 @media(min-width:680px){.results{grid-template-columns:repeat(2,1fr)}}
 .profile{background:#141824;border:1px solid #23283d;border-radius:.8rem;overflow:hidden;display:flex;flex-direction:column}
 .profile img{width:100%;height:180px;object-fit:cover;background:#0c0e12}
+.profile.skeleton .ph{height:180px;background:#1a1e2b}
+.profile.skeleton .meta{padding:12px}
+.profile.skeleton .line{height:16px;margin:6px 0;background:#202334;border-radius:4px}
+.profile.skeleton .line.small{width:60%}
+@keyframes shimmer{0%{opacity:.6}50%{opacity:1}100%{opacity:.6}}
+.profile.skeleton{animation:shimmer 1.5s infinite}
 .profile .meta{padding:10px 12px;color:#cfd6ea;display:flex;flex-direction:column;gap:6px}
 .profile .actions{display:flex;gap:8px;padding:10px 12px;border-top:1px solid #23283d}
 .foot{opacity:.75;font-size:.9rem;margin-top:12px}
@@ -72,13 +88,13 @@ input,select{width:100%;padding:.6rem;border-radius:.6rem;background:#0f1115;bor
     <nav aria-label="Navigation principale">
       <strong class="brand">LoveNow</strong>
       <a class="btn" href="index.html" aria-current="page">Accueil</a>
-      <a class="btn" href="#discover">Découvrir</a>
+      <a class="btn" href="/#discover">Découvrir</a>
       <a class="btn" href="conversations.html">Conversations</a>
       <a class="btn" href="profile.html">Mon profil</a>
       <span class="spacer"></span>
       <a class="btn" href="privacy.html">Confidentialité</a>
       <a class="btn" href="cgu.html">CGU</a>
-      <a class="btn btn-primary" href="login.html">Rejoins-nous gratuitement</a>
+      <a class="btn btn-primary" href="/login#signup">Rejoins-nous gratuitement</a>
     </nav>
 
     <!-- Bannière vérif : cachée par défaut, affichée si user connecté non vérifié -->
@@ -103,7 +119,7 @@ input,select{width:100%;padding:.6rem;border-radius:.6rem;background:#0f1115;bor
         <span class="pill">🔒 Sécurité & respect</span>
       </div>
       <div style="margin-top:16px">
-        <a class="btn btn-primary" href="login.html">Rejoins-nous gratuitement</a>
+        <a class="btn btn-primary" href="/login#signup">Rejoins-nous gratuitement</a>
       </div>
     </div>
   </section>
@@ -153,14 +169,14 @@ input,select{width:100%;padding:.6rem;border-radius:.6rem;background:#0f1115;bor
   </section>
 </main>
 
-<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 <footer class="wrap foot">© <span id="year"></span> LoveNow — <a href="privacy.html">Confidentialité</a> · <a href="cgu.html">CGU</a></footer>
 
 <!-- App logic (Firestore + actions) -->
 <script type="module">
 /* ===== Helpers ===== */
 const $ = s => document.querySelector(s);
-const toast=(msg)=>{const t=$("#toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2400);};
+function showToast(msg){const t=$("#toast");t.textContent=msg;t.hidden=false;setTimeout(()=>t.hidden=true,3000);}
 
 /* ===== Fallback démo si Firestore vide ===== */
 const DEMO = [
@@ -169,10 +185,26 @@ const DEMO = [
 ];
 
 let LOADED = [];
+const params=new URLSearchParams(location.search);
+if(params.get("gender")) $("#fGender").value=params.get("gender");
+if(params.get("min")) $("#fAgeMin").value=params.get("min");
+if(params.get("max")) $("#fAgeMax").value=params.get("max");
+if(params.get("city")) $("#fCity").value=params.get("city");
 
 /* ===== Rendu des cartes profil ===== */
 function renderProfiles(list){
   const wrap=$("#results"); wrap.innerHTML="";
+  if(list.length===0){
+    for(let i=0;i<6;i++){
+      const sk=document.createElement("div");
+      sk.className="profile skeleton";
+      sk.innerHTML='<div class="ph"></div><div class="meta"><div class="line"></div><div class="line small"></div></div>';
+      wrap.appendChild(sk);
+    }
+    $("#emptyState").hidden=false;
+    return;
+  }
+  $("#emptyState").hidden=true;
   list.forEach(p=>{
     const safeName = p.name || p.displayName || "Utilisateur";
     const safeAge  = (p.age!=null ? Number(p.age) : "—");
@@ -195,10 +227,18 @@ function renderProfiles(list){
       </div>`;
     wrap.appendChild(el);
   });
-  $("#emptyState").hidden = list.length !== 0;
 }
 
 /* ===== Filtres ===== */
+function updateURL(){
+  const params=new URLSearchParams();
+  const g=$("#fGender").value; if(g!="all") params.set("gender",g);
+  const min=$("#fAgeMin").value; if(min && min!="18") params.set("min",min);
+  const max=$("#fAgeMax").value; if(max && max!="99") params.set("max",max);
+  const city=$("#fCity").value.trim(); if(city) params.set("city",city);
+  const qs=params.toString();
+  history.replaceState(null,'',qs?`?${qs}`:location.pathname);
+}
 function applyFilters(){
   const g=$("#fGender").value;
   const min=Math.max(18, Number($("#fAgeMin").value||18));
@@ -215,6 +255,7 @@ function applyFilters(){
     return okG&&okA&&okC;
   });
   renderProfiles(filtered);
+  updateURL();
 }
 
 /* ===== Firestore: chargement profils ===== */
@@ -262,11 +303,14 @@ document.addEventListener("firebase-ready", ()=>{
 
   btnResend?.addEventListener("click", async ()=>{
     const u=window.__AUTH__.auth.currentUser; if(!u){ location.href="login.html"; return; }
+    const prev=btnResend.textContent; btnResend.disabled=true; btnResend.textContent="Envoi…";
+    showToast("Envoi en cours…");
     try{
       const actionCodeSettings={ url:"https://lovenow.netlify.app/login.html?verified=1", handleCodeInApp:false };
       await window.__AUTH__.sendEmailVerification(u, actionCodeSettings);
-      toast("Lien de vérification envoyé ✅");
-    }catch(e){ console.error(e); toast("Impossible d’envoyer le lien"); }
+      showToast("Lien envoyé ✅");
+    }catch(e){ console.error(e); showToast("Échec d'envoi. Réessaye."); }
+    finally{ btnResend.disabled=false; btnResend.textContent=prev; }
   });
 
   btnRefresh?.addEventListener("click",()=>location.reload());
@@ -279,7 +323,7 @@ document.getElementById("year").textContent=(new Date()).getFullYear();
   let data = await loadProfiles();
   if (!data || data.length===0) data = DEMO;
   LOADED = data;
-  renderProfiles(LOADED);
+  applyFilters();
 })();
 
 $("#btnSearch").addEventListener("click", applyFilters);

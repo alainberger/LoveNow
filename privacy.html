@@ -5,20 +5,32 @@
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>LoveNow — Politique de confidentialité</title>
 <meta name="description" content="Politique de confidentialité LoveNow (RGPD)."/>
+<link rel="canonical" href="https://lovenow.netlify.app/privacy"/>
+<meta property="og:title" content="LoveNow — Politique de confidentialité"/>
+<meta property="og:description" content="Politique de confidentialité LoveNow."/>
+<meta property="og:url" content="https://lovenow.netlify.app/privacy"/>
+<meta property="og:image" content="https://via.placeholder.com/1200x630.png?text=LoveNow"/>
+<meta name="twitter:card" content="summary_large_image"/>
 <style>
 body{margin:0;background:#0f1115;color:#e9edf6;font-family:Inter,system-ui}
 .wrap{max-width:900px;margin:0 auto;padding:20px}
 a{color:#9ecbff}.card{background:#171922;border:1px solid #202334;border-radius:.9rem;padding:16px}
 .btn{display:inline-flex;align-items:center;gap:6px;padding:.6rem .9rem;border-radius:.6rem;background:#1a1e2b;border:1px solid #27314a}
+:focus{outline:3px auto;outline-offset:2px}
 </style>
 <script src="config.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded",()=>{
   const L=window.APP_CONFIG?.legal||{};
   const dpo=window.APP_CONFIG?.dpoEmail||L.editorEmail||"";
-  const set=(id,v)=>{const el=document.getElementById(id); if(el) el.textContent=v||"";}
-  set("editorName",L.editorName); set("editorAddress",L.editorAddress); set("editorEmail",L.editorEmail);
-  set("dpoEmail",dpo); document.getElementById("last").textContent=new Date().toLocaleDateString("fr-FR");
+  const set=(id,v,ph)=>{const el=document.getElementById(id); if(el) el.textContent=v||ph;}
+  set("editorName",L.editorName,"[Raison sociale - A compléter]");
+  set("editorAddress",L.editorAddress,"[Adresse - A compléter]");
+  set("editorEmail",L.editorEmail,"[Email - A compléter]");
+  set("dpoEmail",dpo,"[Email DPO - A compléter]");
+  set("last",L.lastUpdated,"[Renseigner la date de déploiement]");
+  const missing=!L.editorName||!L.editorAddress||!L.editorEmail||!dpo||!L.lastUpdated;
+  document.getElementById("legalNote").hidden=!missing;
 });
 </script>
 </head>
@@ -26,11 +38,13 @@ document.addEventListener("DOMContentLoaded",()=>{
 <div class="wrap">
   <a class="btn" href="index.html">← Retour à l’accueil</a>
   <h1>Politique de confidentialité</h1>
-  <p>Dernière mise à jour : <span id="last"></span></p>
+  <p>Dernière mise à jour : <span id="last">[Renseigner la date de déploiement]</span></p>
+
+  <div id="legalNote" class="card" style="border-color:#c0392b" hidden>Mentions légales à compléter avant mise en ligne.</div>
 
   <div class="card">
     <h2>1. Responsable du traitement</h2>
-    <p><strong id="editorName"></strong> — <span id="editorAddress"></span> — <a href="mailto:" id="mailLegal"><span id="editorEmail"></span></a></p>
+    <p><strong id="editorName">[Raison sociale - A compléter]</strong> — <span id="editorAddress">[Adresse - A compléter]</span> — <a href="mailto:" id="mailLegal"><span id="editorEmail">[Email - A compléter]</span></a></p>
 
     <h2>2. Données traitées</h2>
     <ul>
@@ -61,7 +75,16 @@ document.addEventListener("DOMContentLoaded",()=>{
     <p>Clauses contractuelles types et garanties appropriées si applicables.</p>
 
     <h2>7. Droits</h2>
-    <p>Accès, rectification, suppression, opposition, portabilité. Contact : <strong id="dpoEmail"></strong>. Recours : CNIL.</p>
+    <p>Accès, rectification, suppression, opposition, portabilité. Contact : <strong id="dpoEmail">[Email DPO - A compléter]</strong>. Recours : CNIL.</p>
+
+    <h2>8. Sous-traitants</h2>
+    <ul>
+      <li><a href="https://www.netlify.com/privacy/">Netlify</a> (hébergement, US)</li>
+      <li><a href="https://firebase.google.com/support/privacy">Firebase</a> (authentification & stockage, US)</li>
+      <li><a href="https://cloudinary.com/privacy">Cloudinary</a> (médias, US)</li>
+    </ul>
+    <p>Transferts hors UE encadrés par des Clauses Contractuelles Types (CCT/SCC).</p>
+    <p>Service réservé aux 18 ans et plus.</p>
 
     <h2>8. Sécurité</h2>
     <p>Chiffrement TLS, hachage des mots de passe, contrôle d’accès, journalisation, App Check.</p>
