@@ -1,38 +1,43 @@
 [build]
   publish = "."
 
-# Routes propres
+# Routes propres (URLs sans .html)
 [[redirects]]
   from = "/privacy"
-  to = "/privacy.html"
+  to   = "/privacy.html"
   status = 200
 
 [[redirects]]
   from = "/cgu"
-  to = "/cgu.html"
+  to   = "/cgu.html"
   status = 200
 
 [[redirects]]
   from = "/login"
-  to = "/login.html"
+  to   = "/login.html"
   status = 200
 
 [[redirects]]
   from = "/profile"
-  to = "/profile.html"
+  to   = "/profile.html"
   status = 200
 
-# Catch-all SPA -> index.html
+[[redirects]]
+  from = "/conversations"
+  to   = "/conversations.html"
+  status = 200
+
+# Catch-all SPA -> index.html (évite 404 Netlify sur routes internes)
 [[redirects]]
   from = "/*"
-  to = "/index.html"
+  to   = "/index.html"
   status = 200
 
-# Headers sécurité + CSP (Cloudinary autorisé)
+# Headers sécurité + CSP (Firebase + Cloudinary)
 [[headers]]
   for = "/*"
   [headers.values]
-    Content-Security-Policy = "default-src 'self'; img-src 'self' https: data: https://res.cloudinary.com; style-src 'self' https: 'unsafe-inline'; script-src 'self' https: 'unsafe-inline'; font-src 'self' https: data:; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com https://www.gstatic.com https://firebasestorage.googleapis.com https://*.firebasestorage.app https://api.cloudinary.com; frame-src https://www.google.com/recaptcha/ https://recaptcha.google.com/recaptcha/; child-src https://www.google.com/recaptcha/ https://recaptcha.google.com/recaptcha/; frame-ancestors 'none'"
+    Content-Security-Policy = "default-src 'self'; img-src 'self' https: data:; style-src 'self' https: 'unsafe-inline'; script-src 'self' https: 'unsafe-inline'; font-src 'self' https: data:; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com https://www.gstatic.com https://firebasestorage.googleapis.com https://*.firebasestorage.app https://api.cloudinary.com; frame-src https://www.google.com/recaptcha/ https://recaptcha.google.com/recaptcha/; child-src https://www.google.com/recaptcha/ https://recaptcha.google.com/recaptcha/; frame-ancestors 'none'"
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "geolocation=(), microphone=(), camera=()"
     X-Frame-Options = "DENY"
