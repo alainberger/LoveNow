@@ -7,13 +7,10 @@
 <meta name="description" content="Inscris-toi en 2 minutes, découvre des profils près de chez toi et commence à discuter."/>
 <meta name="theme-color" content="#14151a"/>
 <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" as="style" onload="this.rel='stylesheet'"/>
-
 <style>
 :root{--bg:#0f1115;--card:#171922;--muted:#aab1c3;--text:#e9edf6;--brand:#ff2d55;--brand2:#7a5cf0}
-*{box-sizing:border-box}
-html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:Inter,system-ui}
+*{box-sizing:border-box}html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:Inter,system-ui}
 a{color:inherit;text-decoration:none}
-*[hidden]{display:none !important} /* blindage : tout élément [hidden] est vraiment caché */
 .wrap{max-width:1100px;margin:0 auto;padding:16px}
 header{position:sticky;top:0;z-index:10;background:rgba(15,17,21,.7);backdrop-filter:saturate(140%) blur(8px);border-bottom:1px solid #202334}
 nav{display:flex;align-items:center;gap:10px;padding:10px 0}
@@ -34,7 +31,7 @@ h1{font-size:clamp(28px,4vw,44px);margin:.2rem 0 1rem}
 .filters{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 @media(min-width:700px){.filters{grid-template-columns:140px 140px 1fr 130px 130px}}
 label{display:block;margin-bottom:4px;color:var(--muted);font-size:.9rem}
-input,select{width:100%;padding:.6rem;border-radius:.6rem;background:#0f1115;border:1px solid #2b2f44;color:var(--text)}
+input,select{width:100%;padding:.6rem;border-radius:.6rem;background:#0f1115;border:1px solid #2b2f44;color:#e9edf6}
 .results{display:grid;grid-template-columns:1fr;gap:12px;padding:12px}
 @media(min-width:680px){.results{grid-template-columns:repeat(2,1fr)}}
 .profile{background:#141824;border:1px solid #23283d;border-radius:.8rem;overflow:hidden;display:flex;flex-direction:column}
@@ -44,17 +41,15 @@ input,select{width:100%;padding:.6rem;border-radius:.6rem;background:#0f1115;bor
 .foot{opacity:.75;font-size:.9rem;margin-top:12px}
 .toast{position:fixed;right:16px;bottom:16px;background:#111522;border:1px solid #22304a;padding:.7rem 1rem;border-radius:.7rem;transform:translateY(20px);opacity:0;transition:.25s}
 .toast.show{transform:translateY(0);opacity:1}
-.skeleton{background:linear-gradient(90deg,#151826 25%,#1a1f31 37%,#151826 63%);background-size:400% 100%;animation:sh 1.2s ease infinite}
-@keyframes sh{0%{background-position:100% 50%}100%{background-position:0 50%}}
 </style>
 
+<!-- Config -->
 <script src="config.js"></script>
 
-<!-- Firebase init + App Check (expose __AUTH__ et évènement 'firebase-ready') -->
+<!-- Firebase + App Check + Auth bootstrap -->
 <script type="module">
   const cfg = window.APP_CONFIG?.firebase;
   const siteKey = window.APP_CONFIG?.appCheck?.recaptchaV3SiteKey;
-
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
   import { getAuth, onAuthStateChanged, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
   import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app-check.js";
@@ -62,8 +57,6 @@ input,select{width:100%;padding:.6rem;border-radius:.6rem;background:#0f1115;bor
   const app = initializeApp(cfg);
   if (siteKey) initializeAppCheck(app, { provider:new ReCaptchaV3Provider(siteKey), isTokenAutoRefreshEnabled:true });
   const auth = getAuth(app);
-
-  // exposer Auth au reste de la page
   window.__AUTH__ = { auth, onAuthStateChanged, sendEmailVerification };
   document.dispatchEvent(new CustomEvent("firebase-ready"));
 </script>
@@ -76,14 +69,13 @@ input,select{width:100%;padding:.6rem;border-radius:.6rem;background:#0f1115;bor
       <a class="btn" href="index.html" aria-current="page">Accueil</a>
       <a class="btn" href="#discover">Découvrir</a>
       <a class="btn" href="login.html">Conversations</a>
-      <a class="btn" href="profile.html">Mon profil</a><!-- ✅ corrigé -->
+      <a class="btn" href="profile.html">Mon profil</a>
       <span class="spacer"></span>
       <a class="btn" href="privacy.html">Confidentialité</a>
       <a class="btn" href="cgu.html">CGU</a>
       <a class="btn btn-primary" href="login.html">Rejoins-nous gratuitement</a>
     </nav>
 
-    <!-- Bannière vérif : HIDDEN par défaut -->
     <div id="verifyBanner" class="banner" role="status" aria-live="polite" hidden>
       <div><strong>Action requise :</strong> valide ton e-mail pour envoyer des messages.</div>
       <div style="display:flex;gap:8px">
@@ -147,7 +139,7 @@ input,select{width:100%;padding:.6rem;border-radius:.6rem;background:#0f1115;bor
       </div>
       <div class="card">
         <section>
-          <div id="emptyState" class="foot">Ajuste les filtres ou complète ton profil pour plus de matches.</div>
+          <div id="emptyState" class="foot">Ajuste les filtres ou complète ton profil pour plus de matchs.</div>
           <div id="results" class="results" aria-live="polite"></div>
         </section>
       </div>
@@ -158,51 +150,42 @@ input,select{width:100%;padding:.6rem;border-radius:.6rem;background:#0f1115;bor
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 <footer class="wrap foot">© <span id="year"></span> LoveNow — <a href="privacy.html">Confidentialité</a> · <a href="cgu.html">CGU</a></footer>
 
-<!-- Un SEUL module pour tout le front : utils + auth + Firestore + filtres -->
+<!-- App logic (Firestore) -->
 <script type="module">
-/* ========= Imports Firestore ========= */
-import { getApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import { getFirestore, collection, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-
-/* ========= Utils ========= */
 const $ = s => document.querySelector(s);
 const toast=(msg)=>{const t=$("#toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2400);};
 
-/* ========= Démo fallback si Firestore vide ========= */
+// Fallback démo si Firestore vide
 const DEMO = [
   { id:"u2", name:"Alice",  age:26, city:"Paris", gender:"F", img:"https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=1200&auto=format&fit=crop"},
   { id:"u1", name:"Benoît", age:25, city:"Lyon",  gender:"M", img:"https://images.unsplash.com/photo-1531123897727-8f129e1688ce?q=80&w=1200&auto=format&fit=crop"}
 ];
-let LOADED = []; // profils chargés (Firestore ou DEMO)
 
-/* ========= Rendu des cartes ========= */
+let LOADED = [];
+
 function renderProfiles(list){
   const wrap=$("#results"); wrap.innerHTML="";
   list.forEach(p=>{
     const safeName = p.name || p.displayName || "Utilisateur";
     const safeAge  = Number(p.age)||"—";
     const safeCity = p.city || "—";
-    const safeGen  = (p.gender||"O").toString().toUpperCase();
-    const img = p.img || p.photoURL || "https://images.unsplash.com/photo-1502685104226-ee32379fefbe?q=80&w=1200&auto=format&fit=crop";
+    const safeGen  = p.gender || "O";
+    const img = p.photoURL || p.img || "https://images.unsplash.com/photo-1502685104226-ee32379fefbe?q=80&w=1200&auto=format&fit=crop";
 
     const el=document.createElement("article");
     el.className="profile";
     el.innerHTML=`
       <img src="${img}" alt="Photo de ${safeName}">
-      <div class="meta">
-        <div><strong>${safeName}</strong> · ${safeAge} ans</div>
-        <div>${safeCity} · ${safeGen}</div>
-      </div>
+      <div class="meta"><div><strong>${safeName}</strong> · ${safeAge} ans</div><div>${safeCity} · ${safeGen}</div></div>
       <div class="actions">
-        <a class="btn" data-act="view" data-user="${p.id}">Voir le profil</a>
-        <button class="btn btn-primary" data-act="msg" data-user="${p.id}">Message</button>
+        <a class="btn" href="login.html#conversations">Voir le profil</a>
+        <a class="btn btn-primary" href="login.html#conversations">Message</a>
       </div>`;
     wrap.appendChild(el);
   });
   $("#emptyState").hidden = list.length !== 0;
 }
 
-/* ========= Filtres ========= */
 function applyFilters(){
   const g=$("#fGender").value;
   const min=Math.max(18, Number($("#fAgeMin").value||18));
@@ -220,91 +203,49 @@ function applyFilters(){
   });
   renderProfiles(filtered);
 }
+
+document.getElementById("year").textContent=(new Date()).getFullYear();
+
+import { getFirestore, collection, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import { getApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+
+async function loadProfiles(){
+  try{
+    const db = getFirestore(getApp());
+    const q  = query(collection(db,"profiles"), orderBy("createdAt","desc"), limit(200));
+    const snap = await getDocs(q);
+    const arr=[]; snap.forEach(d=>{ arr.push({ id:d.id, ...d.data() }); });
+    return arr;
+  }catch(e){ console.error(e); return null; }
+}
+
+(async ()=>{
+  let data = await loadProfiles();
+  if (!data || data.length===0) data = DEMO;
+  LOADED = data; renderProfiles(LOADED);
+})();
+
 $("#btnSearch").addEventListener("click", applyFilters);
-$("#btnReset").addEventListener("click", ()=>{
-  $("#fGender").value="all"; $("#fAgeMin").value=18; $("#fAgeMax").value=99; $("#fCity").value="";
-  applyFilters();
-});
+$("#btnReset").addEventListener("click", ()=>{ $("#fGender").value="all"; $("#fAgeMin").value=18; $("#fAgeMax").value=99; $("#fCity").value=""; applyFilters(); });
 
-/* ========= Actions cartes ========= */
-$("#results").addEventListener("click",(e)=>{
-  const view = e.target.closest("[data-act='view']");
-  const msg  = e.target.closest("[data-act='msg']");
-  if (!view && !msg) return;
-
-  const verified = document.documentElement.dataset.verified==="true";
-
-  if (view){
-    if (!verified){ location.href="login.html#login"; return; }
-    // Pour l’instant, on renvoie vers le profil perso (page publique "user.html" viendra ensuite)
-    location.href="profile.html";
-    return;
-  }
-  if (msg){
-    if (!verified){ alert("Valide ton e-mail avant d’envoyer des messages."); location.href="login.html#login"; return; }
-    location.href="login.html#conversations";
-  }
-});
-
-/* ========= Auth & bannière (après 'firebase-ready') ========= */
+// bannière vérif
 document.addEventListener("firebase-ready", ()=>{
   const {auth,onAuthStateChanged,sendEmailVerification}=window.__AUTH__;
   const banner=$("#verifyBanner"), btnResend=$("#btnResend"), btnRefresh=$("#btnRefresh");
-
-  if (banner) banner.hidden = true; // sécurité : masqué par défaut
-
   onAuthStateChanged(auth,(user)=>{
     const show=!!(user && !user.emailVerified);
-    document.documentElement.dataset.verified = user?.emailVerified ? "true" : "false";
-    if (banner) banner.hidden=!show;
+    banner.hidden=!show;
   });
-
   btnResend?.addEventListener("click", async ()=>{
     const u=window.__AUTH__.auth.currentUser; if(!u){ location.href="login.html"; return; }
     try{
       const actionCodeSettings={ url:"https://lovenow.netlify.app/login.html?verified=1", handleCodeInApp:false };
-      await sendEmailVerification(u, actionCodeSettings);
+      await window.__AUTH__.sendEmailVerification(u, actionCodeSettings);
       toast("Lien de vérification envoyé ✅");
     }catch(e){ console.error(e); toast("Impossible d’envoyer le lien"); }
   });
   btnRefresh?.addEventListener("click",()=>location.reload());
 });
-
-/* ========= Chargement Firestore ========= */
-async function loadProfilesFromFirestore(){
-  try{
-    const db = getFirestore(getApp());
-    // Adapter si ta collection s’appelle autrement que "users"
-    const q  = query(collection(db,"users"), orderBy("createdAt","desc"), limit(200));
-    const snap = await getDocs(q);
-    const arr = [];
-    snap.forEach(doc=>{
-      const d = doc.data() || {};
-      arr.push({
-        id: doc.id,
-        name: d.name || d.displayName || "",
-        age:  d.age,
-        gender: (d.gender||"").toUpperCase(),
-        city: d.city || "",
-        img:  d.img || d.photoURL || ""
-      });
-    });
-    return arr;
-  }catch(err){
-    console.error("Firestore load error:", err);
-    return null;
-  }
-}
-
-// Init affichage
-(async ()=>{
-  let data = await loadProfilesFromFirestore();
-  if (!data || !Array.isArray(data) || data.length===0){ data = DEMO; }
-  LOADED = data;
-  renderProfiles(LOADED);
-})();
-
-document.getElementById("year").textContent=(new Date()).getFullYear();
 </script>
 </body>
 </html>
