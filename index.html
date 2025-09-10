@@ -9,8 +9,9 @@
 <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" as="style" onload="this.rel='stylesheet'"/>
 
 <style>
-:root{--bg:#0f1115;--card:#171922;--muted:#aab1c3;--text:#e9edf6;--brand:#ff2d55;--brand2:#7a5cf0;--line:#23283d}
-*{box-sizing:border-box}html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:Inter,system-ui}
+:root{--bg:#0f1115;--card:#171922;--muted:#aab1c3;--text:#e9edf6;--brand:#ff2d55;--brand2:#7a5cf0}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:Inter,system-ui}
 a{color:inherit;text-decoration:none}
 .wrap{max-width:1100px;margin:0 auto;padding:16px}
 header{position:sticky;top:0;z-index:10;background:rgba(15,17,21,.7);backdrop-filter:saturate(140%) blur(8px);border-bottom:1px solid #202334}
@@ -35,19 +36,35 @@ label{display:block;margin-bottom:4px;color:var(--muted);font-size:.9rem}
 input,select{width:100%;padding:.6rem;border-radius:.6rem;background:#0f1115;border:1px solid #2b2f44;color:var(--text)}
 .results{display:grid;grid-template-columns:1fr;gap:12px;padding:12px}
 @media(min-width:680px){.results{grid-template-columns:repeat(2,1fr)}}
-.profile{background:#141824;border:1px solid var(--line);border-radius:.8rem;overflow:hidden;display:flex;flex-direction:column}
+.profile{background:#141824;border:1px solid #23283d;border-radius:.8rem;overflow:hidden;display:flex;flex-direction:column}
 .profile img{width:100%;height:180px;object-fit:cover;background:#0c0e12}
 .profile .meta{padding:10px 12px;color:#cfd6ea;display:flex;flex-direction:column;gap:6px}
-.profile .actions{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--line)}
+.profile .actions{display:flex;gap:8px;padding:10px 12px;border-top:1px solid #23283d}
 .foot{opacity:.75;font-size:.9rem;margin-top:12px}
 .toast{position:fixed;right:16px;bottom:16px;background:#111522;border:1px solid #22304a;padding:.7rem 1rem;border-radius:.7rem;transform:translateY(20px);opacity:0;transition:.25s}
 .toast.show{transform:translateY(0);opacity:1}
-.skeleton{background:linear-gradient(90deg,#151826 25%,#1a1f31 37%,#151826 63%);background-size:400% 100%;animation:sh 1.2s ease infinite;border-radius:.8rem;height:248px}
+.skeleton{background:linear-gradient(90deg,#151826 25%,#1a1f31 37%,#151826 63%);background-size:400% 100%;animation:sh 1.2s ease infinite}
 @keyframes sh{0%{background-position:100% 50%}100%{background-position:0 50%}}
 </style>
 
-<!-- Config globale (Firebase/AppCheck/Cloudinary) -->
+<!-- Config -->
 <script src="config.js"></script>
+
+<!-- Firebase + App Check bootstrap -->
+<script type="module">
+  const cfg = window.APP_CONFIG?.firebase;
+  const siteKey = window.APP_CONFIG?.appCheck?.recaptchaV3SiteKey;
+  import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+  import { getAuth, onAuthStateChanged, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+  import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app-check.js";
+
+  const app = getApps().length ? getApp() : initializeApp(cfg);
+  if (siteKey) initializeAppCheck(app, { provider:new ReCaptchaV3Provider(siteKey), isTokenAutoRefreshEnabled:true });
+  const auth = getAuth(app);
+
+  window.__AUTH__ = { auth, onAuthStateChanged, sendEmailVerification };
+  document.dispatchEvent(new CustomEvent("firebase-ready"));
+</script>
 </head>
 <body>
 <header>
@@ -61,10 +78,10 @@ input,select{width:100%;padding:.6rem;border-radius:.6rem;background:#0f1115;bor
       <span class="spacer"></span>
       <a class="btn" href="privacy.html">Confidentialité</a>
       <a class="btn" href="cgu.html">CGU</a>
-      <a class="btn btn-primary" href="login.html#signup">Rejoins-nous gratuitement</a>
+      <a class="btn btn-primary" href="login.html">Rejoins-nous gratuitement</a>
     </nav>
 
-    <!-- Bannière : visible uniquement si user connecté ET e-mail non vérifié -->
+    <!-- Bannière vérif : cachée par défaut, affichée si user connecté non vérifié -->
     <div id="verifyBanner" class="banner" role="status" aria-live="polite" hidden>
       <div><strong>Action requise :</strong> valide ton e-mail pour envoyer des messages.</div>
       <div style="display:flex;gap:8px">
@@ -86,7 +103,7 @@ input,select{width:100%;padding:.6rem;border-radius:.6rem;background:#0f1115;bor
         <span class="pill">🔒 Sécurité & respect</span>
       </div>
       <div style="margin-top:16px">
-        <a class="btn btn-primary" href="login.html#signup">Rejoins-nous gratuitement</a>
+        <a class="btn btn-primary" href="login.html">Rejoins-nous gratuitement</a>
       </div>
     </div>
   </section>
@@ -129,12 +146,7 @@ input,select{width:100%;padding:.6rem;border-radius:.6rem;background:#0f1115;bor
       <div class="card">
         <section>
           <div id="emptyState" class="foot">Ajuste les filtres ou complète ton profil pour plus de matches.</div>
-          <div id="results" class="results" aria-live="polite">
-            <!-- skeletons -->
-            <div class="skeleton" role="presentation"></div>
-            <div class="skeleton" role="presentation"></div>
-            <div class="skeleton" role="presentation"></div>
-          </div>
+          <div id="results" class="results" aria-live="polite"></div>
         </section>
       </div>
     </div>
@@ -144,79 +156,45 @@ input,select{width:100%;padding:.6rem;border-radius:.6rem;background:#0f1115;bor
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 <footer class="wrap foot">© <span id="year"></span> LoveNow — <a href="privacy.html">Confidentialité</a> · <a href="cgu.html">CGU</a></footer>
 
-<!-- App : Firebase + Firestore + logique UI -->
+<!-- App logic (Firestore + actions) -->
 <script type="module">
-/* ===== Utils ===== */
+/* ===== Helpers ===== */
 const $ = s => document.querySelector(s);
 const toast=(msg)=>{const t=$("#toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2400);};
-const bust=(url,ver)=>!url?"" : url + (url.includes("?")?"&":"?")+"v="+(ver||Date.now());
-
-/* ===== Firebase init ===== */
-const cfg = window.APP_CONFIG?.firebase;
-const siteKey = window.APP_CONFIG?.appCheck?.recaptchaV3SiteKey;
-
-import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import { getAuth, onAuthStateChanged, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app-check.js";
-import { getFirestore, collection, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-
-const app = getApps().length ? getApp() : initializeApp(cfg);
-if (siteKey) initializeAppCheck(app, { provider:new ReCaptchaV3Provider(siteKey), isTokenAutoRefreshEnabled:true });
-const auth = getAuth(app);
-const db   = getFirestore(app);
-
-/* ===== Auth banner ===== */
-onAuthStateChanged(auth,(user)=>{
-  const banner=$("#verifyBanner");
-  const show=!!(user && !user.emailVerified);
-  document.documentElement.dataset.verified = user?.emailVerified ? "true" : "false";
-  banner.hidden = !show;
-
-  $("#btnResend")?.addEventListener("click", async ()=>{
-    const u=auth.currentUser; if(!u){ location.href="login.html#login"; return; }
-    try{
-      const actionCodeSettings={ url:"https://lovenow.netlify.app/login.html?verified=1", handleCodeInApp:false };
-      await sendEmailVerification(u, actionCodeSettings);
-      toast("Lien de vérification envoyé ✅");
-    }catch(e){ console.error(e); toast("Impossible d’envoyer le lien"); }
-  });
-  $("#btnRefresh")?.addEventListener("click",()=>location.reload());
-});
 
 /* ===== Fallback démo si Firestore vide ===== */
 const DEMO = [
-  { id:"demo2", name:"Alice",  age:26, city:"Paris", gender:"F", photoURL:"https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=1200&auto=format&fit=crop"},
-  { id:"demo1", name:"Benoît", age:25, city:"Lyon",  gender:"M", photoURL:"https://images.unsplash.com/photo-1531123897727-8f129e1688ce?q=80&w=1200&auto=format&fit=crop"}
+  { id:"u2", name:"Alice",  age:26, city:"Paris", gender:"F", img:"https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=1200&auto=format&fit=crop"},
+  { id:"u1", name:"Benoît", age:25, city:"Lyon",  gender:"M", img:"https://images.unsplash.com/photo-1531123897727-8f129e1688ce?q=80&w=1200&auto=format&fit=crop"}
 ];
 
 let LOADED = [];
 
-/* ===== Rendu des cartes ===== */
-function card(p){
-  const safeName = p.name || p.displayName || "Utilisateur";
-  const safeAge  = Number(p.age)||"—";
-  const safeCity = p.city || "—";
-  const safeGen  = (p.gender||"O");
-  const img = bust(p.photoURL || p.img || "https://images.unsplash.com/photo-1502685104226-ee32379fefbe?q=80&w=1200&auto=format&fit=crop", p?.updatedAt?.seconds||0);
-
-  const el=document.createElement("article");
-  el.className="profile";
-  el.innerHTML=`
-    <img src="${img}" alt="Photo de ${safeName}" loading="lazy" decoding="async">
-    <div class="meta">
-      <div><strong>${safeName}</strong> · ${safeAge} ans</div>
-      <div>${safeCity} · ${safeGen}</div>
-    </div>
-    <div class="actions">
-      <a class="btn" data-act="view" data-user="${p.id}">Voir le profil</a>
-      <button class="btn btn-primary" data-act="msg" data-user="${p.id}">Message</button>
-    </div>`;
-  return el;
-}
-
-function render(list){
+/* ===== Rendu des cartes profil ===== */
+function renderProfiles(list){
   const wrap=$("#results"); wrap.innerHTML="";
-  list.forEach(p=>wrap.appendChild(card(p)));
+  list.forEach(p=>{
+    const safeName = p.name || p.displayName || "Utilisateur";
+    const safeAge  = (p.age!=null ? Number(p.age) : "—");
+    const safeCity = p.city || "—";
+    const safeGen  = p.gender || "O";
+    const img      = p.photoURL || p.img || "https://images.unsplash.com/photo-1502685104226-ee32379fefbe?q=80&w=1200&auto=format&fit=crop";
+    const uid      = p.id;
+
+    const el=document.createElement("article");
+    el.className="profile";
+    el.innerHTML=`
+      <img src="${img}" alt="Photo de ${safeName}">
+      <div class="meta">
+        <div><strong>${safeName}</strong> · ${safeAge} ${safeAge!=="—"?"ans":""}</div>
+        <div>${safeCity} · ${safeGen}</div>
+      </div>
+      <div class="actions">
+        <a class="btn" data-act="view" data-user="${uid}" href="/u/${encodeURIComponent(uid)}">Voir le profil</a>
+        <button class="btn btn-primary" data-act="msg" data-user="${uid}">Message</button>
+      </div>`;
+    wrap.appendChild(el);
+  });
   $("#emptyState").hidden = list.length !== 0;
 }
 
@@ -236,73 +214,79 @@ function applyFilters(){
     const okC=(!city||cty.includes(city));
     return okG&&okA&&okC;
   });
-  render(filtered);
+  renderProfiles(filtered);
 }
+
+/* ===== Firestore: chargement profils ===== */
+import { getFirestore, collection, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import { getApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+
+async function loadProfiles(){
+  try{
+    const db = getFirestore(getApp());
+    const q  = query(collection(db,"profiles"), orderBy("createdAt","desc"), limit(200));
+    const snap = await getDocs(q);
+    const arr=[]; snap.forEach(d=> arr.push({ id:d.id, ...d.data() }) );
+    return arr;
+  }catch(e){
+    console.error("Firestore load error:", e);
+    return null;
+  }
+}
+
+/* ===== Actions (message) ===== */
+$("#results").addEventListener("click",(e)=>{
+  const msg = e.target.closest("[data-act='msg']");
+  if (!msg) return;
+
+  const verified = document.documentElement.dataset.verified==="true";
+  if(!verified){
+    alert("Connecte-toi et valide ton e-mail pour envoyer des messages.");
+    location.href="login.html#login";
+    return;
+  }
+  const uid = msg.getAttribute("data-user");
+  location.href = uid ? `conversations.html?with=${encodeURIComponent(uid)}` : "conversations.html";
+});
+
+/* ===== Bannière vérif Auth ===== */
+document.addEventListener("firebase-ready", ()=>{
+  const {auth,onAuthStateChanged,sendEmailVerification}=window.__AUTH__;
+  const banner=$("#verifyBanner"), btnResend=$("#btnResend"), btnRefresh=$("#btnRefresh");
+
+  onAuthStateChanged(auth,(user)=>{
+    const show = !!(user && !user.emailVerified);
+    banner.hidden = !show;
+    document.documentElement.dataset.verified = user?.emailVerified ? "true" : "false";
+  });
+
+  btnResend?.addEventListener("click", async ()=>{
+    const u=window.__AUTH__.auth.currentUser; if(!u){ location.href="login.html"; return; }
+    try{
+      const actionCodeSettings={ url:"https://lovenow.netlify.app/login.html?verified=1", handleCodeInApp:false };
+      await window.__AUTH__.sendEmailVerification(u, actionCodeSettings);
+      toast("Lien de vérification envoyé ✅");
+    }catch(e){ console.error(e); toast("Impossible d’envoyer le lien"); }
+  });
+
+  btnRefresh?.addEventListener("click",()=>location.reload());
+});
+
+/* ===== Init page ===== */
+document.getElementById("year").textContent=(new Date()).getFullYear();
+
+(async ()=>{
+  let data = await loadProfiles();
+  if (!data || data.length===0) data = DEMO;
+  LOADED = data;
+  renderProfiles(LOADED);
+})();
 
 $("#btnSearch").addEventListener("click", applyFilters);
 $("#btnReset").addEventListener("click", ()=>{
   $("#fGender").value="all"; $("#fAgeMin").value=18; $("#fAgeMax").value=99; $("#fCity").value="";
   applyFilters();
 });
-
-/* ===== Actions : voir / message ===== */
-$("#results").addEventListener("click",(e)=>{
-  const view = e.target.closest("[data-act='view']");
-  const msg  = e.target.closest("[data-act='msg']");
-  if (!view && !msg) return;
-
-  const uid = (view||msg).dataset.user;
-  const user = auth.currentUser;
-  const verified = document.documentElement.dataset.verified==="true";
-
-  if (msg){
-    if (!user){ location.href="login.html#login"; return; }
-    if (!verified){ alert("Valide ton e-mail avant d’envoyer des messages."); return; }
-    location.href = `conversations.html?to=${encodeURIComponent(uid)}`;
-    return;
-  }
-
-  if (view){
-    // Pas encore de page profil public → ouvre l’en-tête dans la page de conversation
-    if (!user){ location.href="login.html#login"; return; }
-    location.href = `conversations.html?to=${encodeURIComponent(uid)}`;
-  }
-});
-
-/* ===== Chargement des profils (Firestore) ===== */
-async function loadProfiles(){
-  try{
-    const q = query(collection(db,"profiles"), orderBy("createdAt","desc"), limit(200));
-    const snap = await getDocs(q);
-    const arr=[];
-    snap.forEach(d=>{
-      const v=d.data()||{};
-      arr.push({
-        id:d.id,
-        name: v.name || v.displayName || "",
-        age:  v.age,
-        city: v.city || "",
-        gender:(v.gender||"O").toUpperCase(),
-        photoURL: v.photoURL || "",
-        updatedAt: v.updatedAt || null
-      });
-    });
-    return arr;
-  }catch(err){
-    console.error("Erreur Firestore (profiles):", err);
-    return null;
-  }
-}
-
-(async ()=>{
-  let data = await loadProfiles();
-  if (!data || data.length===0) data = DEMO;
-  LOADED = data;
-  render(LOADED);
-})();
-
-/* ===== Divers ===== */
-document.getElementById("year").textContent=(new Date()).getFullYear();
 </script>
 </body>
 </html>
