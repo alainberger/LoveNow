@@ -1,5 +1,4 @@
-<script>
-// Paramètres publics côté client
+// config.js — paramètres publics (OK côté client)
 window.APP_CONFIG = {
   brand: "LoveNow",
 
@@ -10,7 +9,7 @@ window.APP_CONFIG = {
   },
   dpoEmail: "dpo@lovenow.app",
 
-  // === Firebase (tes clés publiques) ===
+  // Firebase (tes clés publiques)
   firebase: {
     apiKey: "AIzaSyB_-cNA8bxqYCYUp3rUZs-VpiP4DX2wn3M",
     authDomain: "lovenow-officiel.firebaseapp.com",
@@ -21,17 +20,15 @@ window.APP_CONFIG = {
     measurementId: "G-QGM25ND7LF"
   },
 
-  // App Check (site key uniquement)
+  // App Check (site-key seulement)
   appCheck: { recaptchaV3SiteKey: "6LfjpsErAAAAAAExN2IvBq-K475TeJooeNzI9liPD" },
 
-  // === Cloudinary (client only, pas de secret ici) ===
+  // Cloudinary (client — aucun secret ici)
   cloudinary: {
     cloudName: "dyqxadd0j",
-    unsignedPreset: "lovenow-direct-upload"   // mets ici le nom exact de ton preset
-    // si tu as défini le folder dans le preset, pas besoin de l'envoyer côté client
+    unsignedPreset: "lovenow-direct-upload"
   },
 
   analyticsEnabled: false,
   resendCooldown: 30
 };
-</script>
