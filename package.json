@@ -2,9 +2,11 @@
   "name": "lovenow",
   "version": "1.0.0",
   "private": true,
-  "scripts": {
-    "test": "echo \"No tests for static site\" && exit 0",
-    "build": "echo \"Static site - nothing to build\" && exit 0",
-    "start": "npx serve ."
+    "scripts": {
+      "test": "node tests/featureFlags.test.js",
+      "build": "echo \"Static site - nothing to build\" && exit 0",
+      "start": "npx serve .",
+      "e2e": "echo 'No e2e tests yet' && exit 0",
+      "lighthouse": "node scripts/lighthouse.js"
+    }
   }
-}

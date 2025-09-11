@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<title>Billing - LoveNow</title>
+<link rel="stylesheet" href="/styles/tokens.css">
+<link rel="stylesheet" href="/styles/components.css">
+<script src="/js/features.js"></script>
+<script src="/config.js"></script>
+</head>
+<body>
+<header><div class="wrap"><a href="/">Accueil</a></div></header>
+<main class="wrap"><h1>Billing</h1><p>Placeholder</p></main>
+<script>
+if(!window.__FEATURES__?.PAYMENTS_ENABLED){
+  document.querySelector('main').insertAdjacentHTML('beforeend','<p>Payments disabled</p>');
+}
+</script>
+</body>
+</html>
