@@ -1,0 +1,8 @@
+{
+  "name": "lovenow",
+  "version": "1.0.0",
+  "private": true,
+    "scripts": {
+      "test": "echo \"No tests for static site\" && exit 0"
+    }
+  }
