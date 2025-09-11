@@ -11,3 +11,9 @@ Créer un fichier `js/firebase-config.js` (copie de `js/firebase-config.sample.j
 - `FIREBASE_STORAGE_BUCKET`
 
 Ces valeurs doivent correspondre à votre projet Firebase. Le fichier `js/firebase.js` lira automatiquement ces variables pour initialiser Firebase.
+
+## Front-end
+
+- Les variables de design sont définies dans `styles/tokens.css`.
+- Les styles communs (boutons, cartes, etc.) se trouvent dans `styles/components.css`.
+- Le logo est disponible dans `assets/brand/logo.svg` et utilisé dans l'entête.

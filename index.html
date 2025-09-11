@@ -9,45 +9,20 @@
   <meta property="og:title" content="LoveNow — Rencontres 18+">
   <meta property="og:description" content="Profils en temps réel, messages sécurisés.">
   <meta property="og:url" content="https://lovenow.netlify.app/">
-  <meta property="og:image" content="/assets/og-default.jpg">
-  <meta name="twitter:card" content="summary_large_image">
-  <style>
-    :root{ --brand:#0AAEEF; --text:#111; --muted:#666; --bg:#fff; }
-    html{ scroll-behavior:smooth }
-    body{ margin:0; font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial; color:var(--text); background:var(--bg) }
-    a{ color:var(--brand); text-decoration:none }
-    header{ position:sticky; top:0; background:#fff9; border-bottom:1px solid #eee; backdrop-filter:saturate(150%) blur(6px); z-index:10 }
-    .wrap{ max-width:1120px; margin:0 auto; padding:0 16px }
-    nav{ display:flex; align-items:center; gap:16px; padding:12px 0 }
-    nav .grow{ flex:1 }
-    .btn{ display:inline-block; padding:.65rem 1rem; border-radius:10px; border:1px solid transparent; background:var(--brand); color:#fff; font-weight:600 }
-    .btn.ghost{ background:transparent; border-color:var(--brand); color:var(--brand) }
-    .hero{ min-height:56vh; display:grid; place-items:center; text-align:center; color:#fff; background: linear-gradient(120deg, rgba(10,174,239,.85), rgba(122,92,240,.85)); position:relative }
-    .hero::before{ content:""; position:absolute; inset:0; background:linear-gradient(180deg,rgba(0,0,0,.45),rgba(0,0,0,.25)); }
-    .hero>*{ position:relative }
-    h1{ font-size:clamp(28px,5vw,44px); margin:.2em 0 }
-    p.lead{ font-size:clamp(16px,2.5vw,20px); opacity:.95; margin:0 auto 1rem; max-width:720px }
-    section{ padding:48px 0 }
-    .cards{ display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:16px }
-    .card{ border:1px solid #eee; border-radius:14px; padding:14px; min-height:140px }
-    .filters{ display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; align-items:end; margin:12px 0 16px }
-    label{ font-weight:600; font-size:.9rem }
-    input,select{ width:100%; padding:.6rem .7rem; border:1px solid #ddd; border-radius:10px }
-    .actions{ display:flex; gap:8px; flex-wrap:wrap }
-    .muted{ color:var(--muted) }
-    .banner{background:#fff5c4;border:1px solid #ffe58f;border-radius:8px;padding:.6rem .8rem;margin:8px 16px;display:flex;gap:8px;justify-content:space-between;align-items:center}
-    .skel{ border-radius:12px; background:linear-gradient(90deg,#eee 25%,#f6f6f6 37%,#eee 63%); background-size:400% 100%; animation:shimmer 1.2s infinite; height:140px }
-    @keyframes shimmer{ 0%{background-position:100% 0} 100%{background-position:-100% 0} }
-    :focus{ outline:3px auto; outline-offset:2px }
-    #toast{ position:fixed; left:50%; transform:translateX(-50%); bottom:14px; min-width:260px; background:#111; color:#fff; padding:.7rem 1rem; border-radius:10px; box-shadow:0 10px 30px rgba(0,0,0,.25); z-index:99; display:none }
-  </style>
+    <meta property="og:image" content="/assets/og-default.jpg">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="stylesheet" href="/styles/tokens.css">
+    <link rel="stylesheet" href="/styles/components.css">
+    <link rel="icon" href="/assets/brand/logo.svg" type="image/svg+xml">
   <script src="config.js"></script>
 </head>
 <body>
   <header>
     <div class="wrap">
       <nav aria-label="Navigation principale">
-        <a href="/" style="font-weight:800">LoveNow</a>
+        <a href="/" aria-label="Accueil">
+          <img src="/assets/brand/logo.svg" alt="LoveNow" style="height:32px" />
+        </a>
         <div class="grow"></div>
         <a href="/#discover" class="ghost btn">Découvrir</a>
         <a href="/conversations.html" class="ghost btn">Conversations</a>
