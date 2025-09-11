@@ -1,8 +1,6 @@
-# netlify.toml — LoveNow (redirects + headers sécurité + CSP report-only)
 [build]
   publish = "."
 
-# Routes propres
 [[redirects]]
   from = "/privacy"
   to = "/privacy.html"
@@ -23,29 +21,21 @@
   to = "/conversations.html"
   status = 200
 
-# Lien court pour profils publics : /u/UID -> profile-public.html?id=UID
 [[redirects]]
   from = "/u/:uid"
   to   = "/profile-public.html?id=:uid"
   status = 200
 
-# Catch-all SPA -> index.html
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
 
-# Headers sécurité (basics)
 [[headers]]
   for = "/*"
   [headers.values]
+    Content-Security-Policy = "default-src 'self'; img-src 'self' https: data:; style-src 'self' https: 'unsafe-inline'; script-src 'self' https: 'unsafe-inline'; font-src 'self' https: data:; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com https://www.gstatic.com https://firebasestorage.googleapis.com https://*.firebasestorage.app https://api.cloudinary.com https://client.crisp.chat https://*.crisp.chat wss://*.crisp.chat; frame-src https://www.google.com/recaptcha/ https://recaptcha.google.com/recaptcha/; frame-ancestors 'none'"
     Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "geolocation=(), microphone=(), camera=()"
+    X-Frame-Options = "DENY"
     X-Content-Type-Options = "nosniff"
-    Permissions-Policy = "geolocation=(), camera=(), microphone=()"
-    Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"
-
-# Content-Security-Policy en Report-Only (évite de casser la prod tout en testant)
-[[headers]]
-  for = "/*"
-  [headers.values]
-    Content-Security-Policy-Report-Only = "default-src 'self'; img-src 'self' data: https: https://res.cloudinary.com https://*.crisp.chat; style-src 'self' 'unsafe-inline' https:; script-src 'self' 'unsafe-inline' https://client.crisp.chat https://*.crisp.chat https://www.gstatic.com https://www.google.com/recaptcha/ https://recaptcha.google.com/recaptcha/; connect-src 'self' https: wss://*.crisp.chat https://client.crisp.chat https://*.crisp.chat https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com https://*.googleapis.com https://www.googleapis.com https://www.gstatic.com https://api.cloudinary.com; font-src 'self' https: data:; frame-src https://www.google.com/recaptcha/ https://recaptcha.google.com/recaptcha/; frame-ancestors 'none'"

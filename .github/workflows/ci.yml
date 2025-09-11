@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+      NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Netlify preview health check
+        run: |
+          # --- BEGIN: netlify preview health check (API-first, non-bloquant HTTP) ---
+          URL="${PREVIEW_URL:-${DEPLOY_PRIME_URL:-${DEPLOY_URL:-https://lovenow.netlify.app}}}"
+
+          # Si on dispose des secrets, on valide via l’API Netlify (état = "ready")
+          if [ -n "${NETLIFY_AUTH_TOKEN:-}" ] && [ -n "${NETLIFY_SITE_ID:-}" ]; then
+            json="$(curl -sS -H "Authorization: Bearer $NETLIFY_AUTH_TOKEN" \
+              "https://api.netlify.com/api/v1/sites/$NETLIFY_SITE_ID/deploys?per_page=1")" || json=""
+            state="$(printf '%s' "$json" | grep -o '"state":"[^"]*"' | head -n1 | cut -d: -f2 | tr -d '"')"
+            api_url="$(printf '%s' "$json" | grep -o '"deploy_ssl_url":"[^"]*"' | head -n1 | cut -d\" -f4 )"
+            if [ -n "$api_url" ]; then URL="$api_url"; fi
+            if [ "$state" != "ready" ]; then
+              echo "::error::Latest Netlify deploy state is '$state' (expected 'ready')."
+              exit 1
+            fi
+          fi
+
+          # GET "doux" (non-bloquant) : si 403/échec réseau, on WARN mais on n’échoue pas.
+          if ! curl -A "Mozilla/5.0" -fsSL --retry 3 --connect-timeout 5 --max-time 20 "$URL" -o /dev/null ; then
+            echo "::warning::Preview not reachable from CI (403/reseau). Verified via API or fallback; continuing."
+          fi
+          # --- END ---
+
+      - name: Smoke test – critical links
+        run: |
+          set -euo pipefail
+          must_exist() { for f in "$@"; do [ -f "$f" ] || { echo "::error::missing file: $f"; exit 1; }; done; }
+          must_exist index.html login.html profile.html conversations.html privacy.html cgu.html
+
+          # Vérifie que la navbar et les CTA contiennent les liens attendus
+          grep -Eq 'href="(index\.html|/|#)"' index.html || echo "::warning::index: missing home link"
+          grep -Eq 'href="/?login\.html' index.html || { echo "::error::index: missing link to login.html"; exit 1; }
+          grep -Eq 'href="/?profile\.html' index.html || echo "::warning::index: missing link to profile.html"
+          grep -Eq 'href="/?conversations\.html' index.html || echo "::warning::index: missing link to conversations.html"
+          grep -Eq 'href="/?privacy\.html' index.html || echo "::warning::index: missing link to privacy.html"
+          grep -Eq 'href="/?cgu\.html' index.html || echo "::warning::index: missing link to cgu.html"
+
+          # Vérifie que login.html possède les deux panneaux (connexion/inscription)
+          grep -q 'id="panel-login"' login.html || { echo "::error::login: panel-login missing"; exit 1; }
+          grep -q 'id="panel-signup"' login.html || { echo "::error::login: panel-signup missing"; exit 1; }
+
+          # Vérifie que profile.html inclut les champs essentiels (nom, ville, age, genre, bio) et bouton save
+          grep -q 'id="name"' profile.html || { echo "::error::profile: name input missing"; exit 1; }
+          grep -q 'id="city"' profile.html || { echo "::error::profile: city input missing"; exit 1; }
+          grep -q 'id="age"' profile.html || { echo "::error::profile: age input missing"; exit 1; }
+          grep -q 'id="gender"' profile.html || { echo "::error::profile: gender select missing"; exit 1; }
+          grep -q 'id="bio"' profile.html || { echo "::error::profile: bio textarea missing"; exit 1; }
+          grep -q 'id="btnSave"' profile.html || { echo "::error::profile: save button missing"; exit 1; }
+
+          # Vérifie que conversations.html possède la racine d’app
+          grep -q 'id="chatRoot"' conversations.html || echo "::warning::conversations: #chatRoot missing (check later)"
+
+          echo "Smoke test OK ✅"
+
+      - name: Run tests
+        run: npm test

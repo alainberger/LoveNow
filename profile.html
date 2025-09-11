@@ -29,13 +29,8 @@
     .toast{position:fixed;right:16px;bottom:16px;background:#111522;border:1px solid #22304a;padding:8px 12px;border-radius:8px;display:none}
     .tiny{font-size:.85rem;color:#aab1c3}
   </style>
-  <script src="config.js"></script>
-  <script>
-    if(window.APP_CONFIG?.chat?.provider === 'crisp' && window.APP_CONFIG.chat.siteId){
-      window.$crisp=[];window.CRISP_WEBSITE_ID=window.APP_CONFIG.chat.siteId;
-      (function(){var d=document,s=d.createElement('script');s.src='https://client.crisp.chat/l.js';s.async=1;d.head.appendChild(s);})();
-    }
-  </script>
+  <script src="/js/config.js"></script>
+  <script>window.loadCrispIfEnabled && window.loadCrispIfEnabled();</script>
 </head>
 <body>
 <header>
@@ -114,14 +109,12 @@
 <script type="module">
   // ====== Boot ======
   const cfg = window.APP_CONFIG?.firebase;
-  const siteKey = window.APP_CONFIG?.appCheck?.recaptchaV3SiteKey;
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
   import { getAuth, onAuthStateChanged, updateProfile, sendEmailVerification, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-  import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app-check.js";
   import { getFirestore, doc, getDoc, setDoc, serverTimestamp, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
   const app = initializeApp(cfg);
-  if (siteKey) initializeAppCheck(app, { provider: new ReCaptchaV3Provider(siteKey), isTokenAutoRefreshEnabled: true });
+  loadAppCheck(app);
   const auth = getAuth(app);
   const db   = getFirestore(app);
 
@@ -131,7 +124,8 @@
   // Cloudinary (unsigned)
   const CLOUD = {
     cloudName: window.APP_CONFIG?.cloudinary?.cloudName,
-    preset:    window.APP_CONFIG?.cloudinary?.unsignedPreset
+    preset:    window.APP_CONFIG?.cloudinary?.unsignedPreset,
+    useSigned: !!window.APP_CONFIG?.cloudinary?.useSigned
   };
 
   // Refs UI
@@ -225,12 +219,21 @@
       const f = file.files?.[0];
       if(!f){ alert("Choisis d’abord une image."); return; }
       if(f.size > 5*1024*1024){ alert("Fichier trop lourd (max 5 Mo)."); return; }
-      if(!CLOUD.cloudName || !CLOUD.preset){ alert("Cloudinary non configuré dans config.js"); return; }
+      if(!CLOUD.cloudName){ alert("Cloudinary non configuré dans config.js"); return; }
 
       try{
         const fd = new FormData();
         fd.append("file", f);
-        fd.append("upload_preset", CLOUD.preset);
+        if(CLOUD.useSigned){
+          const sig = await fetch('/.netlify/functions/sign-upload').then(r=>r.json());
+          fd.append('api_key', sig.apiKey);
+          fd.append('timestamp', sig.timestamp);
+          fd.append('signature', sig.signature);
+          if(sig.preset) fd.append('upload_preset', sig.preset);
+        }else{
+          if(!CLOUD.preset){ alert("Cloudinary non configuré dans config.js"); return; }
+          fd.append('upload_preset', CLOUD.preset);
+        }
         const up = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD.cloudName}/image/upload`, { method:"POST", body: fd });
         const out = await up.json();
         if(!out.secure_url){ throw new Error(out.error?.message || "Upload échoué"); }
