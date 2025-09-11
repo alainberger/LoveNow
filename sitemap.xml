@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://lovenow.netlify.app/</loc></url>
-  <url><loc>https://lovenow.netlify.app/privacy.html</loc></url>
-  <url><loc>https://lovenow.netlify.app/cgu.html</loc></url>
   <url><loc>https://lovenow.netlify.app/login.html</loc></url>
   <url><loc>https://lovenow.netlify.app/profile.html</loc></url>
   <url><loc>https://lovenow.netlify.app/conversations.html</loc></url>
+  <url><loc>https://lovenow.netlify.app/profile-public.html</loc></url>
+  <url><loc>https://lovenow.netlify.app/privacy.html</loc></url>
+  <url><loc>https://lovenow.netlify.app/cgu.html</loc></url>
 </urlset>

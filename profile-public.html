@@ -19,13 +19,8 @@ nav{display:flex;gap:8px;align-items:center;padding:10px 0}
 .hero img{width:160px;height:160px;border-radius:14px;object-fit:cover;background:#0c0e12}
 .muted{color:var(--muted)}
   </style>
-  <script src="config.js"></script>
-  <script>
-    if(window.APP_CONFIG?.chat?.provider === 'crisp' && window.APP_CONFIG.chat.siteId){
-      window.$crisp=[];window.CRISP_WEBSITE_ID=window.APP_CONFIG.chat.siteId;
-      (function(){var d=document,s=d.createElement('script');s.src='https://client.crisp.chat/l.js';s.async=1;d.head.appendChild(s);})();
-    }
-  </script>
+  <script src="/js/config.js"></script>
+  <script>window.loadCrispIfEnabled && window.loadCrispIfEnabled();</script>
   </head>
 <body>
 <header>
@@ -58,15 +53,13 @@ const $=s=>document.querySelector(s);
 const uid = new URLSearchParams(location.search).get("id");
 
 const cfg = window.APP_CONFIG?.firebase;
-const siteKey = window.APP_CONFIG?.appCheck?.recaptchaV3SiteKey;
 
 import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app-check.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 const app = getApps().length ? getApp() : initializeApp(cfg);
-if (siteKey) initializeAppCheck(app,{provider:new ReCaptchaV3Provider(siteKey),isTokenAutoRefreshEnabled:true});
+loadAppCheck(app);
 const auth = getAuth(app);
 const db   = getFirestore(app);
 
@@ -83,20 +76,17 @@ async function load(){
   $("#meta").textContent = [age, city, gender].filter(Boolean).join(" · ") || "—";
   $("#bio").textContent  = p.bio || "";
 
-  updateMsgLink(auth.currentUser);
 }
 load();
-
-function updateMsgLink(u){
-  const btn=document.getElementById('btnMsg');
-  if(u && u.emailVerified){
-    btn.href=`conversations.html?with=${encodeURIComponent(uid)}`;
-  }else{
-    btn.href=`login.html#login`;
-  }
-}
-
-onAuthStateChanged(auth,u=>updateMsgLink(u));
+let currentUser=null;
+onAuthStateChanged(auth,u=>{ currentUser=u; });
+const btnMsg=document.getElementById('btnMsg');
+btnMsg.addEventListener('click',e=>{
+  e.preventDefault();
+  if(!currentUser){ location.href='login.html#login'; return; }
+  if(!currentUser.emailVerified){ alert('Vérifie ton e-mail pour discuter.'); return; }
+  location.href=`conversations.html?startWith=${uid}`;
+});
 </script>
 </body>
 </html>
