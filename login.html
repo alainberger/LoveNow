@@ -31,15 +31,6 @@
     <a class="btn" href="index.html">← Accueil</a>
     <h1>Connexion / Inscription</h1>
 
-    <!-- bannière vérif -->
-    <div class="banner" id="verifyBanner" hidden>
-      <div>E-mail <span id="who" class="muted"></span> non vérifié.</div>
-      <div style="display:flex;gap:8px">
-        <button id="btnResend" class="btn">Envoyer le lien</button>
-        <a class="btn" href="index.html">Accueil</a>
-      </div>
-    </div>
-
     <!-- onglets -->
     <div class="tabs" role="tablist" aria-label="Choisir une action">
       <button id="tab-login" role="tab" class="tab" aria-selected="true">Connexion</button>
@@ -92,7 +83,6 @@
 
     <div style="margin-top:16px">
       <button id="btnLogout" class="btn">Se déconnecter</button>
-      <span class="muted">· Après vérification e-mail, reviens ici puis « Accueil ».</span>
     </div>
   </div>
 
@@ -101,7 +91,7 @@
     const cfg = window.APP_CONFIG?.firebase;
 
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-    import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, sendEmailVerification, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
     import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
     // init
@@ -117,18 +107,11 @@
       $("#tab-signup").setAttribute("aria-selected", t==="signup");
       $("#panel-signup").hidden = (t!=="signup");
     };
-    // par défaut : on affiche login ; #signup ouvre l’onglet inscription
-    showTab(location.hash==="#signup" ? "signup" : "login");
-    $("#tab-login").addEventListener("click",()=>showTab("login"));
-    $("#tab-signup").addEventListener("click",()=>showTab("signup"));
-    window.addEventListener('hashchange',()=>showTab(location.hash==="#signup"?"signup":"login"));
-
-    // bannière vérif
-    onAuthStateChanged(auth,(user)=>{
-      const b=$("#verifyBanner");
-      if(user && !user.emailVerified){ b.hidden=false; $("#who").textContent=user.email||""; }
-      else { b.hidden=true; $("#who").textContent=""; }
-    });
+    const tabFromHash=()=> location.hash==="#signup" ? "signup" : "login";
+    showTab(tabFromHash());
+    $("#tab-login").addEventListener("click",()=>{location.hash="#login"; showTab("login");});
+    $("#tab-signup").addEventListener("click",()=>{location.hash="#signup"; showTab("signup");});
+    window.addEventListener('hashchange',()=>showTab(tabFromHash()));
 
     // inscription
     $("#signup").addEventListener("submit", async (e)=>{
@@ -150,12 +133,7 @@
           createdAt:serverTimestamp(), updatedAt:serverTimestamp()
         }, { merge:true });
 
-        try{
-          const actionCodeSettings={ url:"https://lovenow.netlify.app/login.html?verified=1", handleCodeInApp:false };
-          await sendEmailVerification(user, actionCodeSettings);
-        }catch{}
-
-        alert("Compte créé. Vérifie ton e-mail pour discuter.");
+        alert("Compte créé ✅");
         location.href="/";
       }catch(err){
         console.error(err);
@@ -173,16 +151,6 @@
         console.error(err);
         alert("Connexion impossible : "+(err?.message||""));
       }
-    });
-
-    // renvoi lien vérif
-    $("#btnResend").addEventListener("click", async ()=>{
-      const u=auth.currentUser; if(!u) return alert("Connecte-toi d’abord.");
-      try{
-        const actionCodeSettings={ url:"https://lovenow.netlify.app/login.html?verified=1", handleCodeInApp:false };
-        await sendEmailVerification(u, actionCodeSettings);
-        alert("Lien envoyé ✅");
-      }catch{ alert("Échec envoi lien"); }
     });
 
     // logout
