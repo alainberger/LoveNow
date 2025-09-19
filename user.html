@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="fr" data-theme="light">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Profil LoveNow</title>
+  <meta name="description" content="Consultez le profil public d’un membre LoveNow."/>
+  <link rel="stylesheet" href="/styles/tokens.css">
+  <link rel="stylesheet" href="/styles/components.css">
+  <script src="/js/features.js"></script>
+  <script src="/config.js"></script>
+  <script defer src="/js/ui.js"></script>
+  <style>
+    .public-shell{width:min(880px,92vw);margin:48px auto 96px;display:grid;gap:24px}
+    .public-card{display:grid;gap:20px;align-items:center;text-align:center;padding:32px}
+    .public-avatar{width:160px;height:160px;border-radius:32px;object-fit:cover;margin:0 auto;box-shadow:0 24px 48px -28px rgba(47,22,52,0.4)}
+    .public-meta{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;color:var(--muted)}
+    .public-actions{display:flex;justify-content:center;gap:16px;flex-wrap:wrap}
+    .public-empty{text-align:center;color:var(--muted)}
+    #feedback[data-tone="success"]{color:#25694a}
+    #feedback[data-tone="error"]{color:#7e2f32}
+    #feedback[data-tone="warn"]{color:#7a5123}
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap nav-bar">
+      <a class="brand" href="/" aria-label="LoveNow">
+        <img src="/assets/brand/logo.svg" alt="Logo LoveNow" />
+        <span>LoveNow</span>
+      </a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-menu" data-toggle-nav>
+        <span></span>
+        <span class="sr-only">Ouvrir le menu</span>
+      </button>
+      <nav id="primary-menu" class="site-menu" aria-label="Navigation principale">
+        <a href="/#discover">Découvrir</a>
+        <a href="/matchmaking.html">Matching</a>
+        <a href="/conversations.html">Conversations</a>
+        <a href="/profile.html">Mon profil</a>
+        <a href="/settings.html">Paramètres</a>
+        <div class="session-slot" id="header-session"></div>
+      </nav>
+      <button class="mode-toggle" type="button" data-toggle-theme aria-label="Basculer le mode d'affichage">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+          <path d="M12 3a1 1 0 0 1 1 1v1.1a1 1 0 0 1-1 1h-.2a1 1 0 0 1-1-.8 3 3 0 0 0-2.9 2.9 1 1 0 0 1-.8 1H6a1 1 0 0 1-1-1A7 7 0 0 1 12 3Z" />
+          <path d="M7 12a5 5 0 1 0 10 0 5 5 0 0 0-10 0Z" />
+        </svg>
+        <span>Mode</span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <div class="public-shell">
+      <div id="verifyBanner" class="banner" hidden>
+        <div><strong>E-mail non vérifié.</strong> Vérifie ton adresse pour contacter ce membre.</div>
+        <div class="actions">
+          <button id="btnResend" class="btn">Renvoyer le lien</button>
+          <button id="btnRefresh" class="btn ghost">Rafraîchir</button>
+        </div>
+      </div>
+
+      <div class="page-card public-card" id="profileCard">
+        <img id="photo" class="public-avatar" alt="Photo de profil">
+        <div>
+          <h1 id="name">Utilisateur</h1>
+          <div class="public-meta" id="meta"></div>
+        </div>
+        <p id="bio" class="muted"></p>
+        <div class="public-actions">
+          <button id="btnLike" class="btn ghost" type="button">J’aime</button>
+          <button id="btnMessage" class="btn" type="button">Envoyer un message</button>
+        </div>
+        <p id="feedback" class="muted" role="status" aria-live="polite"></p>
+        <span id="devBadge" class="badge badge--dev" hidden>Mode test</span>
+      </div>
+
+      <p id="emptyState" class="public-empty" hidden>Profil introuvable ou privé.</p>
+    </div>
+  </main>
+
+  <footer>
+    <div class="wrap footer-card">
+      <small>© LoveNow — Profil public</small>
+      <div class="footer-links">
+        <a href="/privacy.html">Confidentialité</a>
+        <a href="/cgu.html">CGU</a>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module" src="/assets/js/user.js"></script>
+</body>
+</html>

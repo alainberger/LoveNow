@@ -21,9 +21,14 @@
     .profile-photo input{width:auto}
     .field-row{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
     .profile-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
-    .tiny{font-size:0.85rem;color:var(--muted)}
-    .debug-id{font-size:0.8rem;color:var(--muted)}
-    .badge-info{display:inline-flex;align-items:center;gap:6px;padding:0.4rem 0.75rem;border-radius:999px;background:rgba(255,61,138,0.15);color:var(--brand);font-weight:600;font-size:0.85rem}
+  .tiny{font-size:0.85rem;color:var(--muted)}
+  .account-summary{display:grid;gap:6px;background:rgba(255,255,255,0.65);border-radius:var(--radius);padding:14px 18px;box-shadow:0 18px 36px -30px rgba(47,22,52,0.35)}
+  [data-theme="dark"] .account-summary{background:rgba(29,28,54,0.65);box-shadow:none}
+  .account-summary strong{color:var(--text)}
+  #accountStatus[data-state="warn"]{color:#7a5123}
+  #accountStatus[data-state="ok"]{color:#25694a}
+  #accountStatus[data-state="error"]{color:#7e2f32}
+  .badge-info{display:inline-flex;align-items:center;gap:6px;padding:0.4rem 0.75rem;border-radius:999px;background:rgba(255,61,138,0.15);color:var(--brand);font-weight:600;font-size:0.85rem}
     textarea{min-height:120px}
     .profile-hint{margin-top:4px}
   </style>
@@ -45,9 +50,7 @@
       <a href="/conversations.html">Conversations</a>
       <a href="/profile.html" aria-current="page">Mon profil</a>
       <a href="/settings.html">Paramètres</a>
-      <div class="session-slot">
-        <button id="btnLogout" class="btn ghost" type="button">Se déconnecter</button>
-      </div>
+      <div class="session-slot" id="header-session"></div>
     </nav>
     <button class="mode-toggle" type="button" data-toggle-theme aria-label="Basculer le mode d'affichage">
       <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
@@ -70,7 +73,12 @@
     </div>
 
     <div class="page-card profile-form">
-      <div class="debug-id" id="debugId"></div>
+      <div class="account-summary" id="accountSummary">
+        <p><strong>E-mail :</strong> <span id="accountEmail">—</span></p>
+        <p class="tiny">UID : <span id="accountUid">—</span></p>
+        <p class="tiny">Statut : <span id="accountStatus">—</span></p>
+        <span id="devBadge" class="badge badge--dev" hidden>Mode test</span>
+      </div>
 
       <div class="profile-photo">
         <img id="avatar" src="" alt="Ta photo">
@@ -116,6 +124,7 @@
       <div class="profile-actions">
         <button id="btnSave" class="btn">Enregistrer</button>
         <a class="btn ghost" href="index.html">Retour</a>
+        <button id="btnLogout" class="btn ghost" type="button">Se déconnecter</button>
       </div>
       <p class="tiny profile-hint">Astuce : ton profil s’affiche en découverte si nom/âge/ville/genre/bio sont renseignés.</p>
     </div>
@@ -137,154 +146,230 @@
 
 <!-- Firebase + Firestore + AppCheck -->
 <script type="module">
-  // ====== Boot ======
-  const cfg = window.APP_CONFIG?.firebase;
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-  import { getAuth, onAuthStateChanged, updateProfile, sendEmailVerification, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-  import { getFirestore, doc, getDoc, setDoc, serverTimestamp, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+  import {
+    setupFirebase,
+    ensureUserDocuments,
+    renderVerifyBanner,
+    applySessionToHeader,
+    safeSignOut,
+    saveUserProfile,
+    isDevBypassEnabled,
+  } from '/js/app-core.js';
 
-  const app = initializeApp(cfg);
-  loadAppCheck(app);
-  const auth = getAuth(app);
-  const db   = getFirestore(app);
-
-  const $ = s => document.querySelector(s);
-  let toastTimer;
-  const toast = (t)=>{
-    const el=$("#toast");
-    el.textContent=t;
-    el.classList.add('show');
-    clearTimeout(toastTimer);
-    toastTimer=setTimeout(()=>el.classList.remove('show'),2200);
-  };
-
-  // Cloudinary (unsigned)
   const CLOUD = {
     cloudName: window.APP_CONFIG?.cloudinary?.cloudName,
-    preset:    window.APP_CONFIG?.cloudinary?.unsignedPreset,
-    useSigned: !!window.APP_CONFIG?.cloudinary?.useSigned
+    preset: window.APP_CONFIG?.cloudinary?.unsignedPreset,
+    useSigned: !!window.APP_CONFIG?.cloudinary?.useSigned,
   };
 
-  // Refs UI
-  const avatar=$("#avatar"), file=$("#file");
-  const name=$("#name"), city=$("#city"), age=$("#age"), gender=$("#gender"), bio=$("#bio");
-  const verifyBanner=$("#verifyBanner"), btnResend=$("#btnResend"), btnRefresh=$("#btnRefresh");
-  const debugId=$("#debugId");
-
-  // ====== Helpers ======
-  const fillInputs = (data={}, user={})=>{
-    // n’écrase pas pendant un upload/sauvegarde locale
-    name.value   = data.name   ?? user.displayName ?? "";
-    city.value   = data.city   ?? "";
-    age.value    = (data.age ?? "") === null ? "" : (data.age ?? "");
-    gender.value = data.gender ?? "O";
-    bio.value    = data.bio    ?? "";
-    avatar.src   = data.photoURL || user.photoURL || "https://images.unsplash.com/photo-1502685104226-ee32379fefbe?q=80&w=800&auto=format&fit=crop";
+  const state = {
+    devBypass: isDevBypassEnabled(),
+    unsubProfile: null,
   };
 
-  const ensureProfileDoc = async (uid, user)=>{
-    const ref = doc(db,"profiles",uid);
-    const s = await getDoc(ref);
-    if (!s.exists()){
-      await setDoc(ref,{
-        uid, email: user.email || "",
-        name: user.displayName || "",
-        age: null, gender:"O", city:"", bio:"",
-        photoURL: user.photoURL || "",
-        createdAt: serverTimestamp(), updatedAt: serverTimestamp()
-      }, { merge:true });
-    }
-    return ref;
+  const $ = (selector) => document.querySelector(selector);
+  const avatar = $('#avatar');
+  const fileInput = $('#file');
+  const nameInput = $('#name');
+  const cityInput = $('#city');
+  const ageInput = $('#age');
+  const genderInput = $('#gender');
+  const bioInput = $('#bio');
+  const btnSave = $('#btnSave');
+  const btnUpload = $('#btnUpload');
+  const btnLogout = $('#btnLogout');
+  const accountEmail = $('#accountEmail');
+  const accountUid = $('#accountUid');
+  const accountStatus = $('#accountStatus');
+  const devBadge = $('#devBadge');
+  const verifyBanner = $('#verifyBanner');
+  const btnResend = $('#btnResend');
+  const btnRefresh = $('#btnRefresh');
+  const headerSlot = document.getElementById('header-session');
+  const toastEl = $('#toast');
+
+  let toastTimer;
+  const toast = (message) => {
+    if (!toastEl) return;
+    toastEl.textContent = message;
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2400);
   };
 
-  // ====== Main flow ======
-  onAuthStateChanged(auth, async (user)=>{
-    if(!user){ location.href="login.html#login"; return; }
+  const fillInputs = (data = {}, user = {}) => {
+    nameInput.value = data.name ?? user.displayName ?? '';
+    cityInput.value = data.city ?? '';
+    ageInput.value = data.age != null ? data.age : '';
+    genderInput.value = data.gender ?? 'O';
+    bioInput.value = data.bio ?? '';
+    avatar.src = data.photoURL || user.photoURL || 'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?q=80&w=800&auto=format&fit=crop';
+  };
 
-    // Debug utile pour éviter le mauvais UID
-    debugId.textContent = `Connecté : ${user.email || ""} — UID: ${user.uid}`;
-    const verified = !!user.emailVerified;
-    document.documentElement.dataset.verified = verified ? "true" : "false";
-    verifyBanner.hidden = verified;
-
-    // Crée le doc au besoin puis abonne-toi en TEMPS RÉEL
-    const ref = await ensureProfileDoc(user.uid, user);
-
-    // Live listener → remplit les champs à chaque update (upload, save, autre device)
-    onSnapshot(ref, (snap)=>{
-      const data = snap.data() || {};
-      fillInputs(data, user);
-    }, (err)=>console.error("onSnapshot error:", err));
-
-    // Save profil
-    $("#btnSave").onclick = async ()=>{
-      const payload = {
-        name: name.value.trim(),
-        city: city.value.trim(),
-        age:  Number(age.value)||null,
-        gender: gender.value,
-        bio:  bio.value.trim(),
-        updatedAt: serverTimestamp()
-      };
-      await setDoc(ref, payload, { merge:true });
-      // Réplique côté Auth (affichage nom/photo sur d’autres pages)
-      try{
-        if (auth.currentUser) {
-          const upd = {};
-          if (payload.name && payload.name !== (auth.currentUser.displayName||"")) upd.displayName = payload.name;
-          if (Object.keys(upd).length) await updateProfile(auth.currentUser, upd);
-        }
-      }catch(e){ console.warn("updateProfile name:", e); }
-      toast("Profil enregistré ✅");
-    };
-
-    // Logout
-    $("#btnLogout").onclick = async ()=>{ await signOut(auth); location.href="login.html"; };
-
-    // Verify banner actions
-    btnResend?.addEventListener("click", async ()=>{
-      try{
-        const actionCodeSettings={ url:"https://lovenow.netlify.app/login.html?verified=1", handleCodeInApp:false };
-        await sendEmailVerification(auth.currentUser, actionCodeSettings);
-        toast("Lien envoyé ✅");
-      }catch(e){ console.error(e); toast("Échec envoi lien"); }
-    });
-    btnRefresh?.addEventListener("click",()=>location.reload());
-
-    // Upload Cloudinary (unsigned preset)
-    $("#btnUpload").onclick = async ()=>{
-      const f = file.files?.[0];
-      if(!f){ alert("Choisis d’abord une image."); return; }
-      if(f.size > 5*1024*1024){ alert("Fichier trop lourd (max 5 Mo)."); return; }
-      if(!CLOUD.cloudName){ alert("Cloudinary non configuré dans config.js"); return; }
-
-      try{
-        const fd = new FormData();
-        fd.append("file", f);
-        if(CLOUD.useSigned){
-          const sig = await fetch('/.netlify/functions/sign-upload').then(r=>r.json());
-          fd.append('api_key', sig.apiKey);
-          fd.append('timestamp', sig.timestamp);
-          fd.append('signature', sig.signature);
-          if(sig.preset) fd.append('upload_preset', sig.preset);
-        }else{
-          if(!CLOUD.preset){ alert("Cloudinary non configuré dans config.js"); return; }
-          fd.append('upload_preset', CLOUD.preset);
-        }
-        const up = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD.cloudName}/image/upload`, { method:"POST", body: fd });
-        const out = await up.json();
-        if(!out.secure_url){ throw new Error(out.error?.message || "Upload échoué"); }
-
-        // Écrit l’URL et laisse onSnapshot rafraîchir l’UI
-        await setDoc(ref, { photoURL: out.secure_url, updatedAt: serverTimestamp() }, { merge:true });
-        try{ await updateProfile(auth.currentUser, { photoURL: out.secure_url }); }catch{}
-        toast("Photo mise à jour ✅");
-      }catch(e){
-        console.error(e);
-        alert("Impossible de téléverser la photo : " + e.message);
+  const updateAccountSummary = (user) => {
+    if (!user) return;
+    if (accountEmail) accountEmail.textContent = user.email || '—';
+    if (accountUid) accountUid.textContent = user.uid;
+    if (accountStatus) {
+      if (user.emailVerified) {
+        accountStatus.textContent = 'E-mail vérifié ✅';
+        accountStatus.dataset.state = 'ok';
+      } else if (state.devBypass) {
+        accountStatus.textContent = 'Mode test : e-mail non vérifié';
+        accountStatus.dataset.state = 'warn';
+      } else {
+        accountStatus.textContent = 'E-mail non vérifié';
+        accountStatus.dataset.state = 'error';
       }
-    };
-  });
+    }
+    if (devBadge) devBadge.hidden = !state.devBypass;
+  };
+
+  (async () => {
+    const { auth, db, authModule, firestoreModule } = await setupFirebase();
+    const {
+      onAuthStateChanged,
+      updateProfile,
+      sendEmailVerification,
+      signOut,
+      reload,
+    } = authModule;
+    const { doc, onSnapshot } = firestoreModule;
+
+    renderVerifyBanner({
+      banner: verifyBanner,
+      resendBtn: btnResend,
+      refreshBtn: btnRefresh,
+      onResend: async () => {
+        if (!auth.currentUser) return;
+        await sendEmailVerification(auth.currentUser);
+        toast('Lien de vérification envoyé ✅');
+      },
+      onRefresh: async () => {
+        if (!auth.currentUser) return;
+        await reload(auth.currentUser);
+        updateAccountSummary(auth.currentUser);
+        if (auth.currentUser.emailVerified || state.devBypass) {
+          verifyBanner.hidden = true;
+        }
+      },
+    });
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = '/login.html#log_in';
+        return;
+      }
+
+      updateAccountSummary(user);
+      applySessionToHeader(headerSlot, user, {
+        onSignOutClick: (event) => safeSignOut(auth, signOut, event?.currentTarget || btnLogout),
+      });
+
+      if (state.unsubProfile) {
+        state.unsubProfile();
+        state.unsubProfile = null;
+      }
+
+      await ensureUserDocuments(db, firestoreModule, user);
+
+      const userRef = doc(db, 'users', user.uid);
+      state.unsubProfile = onSnapshot(userRef, (snapshot) => {
+        const data = snapshot.data() || {};
+        fillInputs(data, user);
+      }, (error) => {
+        console.error('Profil listen error', error);
+      });
+
+      verifyBanner.hidden = user.emailVerified || state.devBypass;
+    });
+
+    btnSave?.addEventListener('click', async () => {
+      if (!auth.currentUser) return;
+      btnSave.disabled = true;
+      try {
+        const payload = {
+          name: nameInput.value.trim(),
+          displayName: nameInput.value.trim(),
+          city: cityInput.value.trim(),
+          age: Number(ageInput.value) || null,
+          gender: genderInput.value,
+          bio: bioInput.value.trim(),
+        };
+        await saveUserProfile(db, firestoreModule, auth.currentUser.uid, payload);
+        if (payload.name && payload.name !== (auth.currentUser.displayName || '')) {
+          await updateProfile(auth.currentUser, { displayName: payload.name });
+        }
+        toast('Profil enregistré ✅');
+      } catch (error) {
+        console.error('save profile failed', error);
+        toast('Impossible d’enregistrer pour le moment.');
+      } finally {
+        btnSave.disabled = false;
+      }
+    });
+
+    btnUpload?.addEventListener('click', async () => {
+      if (!auth.currentUser) return;
+      const file = fileInput?.files?.[0];
+      if (!file) {
+        alert('Choisis d’abord une image.');
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Fichier trop lourd (max 5 Mo).');
+        return;
+      }
+      if (!CLOUD.cloudName) {
+        alert('Cloudinary non configuré dans config.js');
+        return;
+      }
+
+      btnUpload.disabled = true;
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        if (CLOUD.useSigned) {
+          const response = await fetch('/.netlify/functions/sign-upload');
+          const signature = await response.json();
+          formData.append('api_key', signature.apiKey);
+          formData.append('timestamp', signature.timestamp);
+          formData.append('signature', signature.signature);
+          if (signature.preset) formData.append('upload_preset', signature.preset);
+        } else {
+          if (!CLOUD.preset) {
+            alert('Cloudinary non configuré dans config.js');
+            return;
+          }
+          formData.append('upload_preset', CLOUD.preset);
+        }
+        const upload = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD.cloudName}/image/upload`, {
+          method: 'POST',
+          body: formData,
+        });
+        const result = await upload.json();
+        if (!result.secure_url) {
+          throw new Error(result.error?.message || 'Upload échoué');
+        }
+        await saveUserProfile(db, firestoreModule, auth.currentUser.uid, { photoURL: result.secure_url });
+        try {
+          await updateProfile(auth.currentUser, { photoURL: result.secure_url });
+        } catch (err) {
+          console.warn('updateProfile photo', err);
+        }
+        toast('Photo mise à jour ✅');
+      } catch (error) {
+        console.error('upload failed', error);
+        alert('Impossible de téléverser la photo : ' + (error?.message || 'erreur inconnue'));
+      } finally {
+        btnUpload.disabled = false;
+      }
+    });
+
+    btnLogout?.addEventListener('click', async (event) => {
+      await safeSignOut(auth, signOut, event?.currentTarget || btnLogout);
+    });
+  })();
 </script>
 <script>loadCrispIfEnabled();</script>
 </body>

@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="/styles/components.css">
   <script src="/js/features.js"></script>
   <script src="/config.js"></script>
+  <script src="/assets/js/siteConfig.js"></script>
   <script defer src="/js/ui.js"></script>
 </head>
 <body>
@@ -81,6 +82,17 @@
     </div>
   </footer>
 
+  <script>
+    (function(){
+      if (typeof window.getSiteConfigValue !== 'function') return;
+      const email = window.getSiteConfigValue('dpo.email', 'support@lovenow.app');
+      const link = document.getElementById('cookiesDpo');
+      if (link) {
+        link.textContent = email;
+        link.setAttribute('href', `mailto:${email}`);
+      }
+    })();
+  </script>
   <script>loadCrispIfEnabled();</script>
 </body>
 </html>

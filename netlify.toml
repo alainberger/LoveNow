@@ -23,10 +23,10 @@
   to = "/conversations.html"
   status = 200
 
-# Lien court pour profils publics : /u/UID -> profile-public.html?id=UID
+# Lien court pour profils publics : /u/UID -> user.html?uid=UID
 [[redirects]]
   from = "/u/:uid"
-  to   = "/profile-public.html?id=:uid"
+  to   = "/user.html?uid=:uid"
   status = 200
 
 # Catch-all SPA -> index.html

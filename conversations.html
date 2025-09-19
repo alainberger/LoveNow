@@ -61,7 +61,8 @@
 
     .empty{padding:32px;text-align:center;color:var(--muted)}
 
-    .badge{display:inline-flex;align-items:center;gap:6px;padding:0.35rem 0.65rem;border-radius:999px;background:rgba(255,61,138,0.15);color:var(--brand);font-size:0.85rem;font-weight:600}
+    .badge--status{background:rgba(255,61,138,0.15);color:var(--brand)}
+    [data-theme="dark"] .badge--status{background:rgba(161,110,255,0.18);color:var(--text)}
 
     .conversation-toolbar{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
 
@@ -91,9 +92,7 @@
       <a href="/conversations.html" aria-current="page">Conversations</a>
       <a href="/profile.html">Mon profil</a>
       <a href="/settings.html">Paramètres</a>
-      <div class="session-slot">
-        <button id="btnLogout" class="btn ghost" type="button">Se déconnecter</button>
-      </div>
+      <div class="session-slot" id="header-session"></div>
     </nav>
     <button class="mode-toggle" type="button" data-toggle-theme aria-label="Basculer le mode d'affichage">
       <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
@@ -122,6 +121,7 @@
           <input id="emailStart" type="email" placeholder="ex. ami@exemple.com" autocomplete="off">
           <button id="btnStart" class="btn">OK</button>
         </div>
+        <span id="devBadge" class="badge badge--dev" hidden>Mode test</span>
         <p class="muted tip">Astuce : tu peux aussi ouvrir <span class="badge">/conversations.html?startWith=UID</span></p>
       </div>
       <div id="convList" class="list" role="listbox" aria-label="Conversations"></div>
@@ -135,7 +135,7 @@
           <div id="peerCity" class="chatSub"></div>
         </div>
         <span class="spacer"></span>
-        <span id="chatStatus" class="badge">Temps réel</span>
+        <span id="chatStatus" class="badge badge--status">Temps réel</span>
       </div>
 
       <div id="emptyChat" class="empty">Aucune discussion ouverte. Choisis une conversation à gauche ou lance une discussion.</div>
@@ -161,278 +161,368 @@
 </footer>
 
 <script type="module">
-/* ====== Imports & boot Firebase ====== */
-const cfg = window.APP_CONFIG?.firebase;
+  import {
+    setupFirebase,
+    renderVerifyBanner,
+    applySessionToHeader,
+    safeSignOut,
+    ensureUserDocuments,
+    loadUserProfile,
+    isDevBypassEnabled,
+    getPairId,
+  } from '/js/app-core.js';
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import { getAuth, onAuthStateChanged, sendEmailVerification, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-import {
-  getFirestore, doc, getDoc, setDoc, serverTimestamp, addDoc, collection, onSnapshot, query, where, orderBy, getDocs, limit
-} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+  const state = {
+    currentUser: null,
+    devBypass: isDevBypassEnabled(),
+    activeConvId: null,
+    activePeerUid: null,
+    unsubConv: null,
+    unsubMessages: null,
+    profileCache: new Map(),
+  };
 
-const app = initializeApp(cfg);
-loadAppCheck(app);
-const auth = getAuth(app);
-const db   = getFirestore(app);
+  const $ = (selector) => document.querySelector(selector);
+  const convList = $('#convList');
+  const chatHead = $('#chatHead');
+  const emptyChat = $('#emptyChat');
+  const chatMain = $('#chatMain');
+  const chatInput = $('#chatInput');
+  const msgInput = $('#msg');
+  const btnSend = $('#btnSend');
+  const btnStart = $('#btnStart');
+  const emailStart = $('#emailStart');
+  const verifyBanner = $('#verifyBanner');
+  const btnResend = $('#btnResend');
+  const btnRefresh = $('#btnRefresh');
+  const headerSlot = document.getElementById('header-session');
+  const peerAvatar = $('#peerAvatar');
+  const peerName = $('#peerName');
+  const peerCity = $('#peerCity');
+  const chatStatus = $('#chatStatus');
+  const devBadge = $('#devBadge');
 
-/* ====== UI refs ====== */
-const $ = s => document.querySelector(s);
-const convList   = $("#convList");
-const chatHead   = $("#chatHead");
-const emptyChat  = $("#emptyChat");
-const chatMain   = $("#chatMain");
-const chatInput  = $("#chatInput");
-const msgInput   = $("#msg");
-const btnSend    = $("#btnSend");
-const btnStart   = $("#btnStart");
-const emailStart = $("#emailStart");
-const verifyBanner = $("#verifyBanner");
-const btnResend = $("#btnResend");
-const btnRefresh = $("#btnRefresh");
-const btnLogout = $("#btnLogout");
-const peerAvatar=$("#peerAvatar");
-const peerName  =$("#peerName");
-const peerCity  =$("#peerCity");
+  const fmtTime = (date) => (date ? new Intl.DateTimeFormat('fr-FR', { hour: '2-digit', minute: '2-digit' }).format(date) : '');
 
-/* ====== State ====== */
-let ME = null;                 // { uid, email, emailVerified }
-let activeConvId = null;       // id du document conversation
-let activePeerUid = null;
-let unsubMessages = null;
-const profileCache = new Map(); // uid -> profile data
+  const showDevBadge = () => {
+    if (!devBadge) return;
+    devBadge.hidden = !state.devBypass;
+  };
 
-/* ====== Helpers ====== */
-const fmtTime = (d)=> d ? new Intl.DateTimeFormat('fr-FR',{hour:'2-digit',minute:'2-digit'}).format(d) : '';
-
-async function getProfile(uid){
-  if(profileCache.has(uid)) return profileCache.get(uid);
-  const snap = await getDoc(doc(db,"profiles",uid));
-  const data = snap.exists() ? snap.data() : {};
-  profileCache.set(uid, data);
-  return data;
-}
-
-function renderConvItem(c){
-  const other = c.members.find(x=>x!==ME.uid);
-  const node  = document.createElement("div");
-  node.className = "conv";
-  node.dataset.cid = c.id;
-  node.dataset.peer = other || "";
-  node.setAttribute("role","option");
-
-  const lastTxt = (c.lastMessageText || "").slice(0,80);
-  const time = c.lastMessageAt?.toDate ? fmtTime(c.lastMessageAt.toDate()) : (c.createdAt?.toDate ? fmtTime(c.createdAt.toDate()) : "");
-
-  const avatar = c._peer?.photoURL || "https://images.unsplash.com/photo-1502685104226-ee32379fefbe?q=80&w=200&auto=format&fit=crop";
-  const name   = c._peer?.name || c._peer?.displayName || "Utilisateur";
-
-  node.innerHTML = `
-    <img src="${avatar}" alt="Photo de ${name}">
-    <div class="meta">
-      <div class="name">${name}</div>
-      <div class="excerpt">${lastTxt || "—"} ${time?`· ${time}`:""}</div>
-    </div>
-  `;
-  node.addEventListener("click", ()=> openConversation(c.id, other));
-  return node;
-}
-
-function appendMessage(m){
-  const me = m.from === ME.uid;
-  const el = document.createElement("div");
-  el.className = "msg" + (me ? " mine" : "");
-  const t = m.text || "";
-  const when = m.createdAt?.toDate ? fmtTime(m.createdAt.toDate()) : "";
-  el.innerHTML = `
-    <div>${t.replace(/</g,"&lt;")}</div>
-    <div class="stamp">${when}</div>
-  `;
-  chatMain.appendChild(el);
-  chatMain.scrollTop = chatMain.scrollHeight;
-}
-
-/* ====== Conversations list (realtime) ====== */
-let unsubConv = null;
-async function watchConversations(){
-  if (unsubConv) unsubConv();
-
-  // Requête simple (évite d’exiger un index) : array-contains sans orderBy
-  const q = query(collection(db,"conversations"), where("members","array-contains", ME.uid));
-  unsubConv = onSnapshot(q, async (snap)=>{
-    // On “enrichit” côté client pour l’affichage (nom/photo de l’autre)
-    const items = [];
-    for (const d of snap.docs){
-      const c = { id:d.id, ...d.data() };
-      const other = (c.members||[]).find(x=>x!==ME.uid);
-      if (other){
-        c._peer = await getProfile(other);
-      }
-      items.push(c);
+  const clearConversation = () => {
+    chatHead.hidden = true;
+    chatMain.hidden = true;
+    chatMain.innerHTML = '';
+    chatInput.hidden = true;
+    emptyChat.hidden = false;
+    state.activeConvId = null;
+    state.activePeerUid = null;
+    if (state.unsubMessages) {
+      state.unsubMessages();
+      state.unsubMessages = null;
     }
-    // tri client par dernière activité
-    items.sort((a,b)=>{
-      const ta = a.lastMessageAt?.toMillis ? a.lastMessageAt.toMillis() : (a.createdAt?.toMillis ? a.createdAt.toMillis() : 0);
-      const tb = b.lastMessageAt?.toMillis ? b.lastMessageAt.toMillis() : (b.createdAt?.toMillis ? b.createdAt.toMillis() : 0);
-      return tb - ta;
-    });
+    setSendEnabled(false);
+    if (chatStatus) chatStatus.textContent = 'Sélectionne une conversation';
+    [...convList.querySelectorAll('.conv')].forEach((node) => node.classList.remove('active'));
+  };
 
-    convList.innerHTML = "";
-    if(items.length===0){
-      const empty = document.createElement("div");
-      empty.className="empty";
-      empty.textContent = "Pas encore de conversations. Lance la première via l’e-mail à gauche.";
-      convList.appendChild(empty);
+  const setSendEnabled = (canSend) => {
+    if (btnSend) btnSend.disabled = !canSend;
+    if (msgInput) msgInput.disabled = !canSend;
+    if (chatStatus) {
+      chatStatus.textContent = canSend ? 'Temps réel' : 'Bloqué (e-mail non vérifié)';
+    }
+  };
+
+  const getProfile = async (uid, db, firestoreModule) => {
+    if (state.profileCache.has(uid)) return state.profileCache.get(uid);
+    const data = await loadUserProfile(db, firestoreModule, uid);
+    state.profileCache.set(uid, data || {});
+    return data || {};
+  };
+
+  const renderConversationList = (items, db, firestoreModule) => {
+    convList.innerHTML = '';
+    if (!items.length) {
+      const emptyNode = document.createElement('div');
+      emptyNode.className = 'empty';
+      emptyNode.textContent = 'Pas encore de conversations. Lance la première via le champ e-mail.';
+      convList.appendChild(emptyNode);
+      return;
+    }
+    items.forEach((conv) => {
+      const node = document.createElement('div');
+      node.className = 'conv';
+      node.dataset.cid = conv.id;
+      node.dataset.peer = conv.peerUid;
+      node.setAttribute('role', 'option');
+      const lastText = (conv.lastMessageText || '').slice(0, 80);
+      const updated = conv.lastMessageAt || conv.updatedAt || conv.createdAt;
+      const timeLabel = updated ? fmtTime(updated.toDate ? updated.toDate() : updated) : '';
+      const avatar = conv.peer?.photoURL || 'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?q=80&w=200&auto=format&fit=crop';
+      const name = conv.peer?.name || conv.peer?.displayName || 'Utilisateur';
+      node.innerHTML = `
+        <img src="${avatar}" alt="Photo de ${name}">
+        <div class="meta">
+          <div class="name">${name}</div>
+          <div class="excerpt">${lastText || '—'} ${timeLabel ? `· ${timeLabel}` : ''}</div>
+        </div>
+      `;
+      node.addEventListener('click', () => openConversation(conv.id, conv.peerUid, db, firestoreModule));
+      convList.appendChild(node);
+    });
+    [...convList.querySelectorAll('.conv')].forEach((node) => {
+      if (node.dataset.cid === state.activeConvId) node.classList.add('active');
+    });
+  };
+
+  const openConversation = async (convId, peerUid, db, firestoreModule) => {
+    if (!state.currentUser) return;
+    if (state.unsubMessages) {
+      state.unsubMessages();
+      state.unsubMessages = null;
+    }
+    state.activeConvId = convId;
+    state.activePeerUid = peerUid;
+
+    const peer = await getProfile(peerUid, db, firestoreModule);
+    peerAvatar.src = peer.photoURL || 'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?q=80&w=200&auto=format&fit=crop';
+    peerName.textContent = peer.name || peer.displayName || 'Utilisateur';
+    peerCity.textContent = peer.city ? `📍 ${peer.city}` : '';
+
+    chatHead.hidden = false;
+    emptyChat.hidden = true;
+    chatMain.hidden = false;
+    chatMain.innerHTML = '';
+    chatInput.hidden = false;
+
+    const canSend = state.currentUser.emailVerified || state.devBypass;
+    setSendEnabled(canSend);
+
+    const { doc, collection, query, orderBy, onSnapshot, limit } = firestoreModule;
+    const convRef = doc(db, 'conversations', convId);
+    const messagesQuery = query(collection(convRef, 'messages'), orderBy('createdAt', 'asc'), limit(500));
+    state.unsubMessages = onSnapshot(messagesQuery, (snapshot) => {
+      chatMain.innerHTML = '';
+      snapshot.forEach((msgDoc) => {
+        const message = msgDoc.data();
+        const me = message.from === state.currentUser.uid;
+        const node = document.createElement('div');
+        node.className = `msg${me ? ' mine' : ''}`;
+        const when = message.createdAt?.toDate ? fmtTime(message.createdAt.toDate()) : '';
+        node.innerHTML = `
+          <div>${(message.text || '').replace(/</g, '&lt;')}</div>
+          <div class="stamp">${when}</div>
+        `;
+        chatMain.appendChild(node);
+      });
+      chatMain.scrollTop = chatMain.scrollHeight;
+    }, (error) => console.error('Messages watch error', error));
+
+    [...convList.querySelectorAll('.conv')].forEach((node) => {
+      if (node.dataset.cid === convId) node.classList.add('active');
+      else node.classList.remove('active');
+    });
+  };
+
+  const ensureConversationWith = async (peerUid, db, firestoreModule) => {
+    if (!state.currentUser) throw new Error('Utilisateur non connecté');
+    if (!peerUid || peerUid === state.currentUser.uid) throw new Error('UID cible invalide');
+    const { doc, getDoc, setDoc, serverTimestamp } = firestoreModule;
+    const convId = getPairId(state.currentUser.uid, peerUid);
+    const convRef = doc(db, 'conversations', convId);
+    const existing = await getDoc(convRef);
+    if (existing.exists()) return convId;
+    await setDoc(convRef, {
+      members: [state.currentUser.uid, peerUid],
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+      lastMessageText: '',
+      lastMessageAt: null,
+    });
+    return convId;
+  };
+
+  const sendMessage = async (db, firestoreModule) => {
+    const text = (msgInput.value || '').trim();
+    if (!text) return;
+    if (!state.activeConvId || !state.activePeerUid) {
+      alert('Choisis une conversation d’abord.');
+      return;
+    }
+    if (!state.currentUser) return;
+    if (!state.currentUser.emailVerified && !state.devBypass) {
+      verifyBanner.hidden = false;
+      alert('Vérifie ton e-mail pour envoyer des messages.');
+      return;
+    }
+
+    setSendEnabled(false);
+    const { doc, collection, addDoc, serverTimestamp, setDoc } = firestoreModule;
+    try {
+      const convRef = doc(db, 'conversations', state.activeConvId);
+      await addDoc(collection(convRef, 'messages'), {
+        from: state.currentUser.uid,
+        text,
+        createdAt: serverTimestamp(),
+      });
+      await setDoc(convRef, {
+        lastMessageText: text,
+        lastMessageAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      }, { merge: true });
+      msgInput.value = '';
+      msgInput.focus();
+    } catch (error) {
+      console.error('send message failed', error);
+      alert('Impossible d’envoyer le message pour le moment.');
+    } finally {
+      const canSend = state.currentUser.emailVerified || state.devBypass;
+      setSendEnabled(canSend);
+    }
+  };
+
+  const startConversationByEmail = async (db, firestoreModule) => {
+    const email = (emailStart.value || '').trim().toLowerCase();
+    if (!email) return;
+    if (!state.currentUser) return;
+    const { collection, query, where, limit, getDocs } = firestoreModule;
+    let peerUid = null;
+    const userQuery = query(collection(db, 'users'), where('email', '==', email), limit(1));
+    const snap = await getDocs(userQuery);
+    if (!snap.empty) {
+      peerUid = snap.docs[0].id;
     } else {
-      for (const c of items) convList.appendChild(renderConvItem(c));
-    }
-
-    // Marque active si déjà ouverte
-    [...convList.querySelectorAll(".conv")].forEach(n=>{
-      if(n.dataset.cid===activeConvId) n.classList.add("active"); else n.classList.remove("active");
-    });
-  }, (err)=>console.error("Conversations watch error:", err));
-}
-
-/* ====== Open / Create conversation ====== */
-async function ensureConversationWith(peerUid){
-  if (!peerUid || peerUid===ME.uid) throw new Error("UID cible invalide.");
-  // Cherche une conversation existante entre nous deux
-  const q = query(collection(db,"conversations"), where("members","array-contains", ME.uid));
-  const snap = await getDocs(q);
-  const existing = snap.docs.find(d => {
-    const m = d.data().members||[];
-    return m.length===2 && m.includes(peerUid);
-  });
-  if(existing) return existing.id;
-
-  // Crée la convo
-  const ref = await addDoc(collection(db,"conversations"), {
-    members:[ME.uid, peerUid],
-    createdAt: serverTimestamp(),
-    lastMessageText:"",
-    lastMessageAt:null
-  });
-  return ref.id;
-}
-
-async function openConversation(cid, peerUid){
-  // Nettoie l’ancien flux si besoin
-  if (unsubMessages) { unsubMessages(); unsubMessages=null; }
-  activeConvId = cid;
-  activePeerUid = peerUid;
-
-  // UI header destinataire
-  const peer = await getProfile(peerUid);
-  peerAvatar.src = peer.photoURL || "https://images.unsplash.com/photo-1502685104226-ee32379fefbe?q=80&w=200&auto=format&fit=crop";
-  peerName.textContent = peer.name || peer.displayName || "Utilisateur";
-  peerCity.textContent = peer.city ? `📍 ${peer.city}` : "";
-
-  chatHead.hidden = false;
-  emptyChat.hidden = true;
-  chatMain.hidden = false;
-  chatMain.innerHTML = "";
-  chatInput.hidden = false;
-
-  // Si mail non vérifié → on laisse lire mais on bloque l’envoi
-  btnSend.disabled = !ME.emailVerified;
-  msgInput.disabled = !ME.emailVerified;
-
-  // Ecoute temps réel des messages
-  const ref = doc(db,"conversations", cid);
-  const q = query(collection(ref,"messages"), orderBy("createdAt","asc"), limit(500));
-  unsubMessages = onSnapshot(q, (snap)=>{
-    chatMain.innerHTML = "";
-    snap.forEach(doc=> appendMessage(doc.data()));
-  }, (err)=>console.error("Messages watch error:", err));
-
-  // Marque active dans la liste
-  [...convList.querySelectorAll(".conv")].forEach(n=>{
-    if(n.dataset.cid===activeConvId) n.classList.add("active"); else n.classList.remove("active");
-  });
-}
-
-/* ====== Send message ====== */
-async function sendMessage(){
-  const text = (msgInput.value || "").trim();
-  if (!text) return;
-  if (!activeConvId || !activePeerUid) return alert("Choisis une conversation d’abord.");
-  if (!ME.emailVerified){ alert("Valide ton e-mail avant d’envoyer des messages."); return; }
-
-  btnSend.disabled = true;
-  try{
-    const ref = doc(db,"conversations", activeConvId);
-    await addDoc(collection(ref,"messages"), { from: ME.uid, text, createdAt: serverTimestamp() });
-    await setDoc(ref, { lastMessageText: text, lastMessageAt: serverTimestamp() }, { merge:true });
-    msgInput.value = "";
-    msgInput.focus();
-  }finally{
-    btnSend.disabled = false;
-  }
-}
-
-/* ====== Start chat by email ====== */
-async function startByEmail(){
-  const email = (emailStart.value||"").trim().toLowerCase();
-  if(!email) return;
-  if(!ME?.uid) return;
-
-  // Recherche dans "profiles" (lecture publique selon tes règles)
-  const q = query(collection(db,"profiles"), where("email","==", email), limit(1));
-  const s = await getDocs(q);
-  if(s.empty){ return alert("Aucun profil trouvé pour cet e-mail."); }
-  const peerUid = s.docs[0].data().uid;
-  if(!peerUid) return alert("Profil cible invalide.");
-  const cid = await ensureConversationWith(peerUid);
-  await openConversation(cid, peerUid);
-}
-
-
-/* ====== Auth flow ====== */
-onAuthStateChanged(auth, async (user)=>{
-  if(!user){ location.href="login.html#login"; return; }
-
-  ME = { uid:user.uid, email:user.email||"", emailVerified: !!user.emailVerified };
-  verifyBanner.hidden = ME.emailVerified;
-
-  // boutons
-  btnLogout.onclick = async ()=>{ await signOut(auth); location.href="login.html"; };
-  btnResend?.addEventListener("click", async ()=>{
-    try{
-      const actionCodeSettings={ url:"https://lovenow.netlify.app/login.html?verified=1", handleCodeInApp:false };
-      await sendEmailVerification(auth.currentUser, actionCodeSettings);
-      alert("Lien de vérification envoyé ✅");
-    }catch(e){ console.error(e); alert("Échec envoi lien"); }
-  });
-  btnRefresh?.addEventListener("click",()=>location.reload());
-
-  btnSend.addEventListener("click", sendMessage);
-  msgInput.addEventListener("keydown",(e)=>{ if(e.key==="Enter") sendMessage(); });
-  btnStart.addEventListener("click", startByEmail);
-
-  // Liste des conversations
-  watchConversations();
-
-  const startParam = getParam('startWith');
-  const cidParam = getParam('cid');
-  if(startParam){
-    try{
-      const cid = await ensureConversationWith(startParam);
-      location.replace(`conversations.html?cid=${cid}`);
-    }catch(e){ console.error(e); }
-  }else if(cidParam){
-    try{
-      const ref = doc(db,'conversations', cidParam);
-      const snap = await getDoc(ref);
-      if(snap.exists()){
-        const peer = (snap.data().members||[]).find(x=>x!==ME.uid);
-        if(peer) await openConversation(cidParam, peer);
+      const legacyQuery = query(collection(db, 'profiles'), where('email', '==', email), limit(1));
+      const legacySnap = await getDocs(legacyQuery);
+      if (!legacySnap.empty) {
+        peerUid = legacySnap.docs[0].id;
       }
-    }catch(e){ console.error(e); }
-  }
-});
+    }
+    if (!peerUid) {
+      alert('Aucun profil trouvé pour cet e-mail.');
+      return;
+    }
+    const convId = await ensureConversationWith(peerUid, db, firestoreModule);
+    await openConversation(convId, peerUid, db, firestoreModule);
+    history.replaceState({}, '', `?cid=${encodeURIComponent(convId)}`);
+  };
 
-/* ====== URL params ====== */
-function getParam(name){ return new URL(location.href).searchParams.get(name); }
+  const watchConversations = (db, firestoreModule) => {
+    if (state.unsubConv) {
+      state.unsubConv();
+      state.unsubConv = null;
+    }
+    const { collection, query, where, onSnapshot } = firestoreModule;
+    const convQuery = query(collection(db, 'conversations'), where('members', 'array-contains', state.currentUser.uid));
+    state.unsubConv = onSnapshot(convQuery, async (snapshot) => {
+      const items = [];
+      for (const docSnap of snapshot.docs) {
+        const data = docSnap.data();
+        const peerUid = (data.members || []).find((id) => id !== state.currentUser.uid);
+        if (!peerUid) continue;
+        const peer = await getProfile(peerUid, db, firestoreModule);
+        items.push({
+          id: docSnap.id,
+          ...data,
+          peerUid,
+          peer,
+        });
+      }
+      items.sort((a, b) => {
+        const ta = a.lastMessageAt?.toMillis ? a.lastMessageAt.toMillis() : (a.updatedAt?.toMillis ? a.updatedAt.toMillis() : 0);
+        const tb = b.lastMessageAt?.toMillis ? b.lastMessageAt.toMillis() : (b.updatedAt?.toMillis ? b.updatedAt.toMillis() : 0);
+        return tb - ta;
+      });
+      renderConversationList(items, db, firestoreModule);
+    }, (error) => console.error('Conversations watch error', error));
+  };
+
+  const hydrateFromUrl = async (db, firestoreModule) => {
+    const params = new URLSearchParams(window.location.search);
+    const startWith = params.get('startWith');
+    const cid = params.get('cid');
+    if (startWith) {
+      try {
+        const convId = await ensureConversationWith(startWith, db, firestoreModule);
+        await openConversation(convId, startWith, db, firestoreModule);
+        history.replaceState({}, '', `?cid=${encodeURIComponent(convId)}`);
+      } catch (error) {
+        console.error('startWith failed', error);
+      }
+    } else if (cid) {
+      const { doc, getDoc } = firestoreModule;
+      try {
+        const convRef = doc(db, 'conversations', cid);
+        const snap = await getDoc(convRef);
+        if (snap.exists()) {
+          const peerUid = (snap.data().members || []).find((id) => id !== state.currentUser.uid);
+          if (peerUid) await openConversation(cid, peerUid, db, firestoreModule);
+        }
+      } catch (error) {
+        console.error('cid open failed', error);
+      }
+    }
+  };
+
+  (async () => {
+    const { auth, db, authModule, firestoreModule } = await setupFirebase();
+    const {
+      onAuthStateChanged,
+      signOut,
+      sendEmailVerification,
+      reload,
+    } = authModule;
+
+    renderVerifyBanner({
+      banner: verifyBanner,
+      resendBtn: btnResend,
+      refreshBtn: btnRefresh,
+      onResend: async () => {
+        if (!auth.currentUser) return;
+        await sendEmailVerification(auth.currentUser);
+        alert('Lien de vérification envoyé ✅');
+      },
+      onRefresh: async () => {
+        if (!auth.currentUser) return;
+        await reload(auth.currentUser);
+        if (auth.currentUser.emailVerified || state.devBypass) {
+          verifyBanner.hidden = true;
+        }
+      },
+    });
+
+    showDevBadge();
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        if (state.unsubConv) state.unsubConv();
+        if (state.unsubMessages) state.unsubMessages();
+        window.location.href = '/login.html#log_in';
+        return;
+      }
+      state.currentUser = user;
+      state.profileCache.clear();
+      clearConversation();
+      await ensureUserDocuments(db, firestoreModule, user);
+      applySessionToHeader(headerSlot, user, {
+        onSignOutClick: (event) => safeSignOut(auth, signOut, event?.currentTarget),
+      });
+      verifyBanner.hidden = user.emailVerified || state.devBypass;
+      setSendEnabled(user.emailVerified || state.devBypass);
+      watchConversations(db, firestoreModule);
+      await hydrateFromUrl(db, firestoreModule);
+    });
+
+    btnSend?.addEventListener('click', () => sendMessage(db, firestoreModule));
+    msgInput?.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        sendMessage(db, firestoreModule);
+      }
+    });
+    btnStart?.addEventListener('click', () => startConversationByEmail(db, firestoreModule));
+  })();
 </script>
 <script>loadCrispIfEnabled();</script>
 </body>
