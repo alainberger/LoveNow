@@ -1,9 +1,328 @@
 <!doctype html>
-<html lang="fr">
+<html lang="fr" data-theme="light">
 <head>
-<meta http-equiv="refresh" content="0; url=/discover.html" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Matching — LoveNow</title>
+  <meta name="description" content="Découvre des profils compatibles et crée un match en un clic."/>
+  <link rel="stylesheet" href="/styles/tokens.css">
+  <link rel="stylesheet" href="/styles/components.css">
+  <script src="/js/features.js"></script>
+  <script src="/config.js"></script>
+  <script defer src="/js/ui.js"></script>
+  <style>
+    .match-shell{width:min(880px,92vw);margin:48px auto 96px;display:grid;gap:24px}
+    .match-card{display:grid;gap:24px;align-items:center;text-align:center}
+    .card-stack{position:relative;min-height:360px;display:grid;place-items:center}
+    .match-profile{position:relative;width:min(420px,80vw);padding:28px 28px 34px;border-radius:28px;background:rgba(255,255,255,0.88);border:1px solid rgba(255,255,255,0.9);box-shadow:0 30px 60px -38px rgba(47,22,52,0.35);display:grid;gap:16px}
+    [data-theme="dark"] .match-profile{background:rgba(29,28,54,0.9);border-color:rgba(161,110,255,0.22);box-shadow:0 32px 68px -38px rgba(10,6,27,0.85)}
+    .match-profile img{width:120px;height:120px;border-radius:28px;object-fit:cover;margin:0 auto;box-shadow:0 24px 48px -28px rgba(47,22,52,0.4)}
+    .match-actions{display:flex;justify-content:center;gap:16px}
+    .match-result{display:grid;gap:12px;justify-items:center;padding:18px;border-radius:var(--radius);background:rgba(255,61,138,0.1);color:var(--brand)}
+    .match-empty{color:var(--muted)}
+  </style>
 </head>
 <body>
-<p>Redirection...</p>
+  <header class="site-header">
+    <div class="wrap nav-bar">
+      <a class="brand" href="/" aria-label="LoveNow">
+        <img src="/assets/brand/logo.svg" alt="Logo LoveNow" />
+        <span>LoveNow</span>
+      </a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-menu" data-toggle-nav>
+        <span></span>
+        <span class="sr-only">Ouvrir le menu</span>
+      </button>
+      <nav id="primary-menu" class="site-menu" aria-label="Navigation principale">
+        <a href="/#discover">Découvrir</a>
+        <a href="/matchmaking.html" aria-current="page">Matching</a>
+        <a href="/conversations.html">Conversations</a>
+        <a href="/profile.html">Mon profil</a>
+        <a href="/settings.html">Paramètres</a>
+        <div class="session-slot" id="header-session"></div>
+      </nav>
+      <button class="mode-toggle" type="button" data-toggle-theme aria-label="Basculer le mode d'affichage">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+          <path d="M12 3a1 1 0 0 1 1 1v1.1a1 1 0 0 1-1 1h-.2a1 1 0 0 1-1-.8 3 3 0 0 0-2.9 2.9 1 1 0 0 1-.8 1H6a1 1 0 0 1-1-1A7 7 0 0 1 12 3Z" />
+          <path d="M7 12a5 5 0 1 0 10 0 5 5 0 0 0-10 0Z" />
+        </svg>
+        <span>Mode</span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <div class="match-shell">
+      <div id="verifyBanner" class="banner" hidden>
+        <div><strong>E-mail non vérifié.</strong> Vérifie ton adresse pour envoyer des likes.</div>
+        <div class="actions">
+          <button id="btnResend" class="btn">Renvoyer le lien</button>
+          <button id="btnRefresh" class="btn ghost">Rafraîchir</button>
+        </div>
+      </div>
+
+      <div class="page-card match-card">
+        <div class="match-header" style="display:flex;justify-content:center;gap:12px;align-items:center;flex-wrap:wrap">
+          <h1 style="margin:0">Matching en direct</h1>
+          <span id="devBadge" class="badge badge--dev" hidden>Mode test</span>
+        </div>
+        <p class="muted">Choisis «&nbsp;J’aime&nbsp;» pour liker un profil. Si l’intérêt est réciproque, c’est un match&nbsp;!</p>
+        <div id="cardContainer" class="card-stack" aria-live="polite"></div>
+        <p id="matchHint" class="match-empty">Chargement des profils…</p>
+        <div class="match-actions">
+          <button id="btnPass" class="btn ghost" type="button">Passer</button>
+          <button id="btnLike" class="btn" type="button">J’aime</button>
+        </div>
+        <div id="matchResult" class="match-result" hidden>
+          <strong>C’est un match 🎉</strong>
+          <p class="muted">Vous pouvez maintenant discuter ensemble.</p>
+          <button id="btnMessage" class="btn">Envoyer un message</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="wrap footer-card">
+      <small>© LoveNow — Matching</small>
+      <div class="footer-links">
+        <a href="/privacy.html">Confidentialité</a>
+        <a href="/cgu.html">CGU</a>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module">
+    import {
+      setupFirebase,
+      renderVerifyBanner,
+      applySessionToHeader,
+      safeSignOut,
+      ensureUserDocuments,
+      isDevBypassEnabled,
+      getPairId,
+    } from '/js/app-core.js';
+
+    const state = {
+      devBypass: isDevBypassEnabled(),
+      queue: [],
+      seen: new Set(),
+      current: null,
+      passes: new Set(),
+      currentUser: null,
+    };
+
+    const $ = (selector) => document.querySelector(selector);
+    const verifyBanner = $('#verifyBanner');
+    const btnResend = $('#btnResend');
+    const btnRefresh = $('#btnRefresh');
+    const headerSlot = $('#header-session');
+    const cardContainer = $('#cardContainer');
+    const matchHint = $('#matchHint');
+    const btnLike = $('#btnLike');
+    const btnPass = $('#btnPass');
+    const matchResult = $('#matchResult');
+    const btnMessage = $('#btnMessage');
+    const devBadge = $('#devBadge');
+
+    const storageKey = (uid) => `lovenow:passes:${uid}`;
+
+    const renderProfileCard = (profile) => {
+      if (!cardContainer) return;
+      cardContainer.innerHTML = '';
+      if (!profile) {
+        matchHint.textContent = 'Aucun profil disponible pour le moment. Revenez un peu plus tard.';
+        return;
+      }
+      const name = profile.name || profile.displayName || 'Utilisateur';
+      const age = profile.age != null ? `${profile.age} ans` : 'Âge non renseigné';
+      const city = profile.city || 'Ville inconnue';
+      const bio = profile.bio || 'Ce membre préfère se dévoiler en conversation.';
+      const photo = profile.photoURL || 'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?q=80&w=600&auto=format&fit=crop';
+      const card = document.createElement('div');
+      card.className = 'match-profile';
+      card.innerHTML = `
+        <img src="${photo}" alt="Photo de ${name}">
+        <div>
+          <h2 style="margin:0">${name}</h2>
+          <p class="muted">${age} · ${city}</p>
+        </div>
+        <p>${bio}</p>
+      `;
+      cardContainer.appendChild(card);
+      matchHint.textContent = '';
+    };
+
+    const showDevBadge = () => {
+      if (devBadge) devBadge.hidden = !state.devBypass;
+    };
+
+    const getPasses = (uid) => {
+      try {
+        const raw = localStorage.getItem(storageKey(uid));
+        return raw ? new Set(JSON.parse(raw)) : new Set();
+      } catch {
+        return new Set();
+      }
+    };
+
+    const savePasses = (uid, set) => {
+      try {
+        localStorage.setItem(storageKey(uid), JSON.stringify(Array.from(set)));
+      } catch {
+        /* no-op */
+      }
+    };
+
+    const pickNextProfile = () => {
+      state.current = state.queue.shift() || null;
+      renderProfileCard(state.current);
+      matchResult.hidden = true;
+    };
+
+    const excludeUid = (uid) => {
+      state.seen.add(uid);
+      if (state.currentUser) {
+        state.passes.add(uid);
+        savePasses(state.currentUser.uid, state.passes);
+      }
+    };
+
+    const handleMatch = (peerUid) => {
+      if (!matchResult || !btnMessage || !state.currentUser) return;
+      matchResult.hidden = false;
+      btnMessage.onclick = () => {
+        window.location.href = `/conversations.html?startWith=${encodeURIComponent(peerUid)}`;
+      };
+    };
+
+    const fetchLikesSent = async (db, firestoreModule, uid) => {
+      const { collection, getDocs } = firestoreModule;
+      const likesRef = collection(db, 'likes', uid, 'sent');
+      try {
+        const snap = await getDocs(likesRef);
+        snap.forEach((docSnap) => state.seen.add(docSnap.id));
+      } catch (error) {
+        console.error('fetch likes failed', error);
+      }
+    };
+
+    const loadCandidates = async (db, firestoreModule) => {
+      if (!state.currentUser) return;
+      const { collection, query, where, orderBy, limit, getDocs } = firestoreModule;
+      const baseQuery = query(collection(db, 'users'), orderBy('updatedAt', 'desc'), limit(25));
+      const snap = await getDocs(baseQuery);
+      const candidates = [];
+      snap.forEach((docSnap) => {
+      const data = { uid: docSnap.id, ...docSnap.data() };
+      if (data.uid === state.currentUser.uid) return;
+      if (state.seen.has(data.uid) || state.passes.has(data.uid)) return;
+      candidates.push(data);
+      });
+      state.queue = state.queue.concat(candidates);
+      pickNextProfile();
+    };
+
+    const ensureLike = async (db, firestoreModule, targetUid) => {
+      if (!state.currentUser) return false;
+      const { doc, setDoc, getDoc, serverTimestamp } = firestoreModule;
+      const likeRef = doc(db, 'likes', state.currentUser.uid, 'sent', targetUid);
+      await setDoc(likeRef, { createdAt: serverTimestamp() }, { merge: true });
+      const reciprocalRef = doc(db, 'likes', targetUid, 'sent', state.currentUser.uid);
+      const reciprocalSnap = await getDoc(reciprocalRef);
+      if (reciprocalSnap.exists()) {
+        const pairId = getPairId(state.currentUser.uid, targetUid);
+        const matchRef = doc(db, 'matches', pairId);
+        await setDoc(matchRef, {
+          members: [state.currentUser.uid, targetUid],
+          createdAt: serverTimestamp(),
+        }, { merge: true });
+        return true;
+      }
+      return false;
+    };
+
+    (async () => {
+      const { auth, db, authModule, firestoreModule } = await setupFirebase();
+      const {
+        onAuthStateChanged,
+        signOut,
+        sendEmailVerification,
+        reload,
+      } = authModule;
+
+      renderVerifyBanner({
+        banner: verifyBanner,
+        resendBtn: btnResend,
+        refreshBtn: btnRefresh,
+        onResend: async () => {
+          if (!auth.currentUser) return;
+          await sendEmailVerification(auth.currentUser);
+          alert('Lien de vérification envoyé ✅');
+        },
+        onRefresh: async () => {
+          if (!auth.currentUser) return;
+          await reload(auth.currentUser);
+          if (auth.currentUser.emailVerified || state.devBypass) {
+            verifyBanner.hidden = true;
+          }
+        },
+      });
+
+      showDevBadge();
+
+      onAuthStateChanged(auth, async (user) => {
+        if (!user) {
+          window.location.href = '/login.html#log_in';
+          return;
+        }
+        state.currentUser = user;
+        state.seen.clear();
+        state.queue = [];
+        state.current = null;
+        state.passes = getPasses(user.uid);
+        await ensureUserDocuments(db, firestoreModule, user);
+        await fetchLikesSent(db, firestoreModule, user.uid);
+        verifyBanner.hidden = user.emailVerified || state.devBypass;
+        applySessionToHeader(headerSlot, user, {
+          onSignOutClick: (event) => safeSignOut(auth, signOut, event?.currentTarget),
+        });
+        await loadCandidates(db, firestoreModule);
+      });
+
+      btnLike?.addEventListener('click', async () => {
+        if (!state.current || !state.currentUser) return;
+        if (!state.currentUser.emailVerified && !state.devBypass) {
+          verifyBanner.hidden = false;
+          alert('Vérifie ton e-mail avant de liker des profils.');
+          return;
+        }
+        try {
+          const isMatch = await ensureLike(db, firestoreModule, state.current.uid);
+          if (isMatch) {
+            handleMatch(state.current.uid);
+          }
+        } catch (error) {
+          console.error('like failed', error);
+          alert('Impossible de liker ce profil pour le moment.');
+        } finally {
+          excludeUid(state.current.uid);
+          pickNextProfile();
+          if (state.queue.length < 5) {
+            loadCandidates(db, firestoreModule);
+          }
+        }
+      });
+
+      btnPass?.addEventListener('click', () => {
+        if (!state.current || !state.currentUser) return;
+        excludeUid(state.current.uid);
+        pickNextProfile();
+        if (state.queue.length < 5) {
+          loadCandidates(db, firestoreModule);
+        }
+      });
+    })();
+  </script>
 </body>
 </html>

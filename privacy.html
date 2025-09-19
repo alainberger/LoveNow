@@ -15,6 +15,7 @@
   <link rel="stylesheet" href="/styles/components.css">
   <script src="/js/features.js"></script>
   <script src="/config.js"></script>
+  <script src="/assets/js/siteConfig.js"></script>
   <script defer src="/js/ui.js"></script>
 </head>
 <body>
@@ -52,8 +53,8 @@
         <h1>Politique de confidentialité LoveNow</h1>
         <p>Cette politique détaille la manière dont nous collectons, utilisons et sécurisons vos données personnelles lorsque vous utilisez LoveNow. Le service est réservé aux personnes majeures (18+).</p>
         <div class="page-meta">
-          <span>🗓 Dernière mise à jour : <strong><em>[À RENSEIGNER — DATE]</em></strong></span>
-          <span>📬 Contact DPO : <a class="link-inline" href="mailto:dpo@lovenow.app">dpo@lovenow.app</a></span>
+          <span>🗓 Dernière mise à jour : <strong><em data-config="documents.privacyUpdatedAt"></em></strong></span>
+          <span>📬 Contact DPO : <a class="link-inline" id="privacyDpoMail" href="mailto:dpo@lovenow.app" data-config="dpo.email"></a></span>
         </div>
       </div>
     </section>
@@ -64,8 +65,8 @@
           <div class="callout callout--warning" role="note" aria-label="Mentions légales à compléter">
             <strong>Mentions à compléter avant lancement public :</strong>
             <ul>
-              <li>Responsable du traitement : <em>[À RENSEIGNER — RAISON SOCIALE]</em>, <em>[À RENSEIGNER — ADRESSE]</em></li>
-              <li>Contact RGPD / DPO : <em>[À RENSEIGNER — EMAIL DÉDIÉ]</em></li>
+              <li>Responsable du traitement : <em data-config="legal.editorCompany"></em>, <em data-config="legal.editorAddress"></em></li>
+              <li>Contact RGPD / DPO : <em data-config="dpo.email"></em></li>
               <li>Documentation transferts hors UE : Netlify, Firebase, Cloudinary (liens SCC/CCT à ajouter)</li>
             </ul>
           </div>
@@ -89,16 +90,16 @@
           <h2>3. Sous-traitants & transferts</h2>
           <p>Les données peuvent être traitées par des prestataires certifiés. Les transferts hors UE sont encadrés par des clauses contractuelles types (SCC/CCT) :</p>
           <ul>
-            <li>Netlify (hébergement statique) — <a href="#A-RENSEIGNER">[LIEN À AJOUTER]</a></li>
-            <li>Firebase (Auth &amp; Firestore) — <a href="#A-RENSEIGNER">[LIEN À AJOUTER]</a></li>
-            <li>Cloudinary (hébergement photos) — <a href="#A-RENSEIGNER">[LIEN À AJOUTER]</a></li>
+            <li>Netlify (hébergement statique) — <a data-config-href="transfers.netlify" target="_blank" rel="noopener">Documentation Netlify</a></li>
+            <li>Firebase (Auth &amp; Firestore) — <a data-config-href="transfers.firebase" target="_blank" rel="noopener">Documentation Firebase</a></li>
+            <li>Cloudinary (hébergement photos) — <a data-config-href="transfers.cloudinary" target="_blank" rel="noopener">Documentation Cloudinary</a></li>
           </ul>
 
           <h2>4. Durées de conservation</h2>
           <p>Vos données sont conservées pendant la durée d’utilisation du compte augmentée des obligations légales. Les comptes inactifs peuvent être supprimés après un délai raisonnable et après notification.</p>
 
           <h2>5. Vos droits</h2>
-          <p>Conformément au RGPD, vous disposez des droits d’accès, rectification, effacement, opposition, limitation et portabilité. Pour exercer vos droits, écrivez à <strong><em>[À RENSEIGNER — EMAIL DÉDIÉ]</em></strong>.</p>
+          <p>Conformément au RGPD, vous disposez des droits d’accès, rectification, effacement, opposition, limitation et portabilité. Pour exercer vos droits, écrivez à <strong><em data-config="dpo.email"></em></strong>.</p>
 
           <h2>6. Public visé</h2>
           <p>LoveNow est strictement réservé aux personnes âgées d’au moins 18 ans. Les comptes mineurs sont supprimés sans préavis.</p>
@@ -131,6 +132,28 @@
     </div>
   </footer>
 
+  <script>
+    (function(){
+      const getValue = (path, fallback) => {
+        if (typeof window.getSiteConfigValue === 'function') {
+          return window.getSiteConfigValue(path, fallback);
+        }
+        return fallback;
+      };
+      document.querySelectorAll('[data-config]').forEach((el) => {
+        const fallback = el.dataset.config === 'dpo.email' ? 'support@lovenow.app' : 'Information disponible prochainement';
+        const value = getValue(el.dataset.config, fallback);
+        el.textContent = value;
+        if (el.id === 'privacyDpoMail') {
+          el.setAttribute('href', `mailto:${value}`);
+        }
+      });
+      document.querySelectorAll('[data-config-href]').forEach((el) => {
+        const href = getValue(el.dataset.configHref, '#');
+        el.setAttribute('href', href || '#');
+      });
+    })();
+  </script>
   <script>loadCrispIfEnabled();</script>
 </body>
 </html>

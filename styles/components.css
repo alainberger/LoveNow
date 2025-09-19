@@ -701,6 +701,41 @@ textarea:focus {
   box-shadow: 0 20px 50px -38px rgba(122, 81, 35, 0.45);
 }
 
+.banner--success {
+  border-color: rgba(86, 168, 125, 0.55);
+  background: linear-gradient(135deg, rgba(231, 255, 241, 0.9), rgba(160, 242, 202, 0.55));
+  color: #25694a;
+}
+
+.banner--error {
+  border-color: rgba(230, 136, 147, 0.55);
+  background: linear-gradient(135deg, rgba(255, 236, 236, 0.9), rgba(255, 204, 204, 0.55));
+  color: #7e2f32;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.01em;
+}
+
+.badge--dev {
+  background: rgba(120, 111, 255, 0.18);
+  color: #5a4df0;
+  border: 1px solid rgba(120, 111, 255, 0.3);
+}
+
+[data-theme="dark"] .badge--dev {
+  background: rgba(120, 111, 255, 0.25);
+  color: #cbc5ff;
+  border-color: rgba(120, 111, 255, 0.45);
+}
+
 .pill {
   display: inline-flex;
   align-items: center;

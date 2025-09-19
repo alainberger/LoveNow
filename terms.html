@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="/styles/components.css">
   <script src="/js/features.js"></script>
   <script src="/config.js"></script>
+  <script src="/assets/js/siteConfig.js"></script>
   <script defer src="/js/ui.js"></script>
 </head>
 <body>
@@ -46,7 +47,7 @@
         <h1>Conditions d’utilisation</h1>
         <p>Ces conditions résument les engagements réciproques entre LoveNow et ses utilisateurs. Elles s’appliquent à toutes les fonctionnalités de l’application : matching, conversations, événements et fonctionnalités premium.</p>
         <div class="page-meta">
-          <span>🧾 Version : <strong><em>[À RENSEIGNER — DATE]</em></strong></span>
+          <span>🧾 Version : <strong><em data-config="documents.termsUpdatedAt"></em></strong></span>
           <span>📍 Juridiction : France</span>
         </div>
       </div>
@@ -109,6 +110,14 @@
     </div>
   </footer>
 
+  <script>
+    (function(){
+      if (typeof window.getSiteConfigValue !== 'function') return;
+      document.querySelectorAll('[data-config]').forEach((el) => {
+        el.textContent = window.getSiteConfigValue(el.dataset.config, 'Information disponible prochainement');
+      });
+    })();
+  </script>
   <script>loadCrispIfEnabled();</script>
 </body>
 </html>

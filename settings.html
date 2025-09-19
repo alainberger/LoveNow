@@ -10,6 +10,18 @@
   <script src="/js/features.js"></script>
   <script src="/config.js"></script>
   <script defer src="/js/ui.js"></script>
+  <style>
+    .settings-shell{display:grid;gap:24px;margin:48px auto 96px}
+    .settings-card{display:grid;gap:16px}
+    .account-meta{display:grid;gap:6px;padding:14px 18px;background:rgba(255,255,255,0.65);border-radius:var(--radius);box-shadow:0 18px 36px -32px rgba(47,22,52,0.35)}
+    [data-theme="dark"] .account-meta{background:rgba(29,28,54,0.65);box-shadow:none}
+    .settings-form{display:grid;gap:18px}
+    .form-row{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+    #prefStatus{min-height:1.2em}
+    #prefStatus[data-state="success"]{color:#25694a}
+    #prefStatus[data-state="error"]{color:#7e2f32}
+    #prefStatus[data-state="warn"]{color:#7a5123}
+  </style>
 </head>
 <body>
   <header class="site-header">
@@ -45,19 +57,66 @@
 
   <main>
     <section class="page-section">
-      <div class="wrap">
-        <div class="page-card">
+      <div class="wrap settings-shell">
+        <div id="verifyBanner" class="banner" hidden>
+          <div><strong>E-mail non vérifié.</strong> Vérifie ton adresse pour gérer tous les paramètres.</div>
+          <div class="actions">
+            <button id="btnResend" class="btn">Renvoyer le lien</button>
+            <button id="btnRefresh" class="btn ghost">Rafraîchir</button>
+          </div>
+        </div>
+
+        <div class="page-card settings-card">
           <h1>Paramètres du compte</h1>
-          <p class="muted">Activez les notifications, gérez les préférences de matchmaking et ajustez vos filtres par défaut.</p>
-          <ul class="page-list">
-            <li>Réglez vos notifications de nouveaux matchs et messages.</li>
-            <li>Choisissez les filtres automatiques (âge, distance, centres d’intérêt).</li>
-            <li>Activez le mode discret pour masquer temporairement votre profil public.</li>
-          </ul>
+          <p class="muted">Retrouve ici tes informations principales et un accès rapide aux réglages clés.</p>
+          <div class="account-meta">
+            <p><strong>E-mail :</strong> <span id="accountEmail">—</span></p>
+            <p class="tiny">UID : <span id="accountUid">—</span></p>
+            <p class="tiny">Statut : <span id="accountStatus">—</span></p>
+            <span id="devBadge" class="badge badge--dev" hidden>Mode test</span>
+          </div>
           <div class="actions">
             <a class="btn" href="/profile.html">Modifier mon profil</a>
             <a class="btn ghost" href="/privacy.html">Consulter la confidentialité</a>
+            <button id="btnLogout" class="btn ghost" type="button">Se déconnecter</button>
           </div>
+        </div>
+
+        <div class="page-card settings-card">
+          <h2>Filtres par défaut</h2>
+          <p class="muted">Ces filtres s’appliquent automatiquement sur la page Découvrir. Tu peux les modifier à tout moment.</p>
+          <form id="prefForm" class="settings-form">
+            <div class="form-row">
+              <div>
+                <label for="prefAgeMin">Âge min</label>
+                <input id="prefAgeMin" type="number" min="18" max="99" inputmode="numeric">
+              </div>
+              <div>
+                <label for="prefAgeMax">Âge max</label>
+                <input id="prefAgeMax" type="number" min="18" max="99" inputmode="numeric">
+              </div>
+              <div>
+                <label for="prefCity">Ville</label>
+                <input id="prefCity" type="text" placeholder="Paris">
+              </div>
+            </div>
+            <div class="actions">
+              <button id="btnSavePrefs" class="btn" type="submit">Enregistrer</button>
+              <span id="prefStatus" class="tiny" role="status" aria-live="polite"></span>
+            </div>
+          </form>
+        </div>
+
+        <div class="page-card settings-card">
+          <h2>Notifications</h2>
+          <p class="muted">Les notifications e-mail et push arrivent bientôt. Tu pourras choisir le canal et la fréquence.</p>
+          <p class="tiny">Fonctionnalité en préparation.</p>
+        </div>
+
+        <div class="page-card settings-card">
+          <h2>Mode discret</h2>
+          <p class="muted">Masque ton profil temporairement lorsqu’il sera disponible. Les matchs existants resteront accessibles.</p>
+          <p class="tiny">Disponible prochainement.</p>
         </div>
       </div>
     </section>
@@ -72,5 +131,148 @@
       </div>
     </div>
   </footer>
+
+  <script type="module">
+    import {
+      setupFirebase,
+      renderVerifyBanner,
+      applySessionToHeader,
+      safeSignOut,
+      ensureUserDocuments,
+      getUserPreferences,
+      updateUserPreferences,
+      isDevBypassEnabled,
+    } from '/js/app-core.js';
+
+    const state = {
+      devBypass: isDevBypassEnabled(),
+    };
+
+    const $ = (selector) => document.querySelector(selector);
+    const verifyBanner = $('#verifyBanner');
+    const btnResend = $('#btnResend');
+    const btnRefresh = $('#btnRefresh');
+    const headerSlot = $('#header-session');
+    const accountEmail = $('#accountEmail');
+    const accountUid = $('#accountUid');
+    const accountStatus = $('#accountStatus');
+    const devBadge = $('#devBadge');
+    const btnLogout = $('#btnLogout');
+    const prefForm = $('#prefForm');
+    const ageMinInput = $('#prefAgeMin');
+    const ageMaxInput = $('#prefAgeMax');
+    const cityInput = $('#prefCity');
+    const prefStatus = $('#prefStatus');
+
+    const setPrefStatus = (message, tone = 'info') => {
+      if (!prefStatus) return;
+      prefStatus.textContent = message;
+      prefStatus.dataset.state = tone;
+    };
+
+    const updateAccountMeta = (user) => {
+      if (!user) return;
+      if (accountEmail) accountEmail.textContent = user.email || '—';
+      if (accountUid) accountUid.textContent = user.uid;
+      if (accountStatus) {
+        if (user.emailVerified) {
+          accountStatus.textContent = 'E-mail vérifié ✅';
+          accountStatus.dataset.state = 'success';
+        } else if (state.devBypass) {
+          accountStatus.textContent = 'Mode test : e-mail non vérifié';
+          accountStatus.dataset.state = 'warn';
+        } else {
+          accountStatus.textContent = 'E-mail non vérifié';
+          accountStatus.dataset.state = 'error';
+        }
+      }
+      if (devBadge) devBadge.hidden = !state.devBypass;
+    };
+
+    const fillPreferences = (prefs = {}) => {
+      if (ageMinInput) ageMinInput.value = prefs.ageMin ?? '';
+      if (ageMaxInput) ageMaxInput.value = prefs.ageMax ?? '';
+      if (cityInput) cityInput.value = prefs.city ?? '';
+    };
+
+    (async () => {
+      const { auth, db, authModule, firestoreModule } = await setupFirebase();
+      const {
+        onAuthStateChanged,
+        signOut,
+        sendEmailVerification,
+        reload,
+      } = authModule;
+
+      renderVerifyBanner({
+        banner: verifyBanner,
+        resendBtn: btnResend,
+        refreshBtn: btnRefresh,
+        onResend: async () => {
+          if (!auth.currentUser) return;
+          await sendEmailVerification(auth.currentUser);
+          setPrefStatus('Lien de vérification envoyé ✅', 'success');
+        },
+        onRefresh: async () => {
+          if (!auth.currentUser) return;
+          await reload(auth.currentUser);
+          updateAccountMeta(auth.currentUser);
+          if (auth.currentUser.emailVerified || state.devBypass) {
+            verifyBanner.hidden = true;
+          }
+        },
+      });
+
+      onAuthStateChanged(auth, async (user) => {
+        if (!user) {
+          window.location.href = '/login.html#log_in';
+          return;
+        }
+
+        updateAccountMeta(user);
+        applySessionToHeader(headerSlot, user, {
+          onSignOutClick: (event) => safeSignOut(auth, signOut, event?.currentTarget || btnLogout),
+        });
+        await ensureUserDocuments(db, firestoreModule, user);
+        verifyBanner.hidden = user.emailVerified || state.devBypass;
+
+        try {
+          const prefs = await getUserPreferences(db, firestoreModule, user.uid);
+          fillPreferences(prefs);
+          setPrefStatus('');
+        } catch (error) {
+          console.error('load preferences failed', error);
+          setPrefStatus('Impossible de charger les préférences.', 'error');
+        }
+      });
+
+      prefForm?.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        if (!auth.currentUser) return;
+        const ageMin = Number(ageMinInput?.value) || null;
+        const ageMax = Number(ageMaxInput?.value) || null;
+        if (Number.isFinite(ageMin) && Number.isFinite(ageMax) && ageMin > ageMax) {
+          setPrefStatus('L’âge min ne peut pas dépasser l’âge max.', 'warn');
+          return;
+        }
+        const payload = {
+          ageMin: Number.isFinite(ageMin) ? ageMin : null,
+          ageMax: Number.isFinite(ageMax) ? ageMax : null,
+          city: (cityInput?.value || '').trim(),
+        };
+        try {
+          await updateUserPreferences(db, firestoreModule, auth.currentUser.uid, payload);
+          setPrefStatus('Préférences enregistrées ✅', 'success');
+        } catch (error) {
+          console.error('save preferences failed', error);
+          setPrefStatus('Enregistrement impossible pour le moment.', 'error');
+        }
+      });
+
+      btnLogout?.addEventListener('click', (event) => {
+        safeSignOut(auth, signOut, event?.currentTarget || btnLogout);
+      });
+    })();
+  </script>
 </body>
 </html>

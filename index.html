@@ -35,6 +35,7 @@
         <a href="/matchmaking.html">Matching</a>
         <a href="/conversations.html">Conversations</a>
         <a href="/profile.html">Mon profil</a>
+        <a href="/settings.html">Paramètres</a>
         <a href="/privacy.html">Confidentialité</a>
         <a href="/cgu.html">CGU</a>
         <div class="session-slot" id="header-session">
@@ -101,6 +102,7 @@
     <section id="discover" aria-labelledby="discover-title">
       <div class="wrap">
         <h2 id="discover-title">Découvrir des profils</h2>
+        <span id="devBadge" class="badge badge--dev" hidden>Mode test</span>
         <p class="lead">Affinez votre recherche par genre, âge ou ville et envoyez un message dès que vous avez un match.</p>
         <form id="filters" class="filters" onsubmit="return false">
           <div>
@@ -130,6 +132,9 @@
           </div>
         </form>
         <div id="results" class="cards" aria-live="polite"></div>
+        <div id="resultsActions" class="actions" hidden>
+          <button id="btnLoadMore" class="btn ghost" type="button">Charger plus</button>
+        </div>
         <p id="empty-hint" class="muted" style="display:none">Ajuste les filtres ou complète ton profil pour voir plus de résultats.</p>
       </div>
     </section>
@@ -150,137 +155,379 @@
   </footer>
 
   <script type="module">
-    const cfg = window.APP_CONFIG?.firebase;
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-    import { getFirestore, collection, query, where, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+    import {
+      setupFirebase,
+      renderVerifyBanner,
+      applySessionToHeader,
+      safeSignOut,
+      ensureUserDocuments,
+      getUserPreferences,
+      isDevBypassEnabled,
+    } from '/js/app-core.js';
 
-    const app = initializeApp(cfg);
-    loadAppCheck(app);
-    const auth = getAuth(app);
-    const db   = getFirestore(app);
+    const state = {
+      currentUser: null,
+      filters: {},
+      devBypass: isDevBypassEnabled(),
+      lastDoc: null,
+      loading: false,
+      results: [],
+      prefsApplied: false,
+    };
 
-    const $ = s=>document.querySelector(s);
-    const resultsEl=$('#results'), emptyHintEl=$('#empty-hint'), toast=$('#toast');
-    const verifyBanner=$('#verifyBanner'), btnResend=$('#btnResend'), btnRefresh=$('#btnRefresh');
-
-    let currentUser=null;
+    const PAGE_SIZE = 20;
+    const $ = (selector) => document.querySelector(selector);
+    const resultsEl = $('#results');
+    const resultsActions = $('#resultsActions');
+    const btnLoadMore = $('#btnLoadMore');
+    const emptyHintEl = $('#empty-hint');
+    const toast = $('#toast');
+    const filtersForm = $('#filters');
+    const btnSearch = $('#btnSearch');
+    const btnReset = $('#btnReset');
+    const verifyBanner = $('#verifyBanner');
+    const btnResend = $('#btnResend');
+    const btnRefresh = $('#btnRefresh');
+    const headerSlot = document.getElementById('header-session');
+    const devBadge = $('#devBadge');
 
     let toastTimer;
-    const showToast = msg=>{
-      toast.textContent = msg;
+
+    const showToast = (message) => {
+      if (!toast) return;
+      toast.textContent = message;
       toast.classList.add('show');
       clearTimeout(toastTimer);
-      toastTimer = setTimeout(()=>toast.classList.remove('show'),2200);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 2400);
     };
-    function renderSkeletons(n=6){
-      resultsEl.innerHTML=Array.from({length:n}).map(()=>'<div class="skel" aria-hidden="true"></div>').join('');
-      emptyHintEl.style.display='block';
-    }
-    const DEMO=[
-      {uid:'demo1',name:'Alice',age:25,city:'Paris',bio:'Profil démo'},
-      {uid:'demo2',name:'Bob',age:30,city:'Lyon',bio:'Profil démo'}
-    ];
-    function renderCards(items){
-      if(!items.length){renderSkeletons();return;}
-      emptyHintEl.style.display='none';
-      resultsEl.innerHTML=items.map(p=>{
-        const id=p.uid||p.id||'';
-        const viewLink=currentUser?`/profile-public.html?id=${id}`:'/login.html#login';
-        const displayName=p.name||p.displayName||'—';
-        const initials=displayName.trim()[0]?.toUpperCase()||'?';
-        const photo=p.photoURL||p.photoUrl||'';
-        const city=p.city||'—';
-        const age=(p.age??'—');
-        const bio=p.bio?.slice(0,140)||'Ce membre n’a pas encore rédigé sa présentation.';
-        const avatar=photo?`<img src="${photo}" alt="Photo de ${displayName}">`:`<span>${initials}</span>`;
-        return `<article class="card profile-card" tabindex="0" aria-label="Profil de ${displayName}">
-          <div class="profile-card__header">
-            <div class="profile-card__avatar">${avatar}</div>
-            <div class="profile-card__meta">
-              <strong>${displayName}</strong>
-              <span>${age} ans · ${city}</span>
-            </div>
-          </div>
-          <p>${bio}</p>
-          <div class="profile-card__actions">
-            <a class="btn ghost" href="${viewLink}">Voir le profil</a>
-            <button class="btn btnMessage" data-uid="${id}">Envoyer un message</button>
-          </div>
-        </article>`;
-      }).join('');
-      resultsEl.querySelectorAll('.btnMessage').forEach(btn=>{
-        btn.addEventListener('click',()=>{
-          const uid=btn.dataset.uid;
-          if(!currentUser){ location.href='/login.html#login'; return; }
-          if(!currentUser.emailVerified){ verifyBanner.hidden=false; showToast('Vérifie ton e-mail pour discuter.'); return; }
-          location.href=`/conversations.html?startWith=${uid}`;
+
+    const renderSkeletons = (count = 6) => {
+      resultsEl.innerHTML = Array.from({ length: count })
+        .map(() => '<div class="skel" aria-hidden="true"></div>')
+        .join('');
+      emptyHintEl.style.display = 'block';
+      resultsActions.hidden = true;
+    };
+
+    const updateDevBadge = () => {
+      if (!devBadge) return;
+      devBadge.hidden = !state.devBypass;
+    };
+
+    const normalizeAge = (value) => {
+      const parsed = Number(value);
+      return Number.isFinite(parsed) ? parsed : null;
+    };
+
+    const renderCards = (items, { append = false } = {}) => {
+      if (!append) {
+        resultsEl.innerHTML = '';
+      }
+      if (!append && items.length === 0) {
+        emptyHintEl.style.display = 'block';
+        resultsActions.hidden = true;
+        return;
+      }
+      if (items.length === 0) {
+        emptyHintEl.style.display = state.results.length ? 'none' : 'block';
+        return;
+      }
+
+      emptyHintEl.style.display = state.results.length ? 'none' : 'block';
+
+      const cards = items
+        .map((profile) => {
+          const uid = profile.uid || profile.id || '';
+          const name = profile.name || profile.displayName || 'Utilisateur';
+          const initials = name.trim().charAt(0).toUpperCase() || '?';
+          const photo = profile.photoURL || profile.photoUrl || '';
+          const city = profile.city || 'Ville non renseignée';
+          const ageValue = profile.age != null ? Number(profile.age) : null;
+          const ageLabel = Number.isFinite(ageValue) ? `${ageValue} ans` : 'Âge non renseigné';
+          const bio = profile.bio ? profile.bio.slice(0, 160) : 'Ce membre n’a pas encore rédigé sa présentation.';
+          const avatar = photo
+            ? `<img src="${photo}" alt="Photo de ${name}">`
+            : `<span>${initials}</span>`;
+          const viewLink = `/user.html?uid=${encodeURIComponent(uid)}`;
+          return `
+            <article class="card profile-card" tabindex="0" aria-label="Profil de ${name}">
+              <div class="profile-card__header">
+                <div class="profile-card__avatar">${avatar}</div>
+                <div class="profile-card__meta">
+                  <strong>${name}</strong>
+                  <span>${ageLabel} · ${city}</span>
+                </div>
+              </div>
+              <p>${bio}</p>
+              <div class="profile-card__actions">
+                <a class="btn ghost" href="${viewLink}">Voir le profil</a>
+                <button class="btn" data-action="message" data-uid="${uid}">Envoyer un message</button>
+              </div>
+            </article>
+          `;
+        })
+        .join('');
+
+      if (append) {
+        resultsEl.insertAdjacentHTML('beforeend', cards);
+      } else {
+        resultsEl.innerHTML = cards;
+      }
+
+      resultsEl.querySelectorAll('[data-action="message"]').forEach((button) => {
+        button.addEventListener('click', () => {
+          const targetUid = button.dataset.uid;
+          if (!targetUid) return;
+          if (!state.currentUser) {
+            window.location.href = '/login.html#log_in';
+            return;
+          }
+          if (!state.currentUser.emailVerified && !state.devBypass) {
+            verifyBanner.hidden = false;
+            showToast('Vérifie ton e-mail pour démarrer une conversation.');
+            return;
+          }
+          window.location.href = `/conversations.html?startWith=${encodeURIComponent(targetUid)}`;
         });
       });
-    }
-
-    async function fetchProfiles(filters={}){
-      const clauses=[];
-      if(filters.gender) clauses.push(where('gender','==',filters.gender));
-      if(filters.city) clauses.push(where('city','==',filters.city));
-      const q=query(collection(db,'profiles'),...clauses,orderBy('createdAt','desc'),limit(200));
-      const snap=await getDocs(q);
-      return snap.docs.map(d=>d.data());
-    }
-    function filterByAge(list){
-      const min=parseInt($('#ageMin').value,10);
-      const max=parseInt($('#ageMax').value,10);
-      return list.filter(p=>{
-        const a=parseInt(p.age,10);
-        if(Number.isFinite(min) && a<min) return false;
-        if(Number.isFinite(max) && a>max) return false;
-        return true;
-      });
-    }
-    async function apply(filters){
-      renderSkeletons();
-      try{
-        const list=await fetchProfiles(filters);
-        const final=filterByAge(list);
-        renderCards(final.length?final:DEMO);
-      }catch(e){console.error(e);renderCards(DEMO);}
-    }
-
-    const state={filters:{}};
-    document.getElementById('btnSearch').onclick=()=>{
-      const f=document.getElementById('filters');
-      state.filters={gender:f.gender.value.trim(),city:f.city.value.trim()};
-      const p=new URLSearchParams();
-      const vals={gender:state.filters.gender,ageMin:f.ageMin.value.trim(),ageMax:f.ageMax.value.trim(),city:state.filters.city};
-      for(const [k,v] of Object.entries(vals)){if(v) p.set(k,v);} history.replaceState({},'',p.toString()?`?${p}`:location.pathname);
-      apply(state.filters);
     };
-    document.getElementById('btnReset').onclick=()=>{document.getElementById('filters').reset();state.filters={};history.replaceState({},'',location.pathname);renderCards([]);showToast('Filtres réinitialisés');};
 
-    renderSkeletons();
-    apply(state.filters);
+    const updateQueryString = () => {
+      const params = new URLSearchParams();
+      if (state.filters.gender) params.set('gender', state.filters.gender);
+      if (state.filters.city) params.set('city', state.filters.city);
+      if (Number.isFinite(state.filters.ageMin)) params.set('ageMin', state.filters.ageMin);
+      if (Number.isFinite(state.filters.ageMax)) params.set('ageMax', state.filters.ageMax);
+      const query = params.toString();
+      history.replaceState({}, '', query ? `?${query}` : window.location.pathname);
+    };
 
-    onAuthStateChanged(auth, user=>{
-      currentUser=user;
-      const slot=document.getElementById('header-session');
-      if(user){
-        const initial=(user.displayName||user.email||'?')[0].toUpperCase();
-        slot.innerHTML=`<a href="/profile.html" class="ghost btn">${initial}</a> <button class="ghost btn" id="btnSignOut">Se déconnecter</button>`;
-        document.getElementById('btnSignOut').onclick=()=>signOut(auth);
-        if(!user.emailVerified){
-          verifyBanner.hidden=false;
-          btnResend.onclick=async()=>{
-            try{const actionCodeSettings={url:'https://lovenow.netlify.app/login.html?verified=1',handleCodeInApp:false};await sendEmailVerification(user,actionCodeSettings);alert('Lien envoyé ✅');}catch(e){alert('Échec envoi lien');}
-          };
-          btnRefresh.onclick=()=>location.reload();
-        }else{
-          verifyBanner.hidden=true;
-        }
-      }else{
-        slot.innerHTML=`<a href="/login.html#signup" class="btn">Rejoins-nous gratuitement</a>`;
-        verifyBanner.hidden=true;
+    const setFiltersFromForm = () => {
+      if (!filtersForm) return true;
+      const gender = filtersForm.gender.value.trim();
+      const city = filtersForm.city.value.trim();
+      const ageMin = normalizeAge(filtersForm.ageMin.value);
+      const ageMax = normalizeAge(filtersForm.ageMax.value);
+      if (Number.isFinite(ageMin) && Number.isFinite(ageMax) && ageMin > ageMax) {
+        showToast('L’âge minimum ne peut pas dépasser l’âge maximum.');
+        return false;
       }
-    });
+      state.filters = {
+        gender,
+        city,
+        cityLower: city.toLowerCase(),
+        ageMin,
+        ageMax,
+      };
+      updateQueryString();
+      return true;
+    };
+
+    const hydrateFiltersFromUrl = () => {
+      if (!filtersForm) return;
+      const params = new URLSearchParams(window.location.search);
+      const gender = params.get('gender') || '';
+      const city = params.get('city') || '';
+      const ageMin = params.get('ageMin') || '';
+      const ageMax = params.get('ageMax') || '';
+      filtersForm.gender.value = gender;
+      filtersForm.city.value = city;
+      filtersForm.ageMin.value = ageMin;
+      filtersForm.ageMax.value = ageMax;
+      setFiltersFromForm();
+    };
+
+    updateDevBadge();
+
+    const applyPreferenceFilters = (prefs = {}) => {
+      if (!filtersForm) return false;
+      const prev = JSON.stringify(state.filters);
+      filtersForm.ageMin.value = prefs.ageMin ?? '';
+      filtersForm.ageMax.value = prefs.ageMax ?? '';
+      filtersForm.city.value = prefs.city ?? '';
+      setFiltersFromForm();
+      return JSON.stringify(state.filters) !== prev;
+    };
+
+    (async () => {
+      const { auth, db, authModule, firestoreModule } = await setupFirebase();
+      const {
+        onAuthStateChanged,
+        signOut,
+        sendEmailVerification,
+        reload,
+      } = authModule;
+      const {
+        collection,
+        query,
+        where,
+        orderBy,
+        limit,
+        startAfter,
+        getDocs,
+      } = firestoreModule;
+
+      const fetchProfiles = async ({ append = false } = {}) => {
+        if (append && !state.lastDoc) return;
+        const clauses = [];
+        if (state.filters.gender) {
+          clauses.push(where('gender', '==', state.filters.gender));
+        }
+        if (state.filters.cityLower) {
+          clauses.push(where('cityLower', '==', state.filters.cityLower));
+        }
+        const baseCollection = collection(db, 'users');
+        const baseOrder = [orderBy('updatedAt', 'desc')];
+        let q = query(baseCollection, ...clauses, ...baseOrder, limit(PAGE_SIZE));
+        if (append && state.lastDoc) {
+          q = query(baseCollection, ...clauses, ...baseOrder, startAfter(state.lastDoc), limit(PAGE_SIZE));
+        }
+        const snapshot = await getDocs(q);
+        state.lastDoc = snapshot.docs[snapshot.docs.length - 1] || null;
+        let list = snapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
+        if (state.currentUser?.uid) {
+          list = list.filter((profile) => profile.uid !== state.currentUser.uid);
+        }
+        if (Number.isFinite(state.filters.ageMin)) {
+          list = list.filter((profile) => Number(profile.age) >= state.filters.ageMin);
+        }
+        if (Number.isFinite(state.filters.ageMax)) {
+          list = list.filter((profile) => Number(profile.age) <= state.filters.ageMax);
+        }
+        if (!append) {
+          state.results = list;
+        } else {
+          state.results = state.results.concat(list);
+        }
+        if (append) {
+          renderCards(list, { append: true });
+        } else {
+          renderCards(state.results);
+        }
+        resultsActions.hidden = !state.lastDoc || snapshot.size < PAGE_SIZE;
+        if (!state.results.length) {
+          emptyHintEl.style.display = 'block';
+        } else {
+          emptyHintEl.style.display = 'none';
+        }
+      };
+
+      renderVerifyBanner({
+        banner: verifyBanner,
+        resendBtn: btnResend,
+        refreshBtn: btnRefresh,
+        onResend: async () => {
+          if (!auth.currentUser) return;
+          await sendEmailVerification(auth.currentUser);
+          showToast('Lien de vérification envoyé ✅');
+        },
+        onRefresh: async () => {
+          if (!auth.currentUser) return;
+          await reload(auth.currentUser);
+          if (auth.currentUser.emailVerified || state.devBypass) {
+            verifyBanner.hidden = true;
+          }
+        },
+      });
+
+      onAuthStateChanged(auth, async (user) => {
+        state.currentUser = user;
+        if (user) {
+          applySessionToHeader(headerSlot, user, {
+            onSignOutClick: (event) => safeSignOut(auth, signOut, event?.currentTarget),
+          });
+          await ensureUserDocuments(db, firestoreModule, user);
+          if (user.emailVerified || state.devBypass) {
+            verifyBanner.hidden = true;
+          } else {
+            verifyBanner.hidden = false;
+          }
+
+          if (!state.prefsApplied && (!window.location.search || window.location.search.length <= 1)) {
+            try {
+              const prefs = await getUserPreferences(db, firestoreModule, user.uid);
+              const shouldRefetch = applyPreferenceFilters(prefs || {});
+              if (shouldRefetch) {
+                state.lastDoc = null;
+                state.loading = true;
+                renderSkeletons();
+                await fetchProfiles();
+              }
+            } catch (err) {
+              console.error('apply preferences failed', err);
+            } finally {
+              state.prefsApplied = true;
+            }
+          } else {
+            state.prefsApplied = true;
+          }
+        } else {
+          applySessionToHeader(headerSlot, null, { onSignOutClick: () => {} });
+          verifyBanner.hidden = true;
+          state.prefsApplied = false;
+        }
+      });
+
+      hydrateFiltersFromUrl();
+      state.loading = true;
+      renderSkeletons();
+      try {
+        await fetchProfiles();
+      } catch (err) {
+        console.error('fetchProfiles failed', err);
+        showToast('Impossible de charger les profils pour le moment.');
+        resultsEl.innerHTML = '';
+      } finally {
+        state.loading = false;
+      }
+
+      btnSearch?.addEventListener('click', async () => {
+        if (!setFiltersFromForm()) return;
+        state.lastDoc = null;
+        state.loading = true;
+        renderSkeletons();
+        try {
+          await fetchProfiles();
+          showToast('Filtres appliqués ✅');
+        } catch (err) {
+          console.error('search failed', err);
+          showToast('Impossible de récupérer les profils.');
+        } finally {
+          state.loading = false;
+        }
+      });
+
+      btnReset?.addEventListener('click', async () => {
+        filtersForm.reset();
+        state.filters = {};
+        updateQueryString();
+        state.lastDoc = null;
+        state.loading = true;
+        renderSkeletons();
+        try {
+          await fetchProfiles();
+          showToast('Filtres réinitialisés');
+        } catch (err) {
+          console.error('reset failed', err);
+          showToast('Réinitialisation impossible pour le moment.');
+        } finally {
+          state.loading = false;
+        }
+      });
+
+      btnLoadMore?.addEventListener('click', async () => {
+        if (state.loading) return;
+        state.loading = true;
+        try {
+          await fetchProfiles({ append: true });
+        } catch (err) {
+          console.error('load more failed', err);
+          showToast('Impossible de charger davantage de profils.');
+        } finally {
+          state.loading = false;
+        }
+      });
+    })();
   </script>
   <script>loadCrispIfEnabled();</script>
   <script>

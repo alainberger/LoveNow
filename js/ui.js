@@ -47,7 +47,7 @@
 
   const themeToggle = document.querySelector('[data-toggle-theme]');
   const labelEl = themeToggle?.querySelector('span');
-  const storageKey = 'lovenow-theme';
+  const storageKey = 'theme';
 
   const applyTheme = (theme) => {
     const value = theme === 'dark' ? 'dark' : 'light';

@@ -22,6 +22,10 @@
   .auth-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
   .auth-footer{font-size:0.9rem;color:var(--muted)}
   .auth-footer strong{color:var(--brand)}
+  #authStatus{min-height:1.2em;margin-top:4px}
+  #authStatus[data-tone="success"]{color:#25694a}
+  #authStatus[data-tone="error"]{color:#7e2f32}
+  #authStatus[data-tone="warn"]{color:#7a5123}
   .form-grid{display:grid;gap:18px}
   .row{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
   .logout-wrap{display:flex;justify-content:flex-end}
@@ -43,8 +47,13 @@
       </button>
       <nav id="primary-menu" class="site-menu" aria-label="Navigation principale">
         <a href="/#discover">Découvrir</a>
+        <a href="/matchmaking.html">Matching</a>
+        <a href="/conversations.html">Conversations</a>
+        <a href="/profile.html">Mon profil</a>
+        <a href="/settings.html">Paramètres</a>
         <a href="/privacy.html">Confidentialité</a>
         <a href="/cgu.html">CGU</a>
+        <div class="session-slot" id="header-session"></div>
       </nav>
       <button class="mode-toggle" type="button" data-toggle-theme aria-label="Basculer le mode d'affichage">
         <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
@@ -58,12 +67,23 @@
 
   <main>
     <div class="auth-shell">
+      <div id="verifyBanner" class="banner" hidden>
+        <div>
+          <strong>E-mail non vérifié.</strong> Vérifie ton adresse pour accéder à toutes les fonctionnalités.
+        </div>
+        <div class="actions">
+          <button id="btnResend" class="btn">Renvoyer le lien</button>
+          <button id="btnRefresh" class="btn ghost">Rafraîchir</button>
+        </div>
+      </div>
       <section class="page-card auth-card">
         <h1>Connexion / Inscription</h1>
         <div class="tabs" role="tablist" aria-label="Choisir une action">
           <button id="tab-login" role="tab" class="tab" aria-selected="true">Connexion</button>
           <button id="tab-signup" role="tab" class="tab" aria-selected="false">Inscription</button>
         </div>
+
+        <div id="authStatus" class="auth-footer" role="status" aria-live="polite"></div>
 
         <div id="panel-login" role="tabpanel">
           <form id="login" class="form-grid">
@@ -123,7 +143,7 @@
       </section>
 
       <div class="auth-actions logout-wrap">
-        <button id="btnLogout" class="btn ghost" type="button">Se déconnecter</button>
+        <button id="btnLogout" class="btn ghost" type="button" hidden>Se déconnecter</button>
       </div>
     </div>
   </main>
@@ -140,73 +160,178 @@
 
   <!-- Firebase / AppCheck / Firestore (module) -->
   <script type="module">
-    const cfg = window.APP_CONFIG?.firebase;
+    import {
+      setupFirebase,
+      saveUserProfile,
+      ensureUserDocuments,
+      renderVerifyBanner,
+      applySessionToHeader,
+      safeSignOut,
+    } from '/js/app-core.js';
 
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-    import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+    const $ = (s) => document.querySelector(s);
+    const tabLogin = $('#tab-login');
+    const tabSignup = $('#tab-signup');
+    const panelLogin = $('#panel-login');
+    const panelSignup = $('#panel-signup');
+    const statusEl = $('#authStatus');
+    const banner = $('#verifyBanner');
+    const btnResend = $('#btnResend');
+    const btnRefresh = $('#btnRefresh');
+    const headerSlot = document.getElementById('header-session');
+    const logoutBtn = $('#btnLogout');
+    const loginForm = $('#login');
+    const signupForm = $('#signup');
 
-    // init
-    const app = initializeApp(cfg);
-    loadAppCheck(app);
-    const auth = getAuth(app);
-    const db   = getFirestore(app);
-
-    const $ = s=>document.querySelector(s);
-    const showTab=(t)=>{
-      $("#tab-login").setAttribute("aria-selected", t==="login");
-      $("#panel-login").hidden = (t!=="login");
-      $("#tab-signup").setAttribute("aria-selected", t==="signup");
-      $("#panel-signup").hidden = (t!=="signup");
+    const setStatus = (message, tone = 'info') => {
+      if (!statusEl) return;
+      statusEl.textContent = message;
+      statusEl.dataset.tone = tone;
     };
-    const tabFromHash=()=> location.hash==="#signup" ? "signup" : "login";
+
+    const showTab = (tab) => {
+      const isLogin = tab === 'login';
+      tabLogin?.setAttribute('aria-selected', isLogin ? 'true' : 'false');
+      panelLogin.hidden = !isLogin;
+      tabSignup?.setAttribute('aria-selected', !isLogin ? 'true' : 'false');
+      panelSignup.hidden = isLogin;
+    };
+
+    const tabFromHash = () => {
+      const hash = (location.hash || '').toLowerCase();
+      if (hash === '#signup' || hash === '#sign_up') return 'signup';
+      return 'login';
+    };
+
     showTab(tabFromHash());
-    $("#tab-login").addEventListener("click",()=>{location.hash="#login"; showTab("login");});
-    $("#tab-signup").addEventListener("click",()=>{location.hash="#signup"; showTab("signup");});
-    window.addEventListener('hashchange',()=>showTab(tabFromHash()));
-
-    // inscription
-    $("#signup").addEventListener("submit", async (e)=>{
-      e.preventDefault();
-      const email=$("#suEmail").value.trim();
-      const pass=$("#suPass").value;
-      const name=$("#suName").value.trim();
-      const age = Number($("#suAge").value)||null;
-      const city=$("#suCity").value.trim();
-      const gender=$("#suGender").value;
-
-      try{
-        const {user}=await createUserWithEmailAndPassword(auth,email,pass);
-        await updateProfile(user,{ displayName:name });
-        await setDoc(doc(db,"profiles", user.uid), {
-          uid:user.uid, email:user.email||"",
-          name, age, city, gender,
-          bio:"", photoURL:"",
-          createdAt:serverTimestamp(), updatedAt:serverTimestamp()
-        }, { merge:true });
-
-        alert("Compte créé ✅");
-        location.href="/";
-      }catch(err){
-        console.error(err);
-        alert("Inscription impossible : "+(err?.message||""));
-      }
+    window.addEventListener('hashchange', () => showTab(tabFromHash()));
+    tabLogin?.addEventListener('click', () => {
+      location.hash = '#log_in';
+      showTab('login');
+    });
+    tabSignup?.addEventListener('click', () => {
+      location.hash = '#signup';
+      showTab('signup');
     });
 
-    // connexion
-    $("#login").addEventListener("submit", async (e)=>{
-      e.preventDefault();
-      try{
-        await signInWithEmailAndPassword(auth, $("#liEmail").value.trim(), $("#liPass").value);
-        location.href="/";
-      }catch(err){
-        console.error(err);
-        alert("Connexion impossible : "+(err?.message||""));
-      }
-    });
+    (async () => {
+      const { auth, db, authModule, firestoreModule } = await setupFirebase();
+      const {
+        onAuthStateChanged,
+        createUserWithEmailAndPassword,
+        signInWithEmailAndPassword,
+        updateProfile,
+        sendEmailVerification,
+        signOut,
+        reload,
+      } = authModule;
+      const { serverTimestamp } = firestoreModule;
 
-    // logout
-    $("#btnLogout").addEventListener("click", async ()=>{ await signOut(auth); alert("Déconnecté"); location.href="/"; });
+      renderVerifyBanner({
+        banner,
+        resendBtn: btnResend,
+        refreshBtn: btnRefresh,
+        onResend: async () => {
+          if (!auth.currentUser) return;
+          await sendEmailVerification(auth.currentUser);
+          setStatus('Lien de vérification envoyé ✅', 'success');
+        },
+        onRefresh: async () => {
+          if (!auth.currentUser) return;
+          await reload(auth.currentUser);
+          if (auth.currentUser.emailVerified) {
+            banner.hidden = true;
+            setStatus('Adresse vérifiée, merci !', 'success');
+          }
+        },
+      });
+
+      onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          applySessionToHeader(headerSlot, user, {
+            onSignOutClick: (event) => safeSignOut(auth, signOut, event?.currentTarget || logoutBtn),
+          });
+          logoutBtn.hidden = false;
+          logoutBtn.disabled = false;
+          await ensureUserDocuments(db, firestoreModule, user);
+          if (user.emailVerified) {
+            banner.hidden = true;
+            setStatus('Connexion réussie. Tu peux accéder à LoveNow.', 'success');
+          } else {
+            banner.hidden = false;
+            setStatus('Vérifie ton e-mail pour débloquer toutes les fonctionnalités.', 'warn');
+          }
+        } else {
+          applySessionToHeader(headerSlot, null, { onSignOutClick: () => {} });
+          banner.hidden = true;
+          logoutBtn.hidden = true;
+          setStatus('Connecte-toi ou crée ton compte pour continuer.');
+        }
+      });
+
+      loginForm?.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const email = $('#liEmail')?.value.trim();
+        const password = $('#liPass')?.value;
+        if (!email || !password) return;
+        const submitBtn = loginForm.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        setStatus('Connexion en cours…');
+        try {
+          await signInWithEmailAndPassword(auth, email, password);
+          setStatus('Connexion réussie ✅', 'success');
+          location.href = '/';
+        } catch (err) {
+          console.error(err);
+          setStatus('Connexion impossible : ' + (err?.message || 'vérifie tes identifiants'), 'error');
+        } finally {
+          submitBtn.disabled = false;
+        }
+      });
+
+      signupForm?.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const email = $('#suEmail')?.value.trim();
+        const password = $('#suPass')?.value;
+        const name = $('#suName')?.value.trim();
+        const age = Number($('#suAge')?.value) || null;
+        const city = $('#suCity')?.value.trim();
+        const gender = $('#suGender')?.value;
+        if (!email || !password || !name) return;
+        const submitBtn = signupForm.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        setStatus('Création du compte…');
+        try {
+          const { user } = await createUserWithEmailAndPassword(auth, email, password);
+          await updateProfile(user, { displayName: name });
+          await saveUserProfile(db, firestoreModule, user.uid, {
+            uid: user.uid,
+            email,
+            emailVerified: false,
+            name,
+            displayName: name,
+            age,
+            gender,
+            city,
+            bio: '',
+            photoURL: user.photoURL || '',
+            createdAt: serverTimestamp(),
+          });
+          await sendEmailVerification(user);
+          setStatus('Compte créé. Vérifie ton e-mail pour continuer ✅', 'success');
+          location.hash = '#log_in';
+        } catch (err) {
+          console.error(err);
+          setStatus('Inscription impossible : ' + (err?.message || 'réessaye plus tard'), 'error');
+        } finally {
+          submitBtn.disabled = false;
+        }
+      });
+
+      logoutBtn?.addEventListener('click', async () => {
+        await safeSignOut(auth, signOut, logoutBtn);
+      });
+    })();
   </script>
   <script>loadCrispIfEnabled();</script>
 
