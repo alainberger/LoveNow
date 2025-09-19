@@ -1,22 +1,101 @@
 <!doctype html>
-<html lang="fr">
+<html lang="fr" data-theme="light">
 <head>
-<meta charset="utf-8"/>
-<title>Blog - LoveNow</title>
-<link rel="stylesheet" href="/styles/tokens.css">
-<link rel="stylesheet" href="/styles/components.css">
-<script src="/js/features.js"></script>
-<script src="/config.js"></script>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>LoveNow — Blog & actualités</title>
+  <meta name="description" content="Conseils rencontre, sécurité et nouveautés LoveNow." />
+  <link rel="stylesheet" href="/styles/tokens.css">
+  <link rel="stylesheet" href="/styles/components.css">
+  <script src="/js/features.js"></script>
+  <script src="/config.js"></script>
+  <script defer src="/js/ui.js"></script>
 </head>
 <body>
-<header><div class="wrap"><a href="/">Accueil</a></div></header>
-<main class="wrap">
-<h1>Blog</h1>
-<ul>
-<li><a href="/blog/article1.html">Article 1</a></li>
-<li><a href="/blog/article2.html">Article 2</a></li>
-<li><a href="/blog/article3.html">Article 3</a></li>
-</ul>
-</main>
+  <header class="site-header">
+    <div class="wrap nav-bar">
+      <a class="brand" href="/" aria-label="LoveNow">
+        <img src="/assets/brand/logo.svg" alt="Logo LoveNow" />
+        <span>LoveNow</span>
+      </a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-menu" data-toggle-nav>
+        <span></span>
+        <span class="sr-only">Ouvrir le menu</span>
+      </button>
+      <nav id="primary-menu" class="site-menu" aria-label="Navigation principale">
+        <a href="/">Accueil</a>
+        <a href="/#discover">Découvrir</a>
+        <a href="/blog/index.html" aria-current="page">Blog</a>
+        <a href="/privacy.html">Confidentialité</a>
+      </nav>
+      <button class="mode-toggle" type="button" data-toggle-theme aria-label="Basculer le mode d'affichage">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+          <path d="M12 3a1 1 0 0 1 1 1v1.1a1 1 0 0 1-1 1h-.2a1 1 0 0 1-1-.8 3 3 0 0 0-2.9 2.9 1 1 0 0 1-.8 1H6a1 1 0 0 1-1-1A7 7 0 0 1 12 3Z" />
+          <path d="M7 12a5 5 0 1 0 10 0 5 5 0 0 0-10 0Z" />
+        </svg>
+        <span>Mode</span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <section class="page-hero">
+      <div class="wrap">
+        <span class="pill">Actualités</span>
+        <h1>Blog LoveNow</h1>
+        <p>Tendances dating, conseils sécurité et histoires inspirantes. Découvre les dernières publications de notre équipe éditoriale.</p>
+      </div>
+    </section>
+
+    <section class="page-section">
+      <div class="wrap blog-grid">
+        <a class="card blog-card" href="/blog/article1.html">
+          <div class="blog-card__cover">💡</div>
+          <div class="blog-card__content">
+            <strong>3 ice-breakers pour engager une conversation authentique</strong>
+            <p>Des idées simples pour démarrer une discussion qui sort du lot.</p>
+            <div class="tag-list">
+              <span class="pill">Conseils</span>
+              <span class="pill">Match</span>
+            </div>
+          </div>
+        </a>
+        <a class="card blog-card" href="/blog/article2.html">
+          <div class="blog-card__cover">🔒</div>
+          <div class="blog-card__content">
+            <strong>Sécurité : nos réflexes incontournables</strong>
+            <p>Apprends à repérer les signaux faibles et protéger tes informations.</p>
+            <div class="tag-list">
+              <span class="pill">Sécurité</span>
+              <span class="pill">Guide</span>
+            </div>
+          </div>
+        </a>
+        <a class="card blog-card" href="/blog/article3.html">
+          <div class="blog-card__cover">✨</div>
+          <div class="blog-card__content">
+            <strong>Témoignage : « On s’est rencontrés sur LoveNow »</strong>
+            <p>Clara et Julien racontent comment LoveNow les a rapprochés.</p>
+            <div class="tag-list">
+              <span class="pill">Success story</span>
+            </div>
+          </div>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap footer-card">
+      <small>© LoveNow — Blog</small>
+      <div class="footer-links">
+        <a href="/privacy.html">Confidentialité</a>
+        <a href="/cgu.html">CGU</a>
+        <a href="/credits.html">Crédits</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>loadCrispIfEnabled();</script>
 </body>
 </html>

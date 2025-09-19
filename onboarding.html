@@ -1,15 +1,117 @@
 <!doctype html>
-<html lang="fr">
+<html lang="fr" data-theme="light">
 <head>
-<meta charset="utf-8"/>
-<title>Onboarding - LoveNow</title>
-<link rel="stylesheet" href="/styles/tokens.css">
-<link rel="stylesheet" href="/styles/components.css">
-<script src="/js/features.js"></script>
-<script src="/config.js"></script>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>LoveNow — Parcours d’onboarding</title>
+  <meta name="description" content="Découvrez le parcours d’onboarding LoveNow : vérification d’e-mail, complétion du profil et découverte guidée." />
+  <link rel="stylesheet" href="/styles/tokens.css">
+  <link rel="stylesheet" href="/styles/components.css">
+  <script src="/js/features.js"></script>
+  <script src="/config.js"></script>
+  <script defer src="/js/ui.js"></script>
 </head>
 <body>
-<header><div class="wrap"><a href="/">Accueil</a></div></header>
-<main class="wrap"><h1>Onboarding</h1><p>Placeholder</p></main>
+  <header class="site-header">
+    <div class="wrap nav-bar">
+      <a class="brand" href="/" aria-label="LoveNow">
+        <img src="/assets/brand/logo.svg" alt="Logo LoveNow" />
+        <span>LoveNow</span>
+      </a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-menu" data-toggle-nav>
+        <span></span>
+        <span class="sr-only">Ouvrir le menu</span>
+      </button>
+      <nav id="primary-menu" class="site-menu" aria-label="Navigation principale">
+        <a href="/">Accueil</a>
+        <a href="/#discover">Découvrir</a>
+        <a href="/login.html#signup">Inscription</a>
+        <a href="/profile.html">Mon profil</a>
+      </nav>
+      <button class="mode-toggle" type="button" data-toggle-theme aria-label="Basculer le mode d'affichage">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+          <path d="M12 3a1 1 0 0 1 1 1v1.1a1 1 0 0 1-1 1h-.2a1 1 0 0 1-1-.8 3 3 0 0 0-2.9 2.9 1 1 0 0 1-.8 1H6a1 1 0 0 1-1-1A7 7 0 0 1 12 3Z" />
+          <path d="M7 12a5 5 0 1 0 10 0 5 5 0 0 0-10 0Z" />
+        </svg>
+        <span>Mode</span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <section class="page-hero">
+      <div class="wrap">
+        <span class="pill">Bienvenue</span>
+        <h1>Parcours d’onboarding LoveNow</h1>
+        <p>Un accompagnement étape par étape pour sécuriser ton compte, compléter ton profil et commencer à matcher en toute sérénité.</p>
+        <div class="page-hero__actions">
+          <a class="btn" href="/login.html#signup">Créer mon compte</a>
+          <a class="btn ghost" href="/verify.html">Comprendre la vérification</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="page-section">
+      <div class="wrap grid-two">
+        <div class="page-card">
+          <strong>Checklist onboarding</strong>
+          <ul class="page-list">
+            <li>Confirme ton e-mail et active les notifications.</li>
+            <li>Ajoute une photo, une bio et tes préférences.</li>
+            <li>Lance la découverte et envoie ton premier message.</li>
+          </ul>
+        </div>
+        <div class="page-card">
+          <strong>Temps moyen</strong>
+          <p class="muted">Moins de 4 minutes pour compléter les informations essentielles et apparaître dans la découverte.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="page-section">
+      <div class="wrap">
+        <div class="page-card">
+          <h2>Les étapes clés</h2>
+          <ol class="page-steps">
+            <li>Inscription via e-mail ou compte existant.</li>
+            <li>Vérification d’identité par e-mail et validation des conditions.</li>
+            <li>Complétion du profil : photo, bio, ville, âge, préférences.</li>
+            <li>Découverte guidée des fonctionnalités (matching, favoris, messagerie).</li>
+            <li>Activation des alertes optionnelles et paramétrage des notifications.</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <section class="page-section">
+      <div class="wrap feature-grid">
+        <div class="feature-card">
+          <strong>Tutoriels intégrés</strong>
+          <p>Des bulles d’aide apparaissent lors de la première utilisation pour t’expliquer chaque écran.</p>
+        </div>
+        <div class="feature-card">
+          <strong>Support humain</strong>
+          <p>Besoin d’assistance ? Contacte <a class="link-inline" href="mailto:support@lovenow.app">support@lovenow.app</a> ou utilise le chat intégré.</p>
+        </div>
+        <div class="feature-card">
+          <strong>Progression visible</strong>
+          <p>Un indicateur te montre les sections complétées afin de débloquer toutes les fonctionnalités.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap footer-card">
+      <small>© LoveNow — Onboarding</small>
+      <div class="footer-links">
+        <a href="/privacy.html">Confidentialité</a>
+        <a href="/cgu.html">CGU</a>
+        <a href="/settings.html">Paramètres</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>loadCrispIfEnabled();</script>
 </body>
 </html>

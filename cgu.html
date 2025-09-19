@@ -1,39 +1,137 @@
-<!-- cgu.html — LoveNow (Conditions Générales, rappel 18+, SEO/OG) -->
 <!doctype html>
 <html lang="fr" data-theme="light">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>LoveNow — Conditions Générales d’Utilisation</title>
-  <meta name="description" content="CGU LoveNow : règles d’utilisation, responsabilités, et conditions du service (18+)." />
+  <meta name="description" content="Découvrez les règles d’utilisation LoveNow, les responsabilités des membres et les engagements de la plateforme." />
   <link rel="canonical" href="https://lovenow.netlify.app/cgu" />
   <meta property="og:title" content="LoveNow — CGU">
   <meta property="og:description" content="Règles d’utilisation du service LoveNow (18+).">
   <meta property="og:url" content="https://lovenow.netlify.app/cgu">
   <meta property="og:image" content="/assets/og-default.jpg">
   <meta name="twitter:card" content="summary_large_image">
-  <style>
-    body{margin:0;font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Arial;color:#111}
-    .wrap{max-width:900px;margin:0 auto;padding:24px 16px}
-    h1,h2{line-height:1.2}
-    :focus{outline:3px auto;outline-offset:2px}
-  </style>
+  <link rel="stylesheet" href="/styles/tokens.css">
+  <link rel="stylesheet" href="/styles/components.css">
+  <script src="/js/features.js"></script>
+  <script src="/config.js"></script>
+  <script defer src="/js/ui.js"></script>
 </head>
 <body>
-  <div class="wrap">
-    <a href="/" aria-label="Retour accueil">← Accueil</a>
-    <h1>Conditions Générales d’Utilisation</h1>
-    <p>En utilisant LoveNow, vous acceptez les présentes CGU. Le service est réservé aux personnes de <strong>18 ans et plus</strong>.</p>
-
-    <h2>Utilisation</h2>
-    <p>Respect des autres membres, absence de spam, contenus conformes aux lois en vigueur.</p>
-
-    <h2>Responsabilités</h2>
-    <p>LoveNow fournit une mise en relation ; chaque utilisateur reste responsable de son comportement et de ses contenus.</p>
-
-      <h2>Confidentialité</h2>
-      <p>Consultez notre <a href="/privacy.html">Politique de confidentialité</a> pour les informations relatives aux données personnelles.</p>
+  <header class="site-header">
+    <div class="wrap nav-bar">
+      <a class="brand" href="/" aria-label="LoveNow">
+        <img src="/assets/brand/logo.svg" alt="Logo LoveNow" />
+        <span>LoveNow</span>
+      </a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-menu" data-toggle-nav>
+        <span></span>
+        <span class="sr-only">Ouvrir le menu</span>
+      </button>
+      <nav id="primary-menu" class="site-menu" aria-label="Navigation principale">
+        <a href="/">Accueil</a>
+        <a href="/#discover">Découvrir</a>
+        <a href="/privacy.html">Confidentialité</a>
+        <a href="/terms.html">Conditions d’utilisation</a>
+        <a href="/conversations.html">Conversations</a>
+      </nav>
+      <button class="mode-toggle" type="button" data-toggle-theme aria-label="Basculer le mode d'affichage">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+          <path d="M12 3a1 1 0 0 1 1 1v1.1a1 1 0 0 1-1 1h-.2a1 1 0 0 1-1-.8 3 3 0 0 0-2.9 2.9 1 1 0 0 1-.8 1H6a1 1 0 0 1-1-1A7 7 0 0 1 12 3Z" />
+          <path d="M7 12a5 5 0 1 0 10 0 5 5 0 0 0-10 0Z" />
+        </svg>
+        <span>Mode</span>
+      </button>
     </div>
-    <script src="chat.js"></script>
-  </body>
-  </html>
+  </header>
+
+  <main>
+    <section class="page-hero">
+      <div class="wrap">
+        <span class="pill">CGU</span>
+        <h1>Conditions Générales d’Utilisation</h1>
+        <p>En utilisant LoveNow, vous acceptez les présentes conditions. Elles protègent les membres et garantissent une expérience respectueuse et sécurisée sur la plateforme.</p>
+        <div class="page-meta">
+          <span>👥 Service réservé aux personnes de <strong>18 ans et plus</strong></span>
+          <span>📄 Version : <strong><em>[À RENSEIGNER — DATE]</em></strong></span>
+        </div>
+      </div>
+    </section>
+
+    <section class="page-section">
+      <div class="wrap">
+        <article class="page-card legal-content">
+          <div class="callout callout--info">
+            <strong>Résumé rapide :</strong>
+            <ul>
+              <li>Respect entre membres : harcèlement, usurpation et spam sont interdits.</li>
+              <li>Comptes vérifiés : une adresse e-mail valide et des informations sincères sont obligatoires.</li>
+              <li>Signalements : chaque abus peut être reporté via l’application ou par e-mail.</li>
+            </ul>
+          </div>
+
+          <h2>1. Objet du service</h2>
+          <p>LoveNow met à disposition un service de mise en relation destiné à favoriser les rencontres authentiques. Nous n’offrons aucune garantie de résultat et ne sommes pas responsables des échanges entre membres.</p>
+
+          <h2>2. Création de compte</h2>
+          <ul>
+            <li>Vous devez fournir des informations exactes et à jour.</li>
+            <li>Une seule inscription par personne est autorisée ; tout compte dupliqué est supprimé.</li>
+            <li>L’utilisation est strictement réservée aux personnes âgées de 18 ans ou plus.</li>
+          </ul>
+
+          <h2>3. Comportements interdits</h2>
+          <p>Les actions suivantes entraînent la suspension ou la suppression définitive du compte :</p>
+          <ul>
+            <li>Harcèlement, discours haineux, discriminations, menaces ou intimidation.</li>
+            <li>Publication de contenus illégaux, explicites ou contraires aux lois.</li>
+            <li>Diffusion de spam, arnaques, collecte de données sans consentement.</li>
+          </ul>
+
+          <h2>4. Modération &amp; sanctions</h2>
+          <p>LoveNow se réserve le droit de suspendre un compte, de limiter l’accès à certaines fonctionnalités ou de supprimer définitivement un profil en cas de violation des CGU ou de suspicion de fraude.</p>
+
+          <h2>5. Responsabilités</h2>
+          <p>LoveNow fournit une plateforme sécurisée, mais chaque utilisateur reste responsable de son comportement et des informations publiées. Nous recommandons de réaliser les rencontres en lieux publics et d’informer un proche.</p>
+
+          <h2>6. Évolutions des CGU</h2>
+          <p>Nous pouvons mettre à jour les présentes conditions pour tenir compte de l’évolution du produit ou de la législation. En cas de modifications majeures, une notification est envoyée avant l’entrée en vigueur.</p>
+
+          <h2>7. Assistance</h2>
+          <p>Pour toute question, contactez <a class="link-inline" href="mailto:contact@lovenow.app">contact@lovenow.app</a> ou consultez la <a class="link-inline" href="/privacy.html">Politique de confidentialité</a>.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="page-section">
+      <div class="wrap feature-grid">
+        <div class="feature-card">
+          <strong>Signalements rapides</strong>
+          <p>Depuis chaque profil ou conversation, utilise le bouton «&nbsp;Signaler&nbsp;» pour alerter la modération.</p>
+        </div>
+        <div class="feature-card">
+          <strong>Pause du compte</strong>
+          <p>Active le mode discret pour suspendre temporairement la visibilité de ton profil sans le supprimer.</p>
+        </div>
+        <div class="feature-card">
+          <strong>Support dédié</strong>
+          <p>Notre équipe répond sous 48 h ouvrées et priorise les signalements relatifs à la sécurité.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap footer-card">
+      <small>© LoveNow — Conditions Générales</small>
+      <div class="footer-links">
+        <a href="/privacy.html">Confidentialité</a>
+        <a href="/terms.html">Conditions d’utilisation</a>
+        <a href="/legal/cookies.html">Cookies</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>loadCrispIfEnabled();</script>
+</body>
+</html>

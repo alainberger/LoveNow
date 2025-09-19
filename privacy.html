@@ -1,66 +1,136 @@
-<!-- privacy.html — LoveNow (Politique de confidentialité avec placeholders à compléter) -->
 <!doctype html>
 <html lang="fr" data-theme="light">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>LoveNow — Politique de confidentialité</title>
-  <meta name="description" content="Politique de confidentialité LoveNow : données collectées, finalités, base légale, droits et contacts." />
+  <meta name="description" content="Comprenez comment LoveNow protège vos données personnelles et découvrez vos droits RGPD." />
   <link rel="canonical" href="https://lovenow.netlify.app/privacy" />
   <meta property="og:title" content="LoveNow — Politique de confidentialité">
-  <meta property="og:description" content="Informations sur la confidentialité et la protection des données chez LoveNow.">
+  <meta property="og:description" content="Données collectées, finalités, conservation et droits des utilisateurs LoveNow." />
   <meta property="og:url" content="https://lovenow.netlify.app/privacy">
   <meta property="og:image" content="/assets/og-default.jpg">
   <meta name="twitter:card" content="summary_large_image">
-  <style>
-    body{margin:0;font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Arial;color:#111}
-    .wrap{max-width:900px;margin:0 auto;padding:24px 16px}
-    .legal-note{background:#fff3cd;border:1px solid #ffe08a;padding:12px 14px;border-radius:10px;margin:12px 0}
-    h1,h2{line-height:1.2}
-    :focus{outline:3px auto;outline-offset:2px}
-  </style>
+  <link rel="stylesheet" href="/styles/tokens.css">
+  <link rel="stylesheet" href="/styles/components.css">
+  <script src="/js/features.js"></script>
+  <script src="/config.js"></script>
+  <script defer src="/js/ui.js"></script>
 </head>
 <body>
-  <div class="wrap">
-    <a href="/" aria-label="Retour accueil">← Accueil</a>
-    <h1>Politique de confidentialité</h1>
-
-    <aside class="legal-note" role="note" aria-label="Mentions à compléter">
-      <strong>Mentions à compléter avant lancement public :</strong>
-      <ul>
-        <li>Dernière mise à jour : <em>[À RENSEIGNER — DATE]</em></li>
-        <li>Responsable du traitement : <em>[À RENSEIGNER — RAISON SOCIALE]</em>, <em>[À RENSEIGNER — ADRESSE]</em></li>
-        <li>Contact RGPD / DPO : <em>[À RENSEIGNER — EMAIL DÉDIÉ]</em></li>
-        <li>Sous-traitants & transferts hors UE (SCC/CCT) : Netlify, Firebase, Cloudinary (liens à insérer)</li>
-      </ul>
-    </aside>
-
-    <p><strong>Dernière mise à jour :</strong> <em>[À RENSEIGNER — DATE]</em></p>
-    <p><strong>Responsable du traitement :</strong> <em>[À RENSEIGNER — RAISON SOCIALE], [À RENSEIGNER — ADRESSE]</em></p>
-    <p><strong>Contact RGPD / DPO :</strong> <em>[À RENSEIGNER — EMAIL DÉDIÉ]</em></p>
-
-    <h2>1. Données collectées</h2>
-    <p>Identité (pseudo/prénom), âge (18+), ville, photo de profil, bio, e-mail, identifiants techniques et journaux d’usage.</p>
-
-    <h2>2. Finalités & bases légales</h2>
-    <p>Fourniture du service (exécution du contrat), sécurité et lutte contre la fraude (intérêt légitime), obligations légales.</p>
-
-    <h2>3. Sous-traitants & transferts hors UE</h2>
-    <ul>
-      <li>Hébergement : Netlify (US) — <a href="#A-RENSEIGNER">[LIEN À AJOUTER]</a> — transferts encadrés par SCC/CCT.</li>
-      <li>Authentification/stockage : Firebase (US) — <a href="#A-RENSEIGNER">[LIEN À AJOUTER]</a> — SCC/CCT.</li>
-      <li>Médias images : Cloudinary — <a href="#A-RENSEIGNER">[LIEN À AJOUTER]</a> — SCC/CCT.</li>
-    </ul>
-
-    <h2>4. Durées de conservation</h2>
-    <p>Durée d’utilisation du compte + obligations légales applicables. Les comptes inactifs peuvent être supprimés après un délai raisonnable.</p>
-
-    <h2>5. Vos droits</h2>
-    <p>Accès, rectification, effacement, limitation, opposition, portabilité. Exercer vos droits auprès de : <strong><em>[À RENSEIGNER — EMAIL DÉDIÉ]</em></strong>.</p>
-
-      <h2>6. Public visé</h2>
-      <p>Le service est strictement réservé aux personnes de <strong>18 ans et plus</strong>.</p>
+  <header class="site-header">
+    <div class="wrap nav-bar">
+      <a class="brand" href="/" aria-label="LoveNow">
+        <img src="/assets/brand/logo.svg" alt="Logo LoveNow" />
+        <span>LoveNow</span>
+      </a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-menu" data-toggle-nav>
+        <span></span>
+        <span class="sr-only">Ouvrir le menu</span>
+      </button>
+      <nav id="primary-menu" class="site-menu" aria-label="Navigation principale">
+        <a href="/">Accueil</a>
+        <a href="/#discover">Découvrir</a>
+        <a href="/conversations.html">Conversations</a>
+        <a href="/profile.html">Mon profil</a>
+        <a href="/cgu.html">CGU</a>
+      </nav>
+      <button class="mode-toggle" type="button" data-toggle-theme aria-label="Basculer le mode d'affichage">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+          <path d="M12 3a1 1 0 0 1 1 1v1.1a1 1 0 0 1-1 1h-.2a1 1 0 0 1-1-.8 3 3 0 0 0-2.9 2.9 1 1 0 0 1-.8 1H6a1 1 0 0 1-1-1A7 7 0 0 1 12 3Z" />
+          <path d="M7 12a5 5 0 1 0 10 0 5 5 0 0 0-10 0Z" />
+        </svg>
+        <span>Mode</span>
+      </button>
     </div>
-    <script src="chat.js"></script>
-  </body>
-  </html>
+  </header>
+
+  <main>
+    <section class="page-hero">
+      <div class="wrap">
+        <span class="pill">Confidentialité</span>
+        <h1>Politique de confidentialité LoveNow</h1>
+        <p>Cette politique détaille la manière dont nous collectons, utilisons et sécurisons vos données personnelles lorsque vous utilisez LoveNow. Le service est réservé aux personnes majeures (18+).</p>
+        <div class="page-meta">
+          <span>🗓 Dernière mise à jour : <strong><em>[À RENSEIGNER — DATE]</em></strong></span>
+          <span>📬 Contact DPO : <a class="link-inline" href="mailto:dpo@lovenow.app">dpo@lovenow.app</a></span>
+        </div>
+      </div>
+    </section>
+
+    <section class="page-section">
+      <div class="wrap">
+        <article class="page-card legal-content">
+          <div class="callout callout--warning" role="note" aria-label="Mentions légales à compléter">
+            <strong>Mentions à compléter avant lancement public :</strong>
+            <ul>
+              <li>Responsable du traitement : <em>[À RENSEIGNER — RAISON SOCIALE]</em>, <em>[À RENSEIGNER — ADRESSE]</em></li>
+              <li>Contact RGPD / DPO : <em>[À RENSEIGNER — EMAIL DÉDIÉ]</em></li>
+              <li>Documentation transferts hors UE : Netlify, Firebase, Cloudinary (liens SCC/CCT à ajouter)</li>
+            </ul>
+          </div>
+
+          <h2>1. Données collectées</h2>
+          <p>LoveNow traite les informations strictement nécessaires pour fournir le service :</p>
+          <ul>
+            <li>Identité : pseudo, âge (18+), ville, genre, photo de profil et bio.</li>
+            <li>Coordonnées : adresse e-mail, identifiant Firebase, historiques de connexion.</li>
+            <li>Données techniques : logs de sécurité, préférences de matchmaking, statistiques d’usage agrégées.</li>
+          </ul>
+
+          <h2>2. Finalités et bases légales</h2>
+          <p>Les traitements reposent sur plusieurs fondements :</p>
+          <ul>
+            <li><strong>Exécution du contrat</strong> : création de compte, matching, messagerie, notifications.</li>
+            <li><strong>Intérêt légitime</strong> : sécurité, prévention de la fraude, amélioration continue du produit.</li>
+            <li><strong>Obligations légales</strong> : réponse aux autorités, conservation des journaux de sécurité.</li>
+          </ul>
+
+          <h2>3. Sous-traitants & transferts</h2>
+          <p>Les données peuvent être traitées par des prestataires certifiés. Les transferts hors UE sont encadrés par des clauses contractuelles types (SCC/CCT) :</p>
+          <ul>
+            <li>Netlify (hébergement statique) — <a href="#A-RENSEIGNER">[LIEN À AJOUTER]</a></li>
+            <li>Firebase (Auth &amp; Firestore) — <a href="#A-RENSEIGNER">[LIEN À AJOUTER]</a></li>
+            <li>Cloudinary (hébergement photos) — <a href="#A-RENSEIGNER">[LIEN À AJOUTER]</a></li>
+          </ul>
+
+          <h2>4. Durées de conservation</h2>
+          <p>Vos données sont conservées pendant la durée d’utilisation du compte augmentée des obligations légales. Les comptes inactifs peuvent être supprimés après un délai raisonnable et après notification.</p>
+
+          <h2>5. Vos droits</h2>
+          <p>Conformément au RGPD, vous disposez des droits d’accès, rectification, effacement, opposition, limitation et portabilité. Pour exercer vos droits, écrivez à <strong><em>[À RENSEIGNER — EMAIL DÉDIÉ]</em></strong>.</p>
+
+          <h2>6. Public visé</h2>
+          <p>LoveNow est strictement réservé aux personnes âgées d’au moins 18 ans. Les comptes mineurs sont supprimés sans préavis.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="page-section">
+      <div class="wrap grid-two">
+        <div class="page-card">
+          <strong>Transparence &amp; sécurité</strong>
+          <p class="muted">Nous appliquons des contrôles de sécurité continus (authentification Firebase, règles Firestore, chiffrement TLS) pour garantir la confidentialité des échanges.</p>
+        </div>
+        <div class="page-card">
+          <strong>Besoin d’une copie de vos données&nbsp;?</strong>
+          <p class="muted">Envoyez une demande à <a class="link-inline" href="mailto:dpo@lovenow.app?subject=Export%20donn%C3%A9es%20LoveNow">dpo@lovenow.app</a>. Une vérification d’identité peut être requise.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap footer-card">
+      <small>© LoveNow — Confidentialité</small>
+      <div class="footer-links">
+        <a href="/cgu.html">CGU</a>
+        <a href="/terms.html">Conditions d’utilisation</a>
+        <a href="/legal/cookies.html">Cookies</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>loadCrispIfEnabled();</script>
+</body>
+</html>

@@ -1,15 +1,100 @@
 <!doctype html>
-<html lang="fr">
+<html lang="fr" data-theme="light">
 <head>
-<meta charset="utf-8"/>
-<title>Article 2 - LoveNow</title>
-<link rel="stylesheet" href="/styles/tokens.css">
-<link rel="stylesheet" href="/styles/components.css">
-<script src="/js/features.js"></script>
-<script src="/config.js"></script>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Sécurité : nos réflexes incontournables — LoveNow</title>
+  <meta name="description" content="Adopte les bons réflexes sur LoveNow : vérifications, signalements et conseils pratiques." />
+  <link rel="stylesheet" href="/styles/tokens.css">
+  <link rel="stylesheet" href="/styles/components.css">
+  <script src="/js/features.js"></script>
+  <script src="/config.js"></script>
+  <script defer src="/js/ui.js"></script>
 </head>
 <body>
-<header><div class="wrap"><a href="/blog/index.html">Blog</a></div></header>
-<main class="wrap"><h1>Article 2</h1><p>Contenu de démonstration.</p></main>
+  <header class="site-header">
+    <div class="wrap nav-bar">
+      <a class="brand" href="/" aria-label="LoveNow">
+        <img src="/assets/brand/logo.svg" alt="Logo LoveNow" />
+        <span>LoveNow</span>
+      </a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-menu" data-toggle-nav>
+        <span></span>
+        <span class="sr-only">Ouvrir le menu</span>
+      </button>
+      <nav id="primary-menu" class="site-menu" aria-label="Navigation principale">
+        <a href="/">Accueil</a>
+        <a href="/#discover">Découvrir</a>
+        <a href="/blog/index.html" aria-current="page">Blog</a>
+        <a href="/privacy.html">Confidentialité</a>
+      </nav>
+      <button class="mode-toggle" type="button" data-toggle-theme aria-label="Basculer le mode d'affichage">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+          <path d="M12 3a1 1 0 0 1 1 1v1.1a1 1 0 0 1-1 1h-.2a1 1 0 0 1-1-.8 3 3 0 0 0-2.9 2.9 1 1 0 0 1-.8 1H6a1 1 0 0 1-1-1A7 7 0 0 1 12 3Z" />
+          <path d="M7 12a5 5 0 1 0 10 0 5 5 0 0 0-10 0Z" />
+        </svg>
+        <span>Mode</span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <section class="article-hero">
+      <div class="wrap">
+        <nav class="breadcrumbs" aria-label="Fil d’Ariane">
+          <a href="/blog/index.html">Blog</a>
+          <span aria-hidden="true">/</span>
+          <span>Sécurité</span>
+        </nav>
+        <span class="pill">Sécurité</span>
+        <h1>Sécurité : nos réflexes incontournables</h1>
+        <div class="article-meta">
+          <span>🗓 18 mai 2024</span>
+          <span>⏱ Lecture : 4 min</span>
+        </div>
+      </div>
+    </section>
+
+    <article class="article-content">
+      <p>La confiance est au cœur de LoveNow. Pour garder la main sur tes rencontres, voici les réflexes essentiels recommandés par notre équipe Confiance &amp; sécurité.</p>
+
+      <h2>Vérifie ton match</h2>
+      <p>Privilégie les profils complets et vérifiés par e-mail. En cas de doute, demande un selfie instantané ou une courte visio avant de prévoir un rendez-vous.</p>
+
+      <h2>Préserve tes informations personnelles</h2>
+      <p>Ne partage jamais de données sensibles (adresse, code, IBAN) et privilégie le chat LoveNow tant que la relation n’est pas de confiance. Les demandes financières sont un signal d’alerte.</p>
+
+      <h2>Utilise les signalements</h2>
+      <p>Depuis chaque conversation, tu peux signaler un comportement inapproprié. Notre équipe modération analyse en priorité les signalements liés à la sécurité.</p>
+
+      <h2>Rencontres IRL : reste prudent</h2>
+      <ul>
+        <li>Privilégie les lieux publics et informe un proche.</li>
+        <li>Organise le trajet de retour à l’avance.</li>
+        <li>Garde ton téléphone chargé et partage ta position si nécessaire.</li>
+      </ul>
+
+      <p>Besoin d’aide ? Contacte-nous sur <a class="link-inline" href="mailto:support@lovenow.app">support@lovenow.app</a>. Nous sommes disponibles 7j/7.</p>
+
+      <div class="article-share">
+        <strong>Partager :</strong>
+        <a class="link-inline" href="https://twitter.com/intent/tweet?text=Conseils%20s%C3%A9curit%C3%A9%20LoveNow&url=https://lovenow.netlify.app/blog/article2.html" target="_blank" rel="noopener">Twitter</a>
+        <a class="link-inline" href="https://www.linkedin.com/sharing/share-offsite/?url=https://lovenow.netlify.app/blog/article2.html" target="_blank" rel="noopener">LinkedIn</a>
+      </div>
+    </article>
+  </main>
+
+  <footer>
+    <div class="wrap footer-card">
+      <small>© LoveNow — Blog</small>
+      <div class="footer-links">
+        <a href="/privacy.html">Confidentialité</a>
+        <a href="/cgu.html">CGU</a>
+        <a href="/blog/index.html">Tous les articles</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>loadCrispIfEnabled();</script>
 </body>
 </html>
