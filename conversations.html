@@ -1,110 +1,164 @@
 <!doctype html>
-<html lang="fr" data-theme="dark">
+<html lang="fr" data-theme="light">
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Conversations — LoveNow</title>
   <meta name="description" content="Discute en temps réel avec les membres LoveNow."/>
-  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" as="style" onload="this.rel='stylesheet'"/>
+  <link rel="stylesheet" href="/styles/tokens.css">
+  <link rel="stylesheet" href="/styles/components.css">
+  <script src="/js/features.js"></script>
+  <script src="config.js"></script>
+  <script defer src="/js/ui.js"></script>
   <style>
-    :root{--bg:#0f1115;--card:#171922;--muted:#aab1c3;--text:#e9edf6;--brand:#ff2d55;--brand2:#7a5cf0;--line:#202334}
-    *{box-sizing:border-box} html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:Inter,system-ui}
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:'Manrope',system-ui,sans-serif}
     a{color:inherit;text-decoration:none}
-    header{position:sticky;top:0;z-index:5;background:rgba(15,17,21,.7);backdrop-filter:saturate(140%) blur(8px);border-bottom:1px solid var(--line)}
-    nav{display:flex;gap:8px;align-items:center;padding:10px 16px}
-    .btn{display:inline-flex;align-items:center;justify-content:center;padding:.55rem .85rem;border-radius:.6rem;background:#232739;border:1px solid #2b2f44;cursor:pointer}
-    .btn-primary{background:linear-gradient(135deg,var(--brand),var(--brand2));border:none}
+
+    main{padding-bottom:48px}
+
+    .conversation-app{display:grid;grid-template-columns:minmax(260px,320px) minmax(0,1fr);gap:24px;margin:32px auto 64px;width:min(1180px,94vw)}
+    @media(max-width:900px){.conversation-app{grid-template-columns:1fr;}}
+    @media(max-width:900px){.sidebar{order:2}}
+
+    .sidebar{background:rgba(255,255,255,0.82);border:1px solid rgba(255,255,255,0.9);border-radius:28px;box-shadow:0 28px 48px -34px rgba(47,22,52,0.35);overflow:hidden;display:flex;flex-direction:column}
+    [data-theme="dark"] .sidebar{background:rgba(29,28,54,0.92);border-color:rgba(161,110,255,0.22);box-shadow:0 32px 60px -34px rgba(10,6,27,0.85)}
+
+    .search{padding:22px;border-bottom:1px solid rgba(255,61,138,0.16);display:grid;gap:12px}
+    .search input{width:100%}
+    .search .muted{font-size:0.85rem}
+    .search .tip{margin:6px 0 0}
+
+    .list{flex:1;overflow:auto;padding:18px;display:grid;gap:12px}
+    .conv{display:flex;gap:12px;align-items:center;padding:14px;border-radius:20px;background:rgba(255,255,255,0.6);border:1px solid rgba(255,255,255,0.6);box-shadow:0 18px 36px -28px rgba(47,22,52,0.35);cursor:pointer;transition:transform 150ms ease,box-shadow 150ms ease,background 150ms ease}
+    .conv img{width:56px;height:56px;border-radius:18px;object-fit:cover;box-shadow:0 12px 24px -18px rgba(47,22,52,0.45)}
+    .conv .meta{display:flex;flex-direction:column;gap:2px}
+    .conv .meta .name{font-weight:600;font-size:1rem}
+    .conv .meta .excerpt{font-size:0.9rem;color:var(--muted)}
+    .conv:hover{transform:translateY(-2px);box-shadow:0 26px 42px -30px rgba(47,22,52,0.45);background:rgba(255,255,255,0.85)}
+    .conv.active{background:linear-gradient(135deg,rgba(255,61,138,0.18),rgba(178,95,255,0.18));border-color:rgba(255,61,138,0.26)}
+
+    .panel{background:rgba(255,255,255,0.88);border:1px solid rgba(255,255,255,0.9);border-radius:32px;box-shadow:0 30px 70px -36px rgba(47,22,52,0.35);display:flex;flex-direction:column;overflow:hidden}
+    [data-theme="dark"] .panel{background:rgba(29,28,54,0.9);border-color:rgba(161,110,255,0.22);box-shadow:0 32px 68px -34px rgba(10,6,27,0.85)}
+
+    .chatHead{display:flex;align-items:center;gap:14px;padding:22px;border-bottom:1px solid rgba(255,61,138,0.14)}
+    .chatHead img{width:60px;height:60px;border-radius:22px;object-fit:cover;box-shadow:0 18px 36px -24px rgba(47,22,52,0.4)}
+    .chatHead .muted{font-size:0.9rem}
+    .chatName{font-weight:600;font-size:1.05rem}
+    .chatSub{color:var(--muted);font-size:0.9rem}
     .spacer{flex:1}
 
-    .wrap{display:grid;grid-template-columns:320px 1fr;gap:0;height:calc(100vh - 58px)}
-    @media(max-width:900px){.wrap{grid-template-columns:1fr}}
-    .sidebar{border-right:1px solid var(--line);background:#121420}
-    .panel{display:flex;flex-direction:column}
+    .chatMain{flex:1;overflow:auto;padding:28px;display:flex;flex-direction:column;gap:16px;background:linear-gradient(180deg,rgba(255,247,252,0.6),rgba(255,255,255,0.85))}
+    [data-theme="dark"] .chatMain{background:linear-gradient(180deg,rgba(29,28,54,0.75),rgba(16,16,33,0.85))}
 
-    .card{background:var(--card);border:1px solid var(--line);border-radius:.9rem}
-    .section{padding:12px 12px}
+    .msg{max-width:min(70%,520px);padding:14px 16px;border-radius:20px;background:rgba(255,255,255,0.92);border:1px solid rgba(255,255,255,0.9);box-shadow:0 12px 30px -24px rgba(47,22,52,0.35);line-height:1.5}
+    .mine{margin-left:auto;background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff;border:none;box-shadow:0 18px 36px -28px rgba(255,61,138,0.7)}
+    .stamp{font-size:0.8rem;color:var(--muted);margin-top:6px}
 
-    .search{padding:12px;border-bottom:1px solid var(--line)}
-    .search input{width:100%;padding:.6rem .8rem;border-radius:.6rem;background:#0f1115;border:1px solid #2b2f44;color:var(--text)}
-    .list{overflow:auto}
-    .conv{display:flex;gap:10px;align-items:center;padding:10px 12px;border-bottom:1px solid #161a27;cursor:pointer}
-    .conv:hover{background:#151a26}
-    .conv img{width:40px;height:40px;border-radius:50%;object-fit:cover;background:#0c0e12;border:1px solid #2b2f44}
-    .conv .meta{display:flex;flex-direction:column;font-size:.95rem}
-    .conv .meta .name{font-weight:600}
-    .conv.active{background:#182034}
+    .chatInput{display:grid;grid-template-columns:1fr auto;gap:14px;padding:22px;border-top:1px solid rgba(255,61,138,0.14);background:rgba(255,255,255,0.92)}
+    .chatInput input{width:100%}
+    .chatInput .btn{min-width:140px}
 
-    .chatHead{display:flex;align-items:center;gap:10px;padding:12px;border-bottom:1px solid var(--line)}
-    .chatHead img{width:42px;height:42px;border-radius:50%;object-fit:cover;border:1px solid #2b2f44}
-    .chatMain{flex:1;overflow:auto;padding:14px}
-    .msg{max-width:70%;margin:8px 0;padding:.55rem .7rem;border-radius:.7rem;border:1px solid #27314a;background:#151926}
-    .mine{margin-left:auto;background:linear-gradient(135deg,#ff2d55,#7a5cf0);border:none}
-    .stamp{font-size:.8rem;color:#aab1c3;margin-top:2px}
-    .chatInput{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line)}
-    .chatInput input{flex:1;padding:.7rem;border-radius:.6rem;background:#0f1115;border:1px solid #2b2f44;color:var(--text)}
-    .muted{color:#aab1c3}
-    .banner{background:#1a1e2b;border:1px solid #27314a;border-radius:.8rem;padding:.6rem .8rem;margin:8px}
-    .empty{padding:18px;color:#aab1c3}
-    .badge{display:inline-block;padding:.15rem .45rem;border-radius:.35rem;background:#232739;border:1px solid #2b2f44;font-size:.75rem;color:#cbd3e6}
+    .empty{padding:32px;text-align:center;color:var(--muted)}
+
+    .badge{display:inline-flex;align-items:center;gap:6px;padding:0.35rem 0.65rem;border-radius:999px;background:rgba(255,61,138,0.15);color:var(--brand);font-size:0.85rem;font-weight:600}
+
+    .conversation-toolbar{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+
+    .soft-btn{padding:0.5rem 0.85rem;border-radius:999px;background:rgba(255,61,138,0.12);color:var(--brand);font-weight:600;border:none;cursor:pointer}
+
+    @media(max-width:900px){
+      .chatHead{position:sticky;top:0;background:inherit;z-index:2}
+      .chatMain{min-height:320px}
+      .chatInput{position:sticky;bottom:0;background:inherit}
+    }
   </style>
-
-  <!-- Config globale -->
-  <script src="config.js"></script>
 </head>
 <body>
-<header>
-  <nav>
-    <a class="btn" href="index.html">← Accueil</a>
-    <strong>Conversations</strong>
-    <span class="spacer"></span>
-    <a class="btn" href="profile.html">Mon profil</a>
-    <button id="btnLogout" class="btn">Se déconnecter</button>
-  </nav>
+<header class="site-header">
+  <div class="wrap nav-bar">
+    <a class="brand" href="/" aria-label="LoveNow">
+      <img src="/assets/brand/logo.svg" alt="Logo LoveNow" />
+      <span>LoveNow</span>
+    </a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-menu" data-toggle-nav>
+      <span></span>
+      <span class="sr-only">Ouvrir le menu</span>
+    </button>
+    <nav id="primary-menu" class="site-menu" aria-label="Navigation principale">
+      <a href="/#discover">Découvrir</a>
+      <a href="/matchmaking.html">Matching</a>
+      <a href="/conversations.html" aria-current="page">Conversations</a>
+      <a href="/profile.html">Mon profil</a>
+      <a href="/settings.html">Paramètres</a>
+      <div class="session-slot">
+        <button id="btnLogout" class="btn ghost" type="button">Se déconnecter</button>
+      </div>
+    </nav>
+    <button class="mode-toggle" type="button" data-toggle-theme aria-label="Basculer le mode d'affichage">
+      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+        <path d="M12 3a1 1 0 0 1 1 1v1.1a1 1 0 0 1-1 1h-.2a1 1 0 0 1-1-.8 3 3 0 0 0-2.9 2.9 1 1 0 0 1-.8 1H6a1 1 0 0 1-1-1A7 7 0 0 1 12 3Z" />
+        <path d="M7 12a5 5 0 1 0 10 0 5 5 0 0 0-10 0Z" />
+      </svg>
+      <span>Mode</span>
+    </button>
+  </div>
 </header>
 
 <div id="verifyBanner" class="banner" hidden>
   <div><strong>E-mail non vérifié.</strong> Vérifie ton e-mail pour pouvoir envoyer des messages.</div>
-  <div style="display:flex;gap:8px;margin-top:6px">
+  <div class="actions">
     <button id="btnResend" class="btn">Renvoyer le lien</button>
-    <button id="btnRefresh" class="btn">Rafraîchir</button>
+    <button id="btnRefresh" class="btn ghost">Rafraîchir</button>
   </div>
 </div>
 
-<main class="wrap">
-  <!-- Sidebar : start chat + list -->
-  <aside class="sidebar">
-    <div class="search">
-      <label for="emailStart" class="muted" style="display:block;margin:0 0 6px">Démarrer une discussion (par e-mail)</label>
-      <div style="display:flex;gap:8px">
-        <input id="emailStart" type="email" placeholder="ex. ami@exemple.com" autocomplete="off">
-        <button id="btnStart" class="btn">OK</button>
+<main>
+  <div class="conversation-app">
+    <aside class="sidebar">
+      <div class="search">
+        <label for="emailStart" class="muted">Démarrer une discussion (par e-mail)</label>
+        <div class="conversation-toolbar">
+          <input id="emailStart" type="email" placeholder="ex. ami@exemple.com" autocomplete="off">
+          <button id="btnStart" class="btn">OK</button>
+        </div>
+        <p class="muted tip">Astuce : tu peux aussi ouvrir <span class="badge">/conversations.html?startWith=UID</span></p>
       </div>
-        <div class="muted" style="margin-top:6px;font-size:.85rem">Astuce : tu peux aussi ouvrir <span class="badge">/conversations.html?startWith=UID</span></div>
-    </div>
-    <div id="convList" class="list" role="listbox" aria-label="Conversations"></div>
-  </aside>
+      <div id="convList" class="list" role="listbox" aria-label="Conversations"></div>
+    </aside>
 
-  <!-- Panel chat -->
-  <section class="panel">
-    <div id="chatHead" class="chatHead" hidden>
-      <img id="peerAvatar" src="" alt="">
-      <div>
-        <div id="peerName" style="font-weight:600">Sélectionne une conversation</div>
-        <div id="peerCity" class="muted" style="font-size:.9rem"></div>
+    <section class="panel">
+      <div id="chatHead" class="chatHead" hidden>
+        <img id="peerAvatar" src="" alt="Avatar de la conversation">
+        <div>
+          <div id="peerName" class="chatName">Sélectionne une conversation</div>
+          <div id="peerCity" class="chatSub"></div>
+        </div>
+        <span class="spacer"></span>
+        <span id="chatStatus" class="badge">Temps réel</span>
       </div>
-      <span class="spacer"></span>
-      <span id="chatStatus" class="badge">Temps réel</span>
-    </div>
 
-    <div id="emptyChat" class="empty">Aucune discussion ouverte. Choisis une conversation à gauche ou lance une discussion.</div>
-    <div id="chatMain" class="chatMain" hidden></div>
+      <div id="emptyChat" class="empty">Aucune discussion ouverte. Choisis une conversation à gauche ou lance une discussion.</div>
+      <div id="chatMain" class="chatMain" hidden></div>
 
-    <div id="chatInput" class="chatInput" hidden>
-      <input id="msg" type="text" placeholder="Écrire un message…" maxlength="2000" autocomplete="off">
-      <button id="btnSend" class="btn btn-primary">Envoyer</button>
-    </div>
-  </section>
+      <div id="chatInput" class="chatInput" hidden>
+        <input id="msg" type="text" placeholder="Écrire un message…" maxlength="2000" autocomplete="off">
+        <button id="btnSend" class="btn">Envoyer</button>
+      </div>
+    </section>
+  </div>
 </main>
+
+<footer>
+  <div class="wrap footer-card">
+    <small>© LoveNow — Conversations sécurisées</small>
+    <div class="footer-links">
+      <a href="/privacy.html">Confidentialité</a>
+      <a href="/cgu.html">CGU</a>
+      <a href="/profile.html">Mon profil</a>
+    </div>
+  </div>
+</footer>
 
 <script type="module">
 /* ====== Imports & boot Firebase ====== */
@@ -173,10 +227,10 @@ function renderConvItem(c){
   const name   = c._peer?.name || c._peer?.displayName || "Utilisateur";
 
   node.innerHTML = `
-    <img src="${avatar}" alt="">
+    <img src="${avatar}" alt="Photo de ${name}">
     <div class="meta">
       <div class="name">${name}</div>
-      <div class="muted" style="font-size:.9rem">${lastTxt || "—"} ${time?`· ${time}`:""}</div>
+      <div class="excerpt">${lastTxt || "—"} ${time?`· ${time}`:""}</div>
     </div>
   `;
   node.addEventListener("click", ()=> openConversation(c.id, other));

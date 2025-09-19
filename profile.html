@@ -1,108 +1,139 @@
 <!doctype html>
-<html lang="fr" data-theme="dark">
+<html lang="fr" data-theme="light">
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Mon profil — LoveNow</title>
   <meta name="description" content="Gère ton profil LoveNow : photo, bio, ville, âge, genre."/>
-  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" as="style" onload="this.rel='stylesheet'"/>
-  <style>
-    :root{--bg:#0f1115;--card:#171922;--muted:#aab1c3;--text:#e9edf6;--brand:#ff2d55;--brand2:#7a5cf0}
-    *{box-sizing:border-box}
-    html,body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui}
-    a{color:inherit;text-decoration:none}
-    .wrap{max-width:900px;margin:0 auto;padding:16px}
-    header{position:sticky;top:0;z-index:5;background:rgba(15,17,21,.7);backdrop-filter:saturate(140%) blur(8px);border-bottom:1px solid #202334}
-    nav{display:flex;gap:8px;align-items:center;padding:10px 0}
-    .spacer{flex:1}
-    .btn{display:inline-flex;align-items:center;justify-content:center;padding:.6rem .9rem;border-radius:.6rem;background:#232739;border:1px solid #2b2f44;cursor:pointer}
-    .btn-primary{background:linear-gradient(135deg,var(--brand),var(--brand2));border:none}
-    .card{background:var(--card);border:1px solid #202334;border-radius:.9rem;padding:16px}
-    label{display:block;margin:10px 0 6px;color:var(--muted)}
-    input,select,textarea{width:100%;padding:.7rem;border-radius:.6rem;background:#0f1115;border:1px solid #2b2f44;color:#e9edf6}
-    .row{display:grid;grid-template-columns:1fr;gap:12px}
-    @media(min-width:720px){.row{grid-template-columns:1fr 1fr}}
-    .photo{display:flex;gap:12px;align-items:center}
-    .photo img{width:108px;height:108px;border-radius:12px;object-fit:cover;background:#0c0e12;border:1px solid #2b2f44}
-    .muted{color:var(--muted)}
-    .banner{background:#1a1e2b;border:1px solid #27314a;border-radius:.8rem;padding:.6rem .8rem;margin:12px 0;display:flex;gap:8px;justify-content:space-between;align-items:center}
-    .toast{position:fixed;right:16px;bottom:16px;background:#111522;border:1px solid #22304a;padding:8px 12px;border-radius:8px;display:none}
-    .tiny{font-size:.85rem;color:#aab1c3}
-  </style>
+  <link rel="stylesheet" href="/styles/tokens.css">
+  <link rel="stylesheet" href="/styles/components.css">
+  <script src="/js/features.js"></script>
   <script src="config.js"></script>
+  <script defer src="/js/ui.js"></script>
+  <style>
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:'Manrope',system-ui,sans-serif}
+    main{padding-bottom:72px}
+    .profile-shell{width:min(960px,92vw);margin:48px auto 96px;display:grid;gap:24px}
+    .profile-form{display:grid;gap:22px}
+    .profile-photo{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+    .profile-photo img{width:132px;height:132px;border-radius:32px;object-fit:cover;box-shadow:0 24px 48px -28px rgba(47,22,52,0.4)}
+    .profile-photo input{width:auto}
+    .field-row{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+    .profile-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
+    .tiny{font-size:0.85rem;color:var(--muted)}
+    .debug-id{font-size:0.8rem;color:var(--muted)}
+    .badge-info{display:inline-flex;align-items:center;gap:6px;padding:0.4rem 0.75rem;border-radius:999px;background:rgba(255,61,138,0.15);color:var(--brand);font-weight:600;font-size:0.85rem}
+    textarea{min-height:120px}
+    .profile-hint{margin-top:4px}
+  </style>
 </head>
 <body>
-<header>
-  <div class="wrap">
-    <nav>
-      <a class="btn" href="index.html">← Accueil</a>
-      <strong>Mon profil</strong>
-      <span class="spacer"></span>
-      <a class="btn" href="conversations.html">Mes conversations</a>
-      <button id="btnLogout" class="btn">Se déconnecter</button>
+<header class="site-header">
+  <div class="wrap nav-bar">
+    <a class="brand" href="/" aria-label="LoveNow">
+      <img src="/assets/brand/logo.svg" alt="Logo LoveNow" />
+      <span>LoveNow</span>
+    </a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-menu" data-toggle-nav>
+      <span></span>
+      <span class="sr-only">Ouvrir le menu</span>
+    </button>
+    <nav id="primary-menu" class="site-menu" aria-label="Navigation principale">
+      <a href="/#discover">Découvrir</a>
+      <a href="/matchmaking.html">Matching</a>
+      <a href="/conversations.html">Conversations</a>
+      <a href="/profile.html" aria-current="page">Mon profil</a>
+      <a href="/settings.html">Paramètres</a>
+      <div class="session-slot">
+        <button id="btnLogout" class="btn ghost" type="button">Se déconnecter</button>
+      </div>
     </nav>
+    <button class="mode-toggle" type="button" data-toggle-theme aria-label="Basculer le mode d'affichage">
+      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+        <path d="M12 3a1 1 0 0 1 1 1v1.1a1 1 0 0 1-1 1h-.2a1 1 0 0 1-1-.8 3 3 0 0 0-2.9 2.9 1 1 0 0 1-.8 1H6a1 1 0 0 1-1-1A7 7 0 0 1 12 3Z" />
+        <path d="M7 12a5 5 0 1 0 10 0 5 5 0 0 0-10 0Z" />
+      </svg>
+      <span>Mode</span>
+    </button>
   </div>
 </header>
 
-<main class="wrap">
-  <div id="verifyBanner" class="banner" hidden>
-    <div>E-mail non vérifié. Vérifie ton e-mail pour débloquer toutes les fonctions.</div>
-    <div style="display:flex;gap:8px">
-      <button id="btnResend" class="btn">Renvoyer le lien</button>
-      <button id="btnRefresh" class="btn">Rafraîchir</button>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="tiny" id="debugId"></div>
-
-    <div class="photo">
-      <img id="avatar" src="" alt="Ta photo">
-      <div>
-        <input id="file" type="file" accept="image/*">
-        <div class="muted" style="font-size:.9rem">JPG/PNG/WebP ≤ 5 Mo — hébergé sur Cloudinary.</div>
-        <button id="btnUpload" class="btn" style="margin-top:8px">Téléverser la photo</button>
+<main>
+  <div class="profile-shell">
+    <div id="verifyBanner" class="banner" hidden>
+      <div>E-mail non vérifié. Vérifie ton e-mail pour débloquer toutes les fonctions.</div>
+      <div class="actions">
+        <button id="btnResend" class="btn">Renvoyer le lien</button>
+        <button id="btnRefresh" class="btn ghost">Rafraîchir</button>
       </div>
     </div>
 
-    <div class="row" style="margin-top:12px">
-      <div>
-        <label for="name">Nom / Pseudo</label>
-        <input id="name" required>
-      </div>
-      <div>
-        <label for="city">Ville</label>
-        <input id="city" placeholder="ex. Paris">
-      </div>
-    </div>
+    <div class="page-card profile-form">
+      <div class="debug-id" id="debugId"></div>
 
-    <div class="row">
-      <div>
-        <label for="age">Âge</label>
-        <input id="age" type="number" min="18" max="99" required>
+      <div class="profile-photo">
+        <img id="avatar" src="" alt="Ta photo">
+        <div>
+          <span class="badge-info">📸 Photo de profil</span>
+          <input id="file" type="file" accept="image/*">
+          <p class="tiny">JPG/PNG/WebP ≤ 5 Mo — hébergé sur Cloudinary.</p>
+          <button id="btnUpload" class="btn ghost">Téléverser la photo</button>
+        </div>
       </div>
-      <div>
-        <label for="gender">Genre</label>
-        <select id="gender">
-          <option value="F">Femme</option>
-          <option value="M">Homme</option>
-          <option value="O">Autre</option>
-        </select>
+
+      <div class="field-row">
+        <div>
+          <label for="name">Nom / Pseudo</label>
+          <input id="name" required>
+        </div>
+        <div>
+          <label for="city">Ville</label>
+          <input id="city" placeholder="ex. Paris">
+        </div>
       </div>
-    </div>
 
-    <label for="bio">Bio</label>
-    <textarea id="bio" rows="4" placeholder="Parle un peu de toi…"></textarea>
+      <div class="field-row">
+        <div>
+          <label for="age">Âge</label>
+          <input id="age" type="number" min="18" max="99" required>
+        </div>
+        <div>
+          <label for="gender">Genre</label>
+          <select id="gender">
+            <option value="F">Femme</option>
+            <option value="M">Homme</option>
+            <option value="O">Autre</option>
+          </select>
+        </div>
+      </div>
 
-    <div style="display:flex;gap:8px;margin-top:12px">
-      <button id="btnSave" class="btn btn-primary">Enregistrer</button>
-      <a class="btn" href="index.html">Retour</a>
+      <div>
+        <label for="bio">Bio</label>
+        <textarea id="bio" placeholder="Parle un peu de toi…"></textarea>
+      </div>
+
+      <div class="profile-actions">
+        <button id="btnSave" class="btn">Enregistrer</button>
+        <a class="btn ghost" href="index.html">Retour</a>
+      </div>
+      <p class="tiny profile-hint">Astuce : ton profil s’affiche en découverte si nom/âge/ville/genre/bio sont renseignés.</p>
     </div>
-    <p class="muted" style="margin-top:8px">Astuce : ton profil s’affiche en découverte si nom/âge/ville/genre/bio sont renseignés.</p>
   </div>
 </main>
 
-<div id="toast" class="toast"></div>
+<footer>
+  <div class="wrap footer-card">
+    <small>© LoveNow — Profil</small>
+    <div class="footer-links">
+      <a href="/conversations.html">Conversations</a>
+      <a href="/privacy.html">Confidentialité</a>
+      <a href="/cgu.html">CGU</a>
+    </div>
+  </div>
+</footer>
+
+<div id="toast"></div>
 
 <!-- Firebase + Firestore + AppCheck -->
 <script type="module">
@@ -118,7 +149,14 @@
   const db   = getFirestore(app);
 
   const $ = s => document.querySelector(s);
-  const toast = (t)=>{ const el=$("#toast"); el.textContent=t; el.style.display="block"; setTimeout(()=>el.style.display="none",2200); };
+  let toastTimer;
+  const toast = (t)=>{
+    const el=$("#toast");
+    el.textContent=t;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer=setTimeout(()=>el.classList.remove('show'),2200);
+  };
 
   // Cloudinary (unsigned)
   const CLOUD = {

@@ -1,15 +1,76 @@
 <!doctype html>
-<html lang="fr">
+<html lang="fr" data-theme="light">
 <head>
-<meta charset="utf-8"/>
-<title>Settings - LoveNow</title>
-<link rel="stylesheet" href="/styles/tokens.css">
-<link rel="stylesheet" href="/styles/components.css">
-<script src="/js/features.js"></script>
-<script src="/config.js"></script>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Paramètres — LoveNow</title>
+  <meta name="description" content="Personnalisez vos préférences LoveNow et gérez votre expérience en toute simplicité."/>
+  <link rel="stylesheet" href="/styles/tokens.css">
+  <link rel="stylesheet" href="/styles/components.css">
+  <script src="/js/features.js"></script>
+  <script src="/config.js"></script>
+  <script defer src="/js/ui.js"></script>
 </head>
 <body>
-<header><div class="wrap"><a href="/">Accueil</a></div></header>
-<main class="wrap"><h1>Settings</h1><p>Placeholder</p></main>
+  <header class="site-header">
+    <div class="wrap nav-bar">
+      <a class="brand" href="/" aria-label="LoveNow">
+        <img src="/assets/brand/logo.svg" alt="Logo LoveNow" />
+        <span>LoveNow</span>
+      </a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-menu" data-toggle-nav>
+        <span></span>
+        <span class="sr-only">Ouvrir le menu</span>
+      </button>
+      <nav id="primary-menu" class="site-menu" aria-label="Navigation principale">
+        <a href="/">Accueil</a>
+        <a href="/matchmaking.html">Matching</a>
+        <a href="/conversations.html">Conversations</a>
+        <a href="/profile.html">Mon profil</a>
+        <a href="/settings.html" aria-current="page">Paramètres</a>
+        <a href="/privacy.html">Confidentialité</a>
+        <div class="session-slot" id="header-session">
+          <a class="btn" href="/login.html#signup">Rejoins-nous</a>
+        </div>
+      </nav>
+      <button class="mode-toggle" type="button" data-toggle-theme aria-label="Basculer le mode d'affichage">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+          <path d="M12 3a1 1 0 0 1 1 1v1.1a1 1 0 0 1-1 1h-.2a1 1 0 0 1-1-.8 3 3 0 0 0-2.9 2.9 1 1 0 0 1-.8 1H6a1 1 0 0 1-1-1A7 7 0 0 1 12 3Z" />
+          <path d="M7 12a5 5 0 1 0 10 0 5 5 0 0 0-10 0Z" />
+        </svg>
+        <span>Mode</span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <section class="page-section">
+      <div class="wrap">
+        <div class="page-card">
+          <h1>Paramètres du compte</h1>
+          <p class="muted">Activez les notifications, gérez les préférences de matchmaking et ajustez vos filtres par défaut.</p>
+          <ul class="page-list">
+            <li>Réglez vos notifications de nouveaux matchs et messages.</li>
+            <li>Choisissez les filtres automatiques (âge, distance, centres d’intérêt).</li>
+            <li>Activez le mode discret pour masquer temporairement votre profil public.</li>
+          </ul>
+          <div class="actions">
+            <a class="btn" href="/profile.html">Modifier mon profil</a>
+            <a class="btn ghost" href="/privacy.html">Consulter la confidentialité</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap footer-card">
+      <small>© LoveNow</small>
+      <div class="footer-links">
+        <a href="/privacy.html">Confidentialité</a>
+        <a href="/cgu.html">CGU</a>
+      </div>
+    </div>
+  </footer>
 </body>
 </html>

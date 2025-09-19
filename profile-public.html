@@ -1,51 +1,83 @@
 <!doctype html>
-<html lang="fr">
+<html lang="fr" data-theme="light">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Profil — LoveNow</title>
-<meta name="description" content="Profil public LoveNow"/>
-<link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" as="style" onload="this.rel='stylesheet'"/>
-  <style>
-:root{--bg:#0f1115;--card:#171922;--muted:#aab1c3;--text:#e9edf6;--brand:#ff2d55;--brand2:#7a5cf0;--line:#202334}
-*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui}
-.wrap{max-width:860px;margin:0 auto;padding:16px}
-header{position:sticky;top:0;z-index:5;background:rgba(15,17,21,.7);backdrop-filter:saturate(140%) blur(8px);border-bottom:1px solid var(--line)}
-nav{display:flex;gap:8px;align-items:center;padding:10px 0}
-.btn{display:inline-flex;align-items:center;justify-content:center;padding:.55rem .85rem;border-radius:.6rem;background:#232739;border:1px solid #2b2f44;cursor:pointer}
-.btn-primary{background:linear-gradient(135deg,var(--brand),var(--brand2));border:none}
-.card{background:var(--card);border:1px solid var(--line);border-radius:.9rem;padding:16px}
-.hero{display:grid;grid-template-columns:160px 1fr;gap:14px}
-.hero img{width:160px;height:160px;border-radius:14px;object-fit:cover;background:#0c0e12}
-.muted{color:var(--muted)}
-  </style>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Profil — LoveNow</title>
+  <meta name="description" content="Profil public LoveNow"/>
+  <link rel="stylesheet" href="/styles/tokens.css">
+  <link rel="stylesheet" href="/styles/components.css">
+  <script src="/js/features.js"></script>
   <script src="config.js"></script>
-  </head>
+  <script defer src="/js/ui.js"></script>
+  <style>
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:'Manrope',system-ui,sans-serif}
+    main{padding-bottom:72px}
+    .public-shell{width:min(880px,92vw);margin:60px auto 96px;display:grid;gap:24px}
+    .public-profile{display:grid;gap:24px;align-items:center}
+    @media(min-width:720px){.public-profile{grid-template-columns:220px 1fr}}
+    .public-profile img{width:220px;height:220px;border-radius:32px;object-fit:cover;box-shadow:0 30px 60px -40px rgba(47,22,52,0.4)}
+    .public-profile h1{margin:0;font-size:2rem}
+    .profile-meta{font-size:1rem;color:var(--muted);margin-top:6px}
+    .cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}
+  </style>
+</head>
 <body>
-<header>
-  <div class="wrap">
-    <nav>
-      <a class="btn" href="index.html">← Accueil</a>
-      <strong>Profil</strong>
-      <span style="flex:1"></span>
-      <a class="btn" href="conversations.html">Conversations</a>
+<header class="site-header">
+  <div class="wrap nav-bar">
+    <a class="brand" href="/" aria-label="LoveNow">
+      <img src="/assets/brand/logo.svg" alt="Logo LoveNow" />
+      <span>LoveNow</span>
+    </a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-menu" data-toggle-nav>
+      <span></span>
+      <span class="sr-only">Ouvrir le menu</span>
+    </button>
+    <nav id="primary-menu" class="site-menu" aria-label="Navigation principale">
+      <a href="/#discover">Découvrir</a>
+      <a href="/matchmaking.html">Matching</a>
+      <a href="/conversations.html">Conversations</a>
+      <a href="/profile.html">Mon profil</a>
+      <a href="/blog/index.html">Blog</a>
     </nav>
+    <button class="mode-toggle" type="button" data-toggle-theme aria-label="Basculer le mode d'affichage">
+      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+        <path d="M12 3a1 1 0 0 1 1 1v1.1a1 1 0 0 1-1 1h-.2a1 1 0 0 1-1-.8 3 3 0 0 0-2.9 2.9 1 1 0 0 1-.8 1H6a1 1 0 0 1-1-1A7 7 0 0 1 12 3Z" />
+        <path d="M7 12a5 5 0 1 0 10 0 5 5 0 0 0-10 0Z" />
+      </svg>
+      <span>Mode</span>
+    </button>
   </div>
 </header>
 
-<main class="wrap">
-  <div class="card hero">
-    <img id="photo" alt="Photo de profil">
-    <div>
-      <h1 id="name">Utilisateur</h1>
-      <div class="muted" id="meta">—</div>
-      <p id="bio" style="margin-top:10px"></p>
-      <div style="display:flex;gap:8px;margin-top:8px">
-        <a id="btnMsg" class="btn btn-primary" href="#">Envoyer un message</a>
+<main>
+  <div class="public-shell">
+    <div class="page-card public-profile">
+      <img id="photo" alt="Photo de profil">
+      <div>
+        <h1 id="name">Utilisateur</h1>
+        <p class="profile-meta" id="meta">—</p>
+        <p id="bio" class="muted"></p>
+        <div class="cta">
+          <a id="btnMsg" class="btn" href="#">Envoyer un message</a>
+          <a class="btn ghost" href="/">Voir d’autres profils</a>
+        </div>
       </div>
     </div>
   </div>
 </main>
+
+<footer>
+  <div class="wrap footer-card">
+    <small>© LoveNow — Profil public</small>
+    <div class="footer-links">
+      <a href="/privacy.html">Confidentialité</a>
+      <a href="/cgu.html">CGU</a>
+      <a href="/index.html#discover">Découvrir</a>
+    </div>
+  </div>
+</footer>
 
 <script type="module">
 const $=s=>document.querySelector(s);
