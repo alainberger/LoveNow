@@ -1,15 +1,93 @@
 <!doctype html>
-<html lang="fr">
+<html lang="fr" data-theme="light">
 <head>
-<meta charset="utf-8"/>
-<title>Article 3 - LoveNow</title>
-<link rel="stylesheet" href="/styles/tokens.css">
-<link rel="stylesheet" href="/styles/components.css">
-<script src="/js/features.js"></script>
-<script src="/config.js"></script>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Témoignage : « On s’est rencontrés sur LoveNow » — LoveNow</title>
+  <meta name="description" content="Clara et Julien partagent leur histoire après s’être rencontrés sur LoveNow." />
+  <link rel="stylesheet" href="/styles/tokens.css">
+  <link rel="stylesheet" href="/styles/components.css">
+  <script src="/js/features.js"></script>
+  <script src="/config.js"></script>
+  <script defer src="/js/ui.js"></script>
 </head>
 <body>
-<header><div class="wrap"><a href="/blog/index.html">Blog</a></div></header>
-<main class="wrap"><h1>Article 3</h1><p>Contenu de démonstration.</p></main>
+  <header class="site-header">
+    <div class="wrap nav-bar">
+      <a class="brand" href="/" aria-label="LoveNow">
+        <img src="/assets/brand/logo.svg" alt="Logo LoveNow" />
+        <span>LoveNow</span>
+      </a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-menu" data-toggle-nav>
+        <span></span>
+        <span class="sr-only">Ouvrir le menu</span>
+      </button>
+      <nav id="primary-menu" class="site-menu" aria-label="Navigation principale">
+        <a href="/">Accueil</a>
+        <a href="/#discover">Découvrir</a>
+        <a href="/blog/index.html" aria-current="page">Blog</a>
+        <a href="/privacy.html">Confidentialité</a>
+      </nav>
+      <button class="mode-toggle" type="button" data-toggle-theme aria-label="Basculer le mode d'affichage">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+          <path d="M12 3a1 1 0 0 1 1 1v1.1a1 1 0 0 1-1 1h-.2a1 1 0 0 1-1-.8 3 3 0 0 0-2.9 2.9 1 1 0 0 1-.8 1H6a1 1 0 0 1-1-1A7 7 0 0 1 12 3Z" />
+          <path d="M7 12a5 5 0 1 0 10 0 5 5 0 0 0-10 0Z" />
+        </svg>
+        <span>Mode</span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <section class="article-hero">
+      <div class="wrap">
+        <nav class="breadcrumbs" aria-label="Fil d’Ariane">
+          <a href="/blog/index.html">Blog</a>
+          <span aria-hidden="true">/</span>
+          <span>Success story</span>
+        </nav>
+        <span class="pill">Success story</span>
+        <h1>Témoignage : « On s’est rencontrés sur LoveNow »</h1>
+        <div class="article-meta">
+          <span>🗓 2 mai 2024</span>
+          <span>⏱ Lecture : 3 min</span>
+        </div>
+      </div>
+    </section>
+
+    <article class="article-content">
+      <p>Clara et Julien se sont matchés en mars 2023. Après quelques messages, ils ont décidé de se rencontrer autour d’un café parisien. Leur histoire illustre l’importance de profils complets et de conversations authentiques.</p>
+
+      <h2>Des profils détaillés</h2>
+      <p>Clara avait renseigné ses passions pour la photo et le voyage. Julien a accroché sur ces centres d’intérêt et a engagé la conversation en partageant ses clichés préférés.</p>
+
+      <h2>Des échanges sincères</h2>
+      <p>Ils ont utilisé la messagerie LoveNow pendant deux semaines, échangeant playlists et recommandations d’expositions. Julien raconte : <em>« On a pris le temps de se découvrir avant de se voir, ça change tout. »</em></p>
+
+      <h2>Une rencontre en douceur</h2>
+      <p>Ils ont opté pour un lieu public et informé leurs proches. Depuis, ils multiplient les city-trips et se disent reconnaissants d’avoir trouvé LoveNow.</p>
+
+      <p>Tu as aussi une belle histoire ? Écris-nous sur <a class="link-inline" href="mailto:stories@lovenow.app">stories@lovenow.app</a> pour la partager.</p>
+
+      <div class="article-share">
+        <strong>Partager :</strong>
+        <a class="link-inline" href="https://twitter.com/intent/tweet?text=Success%20story%20LoveNow&url=https://lovenow.netlify.app/blog/article3.html" target="_blank" rel="noopener">Twitter</a>
+        <a class="link-inline" href="https://www.linkedin.com/sharing/share-offsite/?url=https://lovenow.netlify.app/blog/article3.html" target="_blank" rel="noopener">LinkedIn</a>
+      </div>
+    </article>
+  </main>
+
+  <footer>
+    <div class="wrap footer-card">
+      <small>© LoveNow — Blog</small>
+      <div class="footer-links">
+        <a href="/privacy.html">Confidentialité</a>
+        <a href="/cgu.html">CGU</a>
+        <a href="/blog/index.html">Tous les articles</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>loadCrispIfEnabled();</script>
 </body>
 </html>

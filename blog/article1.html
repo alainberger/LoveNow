@@ -1,15 +1,93 @@
 <!doctype html>
-<html lang="fr">
+<html lang="fr" data-theme="light">
 <head>
-<meta charset="utf-8"/>
-<title>Article 1 - LoveNow</title>
-<link rel="stylesheet" href="/styles/tokens.css">
-<link rel="stylesheet" href="/styles/components.css">
-<script src="/js/features.js"></script>
-<script src="/config.js"></script>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>3 ice-breakers pour engager une conversation — LoveNow</title>
+  <meta name="description" content="Besoin d’inspiration pour lancer la discussion ? Voici trois approches simples testées sur LoveNow." />
+  <link rel="stylesheet" href="/styles/tokens.css">
+  <link rel="stylesheet" href="/styles/components.css">
+  <script src="/js/features.js"></script>
+  <script src="/config.js"></script>
+  <script defer src="/js/ui.js"></script>
 </head>
 <body>
-<header><div class="wrap"><a href="/blog/index.html">Blog</a></div></header>
-<main class="wrap"><h1>Article 1</h1><p>Contenu de démonstration.</p></main>
+  <header class="site-header">
+    <div class="wrap nav-bar">
+      <a class="brand" href="/" aria-label="LoveNow">
+        <img src="/assets/brand/logo.svg" alt="Logo LoveNow" />
+        <span>LoveNow</span>
+      </a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-menu" data-toggle-nav>
+        <span></span>
+        <span class="sr-only">Ouvrir le menu</span>
+      </button>
+      <nav id="primary-menu" class="site-menu" aria-label="Navigation principale">
+        <a href="/">Accueil</a>
+        <a href="/#discover">Découvrir</a>
+        <a href="/blog/index.html" aria-current="page">Blog</a>
+        <a href="/privacy.html">Confidentialité</a>
+      </nav>
+      <button class="mode-toggle" type="button" data-toggle-theme aria-label="Basculer le mode d'affichage">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+          <path d="M12 3a1 1 0 0 1 1 1v1.1a1 1 0 0 1-1 1h-.2a1 1 0 0 1-1-.8 3 3 0 0 0-2.9 2.9 1 1 0 0 1-.8 1H6a1 1 0 0 1-1-1A7 7 0 0 1 12 3Z" />
+          <path d="M7 12a5 5 0 1 0 10 0 5 5 0 0 0-10 0Z" />
+        </svg>
+        <span>Mode</span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <section class="article-hero">
+      <div class="wrap">
+        <nav class="breadcrumbs" aria-label="Fil d’Ariane">
+          <a href="/blog/index.html">Blog</a>
+          <span aria-hidden="true">/</span>
+          <span>Conseils</span>
+        </nav>
+        <span class="pill">Conseils</span>
+        <h1>3 ice-breakers pour engager une conversation authentique</h1>
+        <div class="article-meta">
+          <span>🗓 5 juin 2024</span>
+          <span>⏱ Lecture : 3 min</span>
+        </div>
+      </div>
+    </section>
+
+    <article class="article-content">
+      <p>Envoyer le premier message peut impressionner, mais un bon ice-breaker suffit à démarrer un échange naturel. Voici trois approches validées par la communauté LoveNow pour briser la glace sans tomber dans les clichés.</p>
+
+      <h2>1. La question basée sur le profil</h2>
+      <p>Observe les centres d’intérêt, la playlist ou la destination préférée mentionnée. Pose une question ouverte : <em>« J’ai vu que tu adorais Lisbonne, quelles adresses me conseillerais-tu ? »</em>. Les membres adorent parler de leurs passions.</p>
+
+      <h2>2. Le défi ludique</h2>
+      <p>Propose un mini-jeu : <em>« Deux vérités et un mensonge ? Je commence si tu veux ! »</em>. Cette technique crée un ton complice immédiat et donne matière à poursuivre la conversation.</p>
+
+      <h2>3. Le compliment sincère</h2>
+      <p>Choisis un détail précis (photo, bio) et formule un compliment authentique : <em>« Ta playlist soul est parfaite, tu as d’autres recommandations ? »</em>. La sincérité fait toute la différence.</p>
+
+      <p>Astuce bonus : termine toujours ton message par une question pour encourager la réponse. Et si tu manques d’inspiration, LoveNow propose des suggestions contextuelles directement dans la messagerie.</p>
+
+      <div class="article-share">
+        <strong>Partager :</strong>
+        <a class="link-inline" href="https://twitter.com/intent/tweet?text=Conseils%20LoveNow%20&url=https://lovenow.netlify.app/blog/article1.html" target="_blank" rel="noopener">Twitter</a>
+        <a class="link-inline" href="https://www.linkedin.com/sharing/share-offsite/?url=https://lovenow.netlify.app/blog/article1.html" target="_blank" rel="noopener">LinkedIn</a>
+      </div>
+    </article>
+  </main>
+
+  <footer>
+    <div class="wrap footer-card">
+      <small>© LoveNow — Blog</small>
+      <div class="footer-links">
+        <a href="/privacy.html">Confidentialité</a>
+        <a href="/cgu.html">CGU</a>
+        <a href="/blog/index.html">Tous les articles</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>loadCrispIfEnabled();</script>
 </body>
 </html>

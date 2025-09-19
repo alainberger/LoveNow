@@ -1,5 +1,86 @@
 <!doctype html>
-<html lang="fr">
-<head><meta charset="utf-8"/><title>Cookies - LoveNow</title><link rel="stylesheet" href="/styles/tokens.css"><link rel="stylesheet" href="/styles/components.css"></head>
-<body><header><div class="wrap"><a href="/">Accueil</a></div></header><main class="wrap"><h1>Cookies</h1><p>Utilisation des cookies expliquée ici.</p></main></body>
+<html lang="fr" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>LoveNow — Gestion des cookies</title>
+  <meta name="description" content="Comprenez comment LoveNow utilise les cookies et comment personnaliser vos préférences." />
+  <link rel="stylesheet" href="/styles/tokens.css">
+  <link rel="stylesheet" href="/styles/components.css">
+  <script src="/js/features.js"></script>
+  <script src="/config.js"></script>
+  <script defer src="/js/ui.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap nav-bar">
+      <a class="brand" href="/" aria-label="LoveNow">
+        <img src="/assets/brand/logo.svg" alt="Logo LoveNow" />
+        <span>LoveNow</span>
+      </a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-menu" data-toggle-nav>
+        <span></span>
+        <span class="sr-only">Ouvrir le menu</span>
+      </button>
+      <nav id="primary-menu" class="site-menu" aria-label="Navigation principale">
+        <a href="/">Accueil</a>
+        <a href="/#discover">Découvrir</a>
+        <a href="/privacy.html">Confidentialité</a>
+        <a href="/terms.html">Conditions d’utilisation</a>
+      </nav>
+      <button class="mode-toggle" type="button" data-toggle-theme aria-label="Basculer le mode d'affichage">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+          <path d="M12 3a1 1 0 0 1 1 1v1.1a1 1 0 0 1-1 1h-.2a1 1 0 0 1-1-.8 3 3 0 0 0-2.9 2.9 1 1 0 0 1-.8 1H6a1 1 0 0 1-1-1A7 7 0 0 1 12 3Z" />
+          <path d="M7 12a5 5 0 1 0 10 0 5 5 0 0 0-10 0Z" />
+        </svg>
+        <span>Mode</span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <section class="page-hero">
+      <div class="wrap">
+        <span class="pill">Cookies</span>
+        <h1>Gestion des cookies</h1>
+        <p>LoveNow utilise des cookies strictement nécessaires au fonctionnement de la plateforme ainsi que, le cas échéant, des traceurs analytiques optionnels. Vous pouvez ajuster vos préférences à tout moment.</p>
+      </div>
+    </section>
+
+    <section class="page-section">
+      <div class="wrap">
+        <article class="page-card legal-content">
+          <h2>Catégories de cookies</h2>
+          <ul>
+            <li><strong>Nécessaires</strong> : authentification, maintien de session, protection contre la fraude.</li>
+            <li><strong>Préférences</strong> : mémorisation de la langue, thème visuel (clair/sombre).</li>
+            <li><strong>Mesure d’audience</strong> : analyse d’usage agrégée (activée uniquement si vous y consentez).</li>
+          </ul>
+
+          <h2>Gestion du consentement</h2>
+          <p>Lors de votre première visite, une bannière vous permet d’accepter ou de refuser les cookies facultatifs. Vous pouvez modifier votre choix depuis les <a class="link-inline" href="/settings.html">paramètres</a> ou en écrivant à <a class="link-inline" href="mailto:dpo@lovenow.app">dpo@lovenow.app</a>.</p>
+
+          <h2>Durée de conservation</h2>
+          <p>Les cookies nécessaires expirent à la fin de la session ou au plus tard sous 13 mois. Les cookies optionnels sont conservés pendant 6 mois maximum avant d’être renouvelés avec votre accord.</p>
+
+          <h2>Navigateurs</h2>
+          <p>Vous pouvez aussi gérer les cookies depuis votre navigateur : consultez les guides pour <a class="link-inline" href="https://support.google.com/chrome/answer/95647" target="_blank" rel="noopener">Chrome</a>, <a class="link-inline" href="https://support.mozilla.org/fr/kb/protection-renforcee-contre-pistage-firefox-ordinateur" target="_blank" rel="noopener">Firefox</a> ou <a class="link-inline" href="https://support.apple.com/fr-fr/HT201265" target="_blank" rel="noopener">Safari</a>.</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap footer-card">
+      <small>© LoveNow — Cookies</small>
+      <div class="footer-links">
+        <a href="/privacy.html">Confidentialité</a>
+        <a href="/cgu.html">CGU</a>
+        <a href="/terms.html">Conditions d’utilisation</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>loadCrispIfEnabled();</script>
+</body>
 </html>
