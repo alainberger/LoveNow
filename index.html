@@ -17,22 +17,37 @@
     <link rel="manifest" href="/public/manifest.json">
     <script src="/js/features.js"></script>
     <script src="config.js"></script>
+    <script defer src="/js/ui.js"></script>
 </head>
 <body>
-  <header>
-    <div class="wrap">
-      <nav aria-label="Navigation principale">
-        <a href="/" aria-label="Accueil">
-          <img src="/assets/brand/logo.svg" alt="LoveNow" style="height:32px" />
-        </a>
-        <div class="grow"></div>
-        <a href="/#discover" class="ghost btn">Découvrir</a>
-        <a href="/conversations.html" class="ghost btn">Conversations</a>
-        <a href="/profile.html" class="ghost btn">Mon profil</a>
-        <a href="/privacy.html" class="ghost btn">Confidentialité</a>
-        <a href="/cgu.html" class="ghost btn">CGU</a>
-        <span id="header-session"><a href="/login.html#signup" class="btn">Rejoins-nous gratuitement</a></span>
+  <header class="site-header">
+    <div class="wrap nav-bar">
+      <a class="brand" href="/" aria-label="LoveNow">
+        <img src="/assets/brand/logo.svg" alt="Logo LoveNow" />
+        <span>LoveNow</span>
+      </a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-menu" data-toggle-nav>
+        <span></span>
+        <span class="sr-only">Ouvrir le menu</span>
+      </button>
+      <nav id="primary-menu" class="site-menu" aria-label="Navigation principale">
+        <a href="/#discover">Découvrir</a>
+        <a href="/matchmaking.html">Matching</a>
+        <a href="/conversations.html">Conversations</a>
+        <a href="/profile.html">Mon profil</a>
+        <a href="/privacy.html">Confidentialité</a>
+        <a href="/cgu.html">CGU</a>
+        <div class="session-slot" id="header-session">
+          <a class="btn" href="/login.html#signup">Rejoins-nous gratuitement</a>
+        </div>
       </nav>
+      <button class="mode-toggle" type="button" data-toggle-theme aria-label="Basculer le mode d'affichage">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+          <path d="M12 3a1 1 0 0 1 1 1v1.1a1 1 0 0 1-1 1h-.2a1 1 0 0 1-1-.8 3 3 0 0 0-2.9 2.9 1 1 0 0 1-.8 1H6a1 1 0 0 1-1-1A7 7 0 0 1 12 3Z" />
+          <path d="M7 12a5 5 0 1 0 10 0 5 5 0 0 0-10 0Z" />
+        </svg>
+        <span>Mode</span>
+      </button>
     </div>
   </header>
 
@@ -45,20 +60,48 @@
   </div>
 
   <main>
-    <section class="hero">
+    <section class="hero" id="hero">
       <div class="wrap">
-        <h1>Rencontrez en toute simplicité — réservé aux 18+</h1>
-        <p class="lead">Des profils proches de chez vous. Filtres clairs, messages sécurisés, confidentialité maîtrisée.</p>
-        <p>
-          <a class="btn" href="/login.html#signup">Créer mon compte</a>
-          <a class="btn ghost" href="/#discover">Découvrir des profils</a>
-        </p>
+        <div class="hero-content">
+          <div class="hero-badges">
+            <span class="chip">⚡ Matching en direct</span>
+            <span class="chip">🔐 Authentification sécurisée</span>
+            <span class="chip">💬 Messagerie instantanée</span>
+          </div>
+          <h1>LoveNow, des rencontres modernes et authentiques</h1>
+          <p>Découvrez des profils vérifiés près de chez vous, échangez en toute confiance et laissez l’algorithme de matching faire le reste.</p>
+          <div class="actions">
+            <a class="btn" href="/login.html#signup">Créer mon compte</a>
+            <a class="btn ghost" href="/#discover">Explorer les profils</a>
+          </div>
+          <p class="muted">18+ uniquement · Disponible sur mobile &amp; desktop · Notifications e-mail en option</p>
+        </div>
+        <div class="hero-visual" aria-hidden="true">
+          <div class="hero-card">
+            <div class="mini-profile">
+              <div class="hero-avatar">AN</div>
+              <div>
+                <strong>Anna, 27</strong>
+                <span>Paris · Café &amp; concerts</span>
+              </div>
+            </div>
+            <div class="stacked">
+              <div class="bubble">💬 « J’ai matché en quelques minutes et la conversation a tout de suite démarré ! »</div>
+              <div class="bubble">98% profils vérifiés</div>
+            </div>
+            <div class="stacked">
+              <div class="bubble">🎯 Filtres avancés</div>
+              <div class="bubble">🔔 Alertes discrètes</div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
     <section id="discover" aria-labelledby="discover-title">
       <div class="wrap">
         <h2 id="discover-title">Découvrir des profils</h2>
+        <p class="lead">Affinez votre recherche par genre, âge ou ville et envoyez un message dès que vous avez un match.</p>
         <form id="filters" class="filters" onsubmit="return false">
           <div>
             <label for="gender">Genre</label>
@@ -95,8 +138,14 @@
   <div id="toast" role="status" aria-live="polite"></div>
 
   <footer>
-    <div class="wrap" style="padding:24px 16px;color:#666">
-      <small>© LoveNow — <a href="/privacy.html">Confidentialité</a> · <a href="/cgu.html">CGU</a></small>
+    <div class="wrap footer-card">
+      <small>© LoveNow — Rencontres responsables &amp; inclusives</small>
+      <div class="footer-links">
+        <a href="/privacy.html">Confidentialité</a>
+        <a href="/cgu.html">CGU</a>
+        <a href="/legal/cookies.html">Cookies</a>
+        <a href="/blog/index.html">Blog</a>
+      </div>
     </div>
   </footer>
 
@@ -117,8 +166,17 @@
 
     let currentUser=null;
 
-    const showToast = msg=>{toast.textContent=msg;toast.style.display='block';setTimeout(()=>toast.style.display='none',2200);};
-    function renderSkeletons(n=6){resultsEl.innerHTML=Array.from({length:n}).map(()=>'<div class="skel" aria-hidden="true"></div>').join('');emptyHintEl.style.display='block';}
+    let toastTimer;
+    const showToast = msg=>{
+      toast.textContent = msg;
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(()=>toast.classList.remove('show'),2200);
+    };
+    function renderSkeletons(n=6){
+      resultsEl.innerHTML=Array.from({length:n}).map(()=>'<div class="skel" aria-hidden="true"></div>').join('');
+      emptyHintEl.style.display='block';
+    }
     const DEMO=[
       {uid:'demo1',name:'Alice',age:25,city:'Paris',bio:'Profil démo'},
       {uid:'demo2',name:'Bob',age:30,city:'Lyon',bio:'Profil démo'}
@@ -129,11 +187,26 @@
       resultsEl.innerHTML=items.map(p=>{
         const id=p.uid||p.id||'';
         const viewLink=currentUser?`/profile-public.html?id=${id}`:'/login.html#login';
-        return `<article class="card" tabindex="0" aria-label="Profil">
-          <div style="font-weight:700">${p.name||p.displayName||'—'}</div>
-          <div class="muted">${(p.age??'—')} ans · ${p.city||'—'}</div>
-          <p>${p.bio||'—'}</p>
-          <div class="actions"><a class="btn ghost" href="${viewLink}">Voir le profil</a><button class="btn btnMessage" data-uid="${id}">Message</button></div>
+        const displayName=p.name||p.displayName||'—';
+        const initials=displayName.trim()[0]?.toUpperCase()||'?';
+        const photo=p.photoURL||p.photoUrl||'';
+        const city=p.city||'—';
+        const age=(p.age??'—');
+        const bio=p.bio?.slice(0,140)||'Ce membre n’a pas encore rédigé sa présentation.';
+        const avatar=photo?`<img src="${photo}" alt="Photo de ${displayName}">`:`<span>${initials}</span>`;
+        return `<article class="card profile-card" tabindex="0" aria-label="Profil de ${displayName}">
+          <div class="profile-card__header">
+            <div class="profile-card__avatar">${avatar}</div>
+            <div class="profile-card__meta">
+              <strong>${displayName}</strong>
+              <span>${age} ans · ${city}</span>
+            </div>
+          </div>
+          <p>${bio}</p>
+          <div class="profile-card__actions">
+            <a class="btn ghost" href="${viewLink}">Voir le profil</a>
+            <button class="btn btnMessage" data-uid="${id}">Envoyer un message</button>
+          </div>
         </article>`;
       }).join('');
       resultsEl.querySelectorAll('.btnMessage').forEach(btn=>{

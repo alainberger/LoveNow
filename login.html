@@ -1,90 +1,142 @@
 <!doctype html>
-<html lang="fr">
+<html lang="fr" data-theme="light">
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>LoveNow — Connexion / Inscription</title>
-<link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" as="style" onload="this.rel='stylesheet'">
+<link rel="stylesheet" href="/styles/tokens.css">
+<link rel="stylesheet" href="/styles/components.css">
+<script src="/js/features.js"></script>
+<script src="config.js"></script>
+<script defer src="/js/ui.js"></script>
 <style>
-  :root{--bg:#0f1115;--card:#171922;--muted:#aab1c3;--text:#e9edf6;--brand:#ff2d55;--brand2:#7a5cf0}
-  body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui}
-  .wrap{max-width:720px;margin:0 auto;padding:20px}
-  .tabs{display:flex;gap:8px;margin:8px 0 16px}
-  .tab{padding:.6rem .9rem;border-radius:.6rem;background:#1a1e2b;border:1px solid #27314a;cursor:pointer}
-  .tab[aria-selected="true"]{background:linear-gradient(135deg,var(--brand),var(--brand2));border:none}
-  input,select{width:100%;padding:.7rem;border-radius:.6rem;background:#0f1115;border:1px solid #2b2f44;color:var(--text)}
-  label{display:block;margin:10px 0 6px;color:var(--muted)}
-  .btn{display:inline-flex;align-items:center;justify-content:center;padding:.7rem 1rem;border-radius:.6rem;background:#232739;border:1px solid #2b2f44;cursor:pointer}
-  .btn-primary{background:linear-gradient(135deg,var(--brand),var(--brand2));border:none}
-  .card{background:var(--card);border:1px solid #202334;border-radius:.9rem;padding:16px}
-  .muted{color:var(--muted)}
-  .banner{background:#1a1e2b;border:1px solid #27314a;border-radius:.8rem;padding:.6rem .8rem;margin:12px 0;display:flex;gap:8px;justify-content:space-between;align-items:center}
-  .row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-  @media (max-width:560px){.row{grid-template-columns:1fr}}
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:'Manrope',system-ui,sans-serif}
+  main{padding-bottom:72px}
+  .auth-shell{width:min(720px,92vw);margin:72px auto 96px;display:grid;gap:24px}
+  .auth-card{display:grid;gap:18px}
+  .tabs{display:flex;gap:12px;background:rgba(255,255,255,0.7);padding:6px;border-radius:999px;justify-content:space-between}
+  [data-theme="dark"] .tabs{background:rgba(29,28,54,0.8)}
+  .tab{flex:1;display:inline-flex;align-items:center;justify-content:center;padding:.65rem 1rem;border-radius:999px;border:none;background:transparent;font-weight:600;color:var(--muted);cursor:pointer;transition:background 160ms ease,color 160ms ease,box-shadow 160ms ease}
+  .tab[aria-selected="true"]{background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff;box-shadow:0 18px 36px -24px rgba(255,61,138,0.6)}
+  .auth-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
+  .auth-footer{font-size:0.9rem;color:var(--muted)}
+  .auth-footer strong{color:var(--brand)}
+  .form-grid{display:grid;gap:18px}
+  .row{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+  .logout-wrap{display:flex;justify-content:flex-end}
 </style>
 
   <!-- ta config publique -->
   <script src="config.js"></script>
   </head>
 <body>
-  <div class="wrap">
-    <a class="btn" href="index.html">← Accueil</a>
-    <h1>Connexion / Inscription</h1>
-
-    <!-- onglets -->
-    <div class="tabs" role="tablist" aria-label="Choisir une action">
-      <button id="tab-login" role="tab" class="tab" aria-selected="true">Connexion</button>
-      <button id="tab-signup" role="tab" class="tab" aria-selected="false">Inscription</button>
+  <header class="site-header">
+    <div class="wrap nav-bar">
+      <a class="brand" href="/" aria-label="LoveNow">
+        <img src="/assets/brand/logo.svg" alt="Logo LoveNow" />
+        <span>LoveNow</span>
+      </a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-menu" data-toggle-nav>
+        <span></span>
+        <span class="sr-only">Ouvrir le menu</span>
+      </button>
+      <nav id="primary-menu" class="site-menu" aria-label="Navigation principale">
+        <a href="/#discover">Découvrir</a>
+        <a href="/privacy.html">Confidentialité</a>
+        <a href="/cgu.html">CGU</a>
+      </nav>
+      <button class="mode-toggle" type="button" data-toggle-theme aria-label="Basculer le mode d'affichage">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+          <path d="M12 3a1 1 0 0 1 1 1v1.1a1 1 0 0 1-1 1h-.2a1 1 0 0 1-1-.8 3 3 0 0 0-2.9 2.9 1 1 0 0 1-.8 1H6a1 1 0 0 1-1-1A7 7 0 0 1 12 3Z" />
+          <path d="M7 12a5 5 0 1 0 10 0 5 5 0 0 0-10 0Z" />
+        </svg>
+        <span>Mode</span>
+      </button>
     </div>
+  </header>
 
-    <!-- PANNEAU CONNEXION (visible par défaut sans JS) -->
-    <div id="panel-login" role="tabpanel" class="card">
-      <form id="login">
-        <label for="liEmail">Email</label>
-        <input id="liEmail" type="email" required autocomplete="username">
-        <label for="liPass">Mot de passe</label>
-        <input id="liPass" type="password" required autocomplete="current-password" minlength="6">
-        <div style="margin-top:12px;display:flex;gap:8px">
-          <button class="btn btn-primary" type="submit">Se connecter</button>
-          <a class="btn" href="index.html">Accueil</a>
+  <main>
+    <div class="auth-shell">
+      <section class="page-card auth-card">
+        <h1>Connexion / Inscription</h1>
+        <div class="tabs" role="tablist" aria-label="Choisir une action">
+          <button id="tab-login" role="tab" class="tab" aria-selected="true">Connexion</button>
+          <button id="tab-signup" role="tab" class="tab" aria-selected="false">Inscription</button>
         </div>
-      </form>
-    </div>
 
-    <!-- PANNEAU INSCRIPTION -->
-    <div id="panel-signup" role="tabpanel" class="card" hidden>
-      <form id="signup">
-        <label for="suEmail">Email</label>
-        <input id="suEmail" type="email" required autocomplete="email">
-        <label for="suPass">Mot de passe (≥ 6 caractères)</label>
-        <input id="suPass" type="password" required minlength="6" autocomplete="new-password">
-        <label for="suName">Nom / Pseudo</label>
-        <input id="suName" type="text" required>
-        <div class="row">
-          <div>
-            <label for="suAge">Âge</label>
-            <input id="suAge" type="number" min="18" max="99" required>
-          </div>
-          <div>
-            <label for="suCity">Ville</label>
-            <input id="suCity" type="text" required>
-          </div>
+        <div id="panel-login" role="tabpanel">
+          <form id="login" class="form-grid">
+            <div>
+              <label for="liEmail">Email</label>
+              <input id="liEmail" type="email" required autocomplete="username">
+            </div>
+            <div>
+              <label for="liPass">Mot de passe</label>
+              <input id="liPass" type="password" required autocomplete="current-password" minlength="6">
+            </div>
+            <div class="auth-actions">
+              <button class="btn" type="submit">Se connecter</button>
+              <a class="btn ghost" href="/">Retour à l’accueil</a>
+            </div>
+          </form>
         </div>
-        <label for="suGender">Genre</label>
-        <select id="suGender">
-          <option value="F">Femme</option><option value="M">Homme</option><option value="O">Autre</option>
-        </select>
-        <div style="margin-top:12px;display:flex;gap:8px">
-          <button class="btn btn-primary" type="submit">Créer mon compte</button>
-          <a class="btn" href="index.html">Accueil</a>
-        </div>
-      </form>
-    </div>
 
-    <div style="margin-top:16px">
-      <button id="btnLogout" class="btn">Se déconnecter</button>
+        <div id="panel-signup" role="tabpanel" hidden>
+          <form id="signup" class="form-grid">
+            <div>
+              <label for="suEmail">Email</label>
+              <input id="suEmail" type="email" required autocomplete="email">
+            </div>
+            <div>
+              <label for="suPass">Mot de passe (≥ 6 caractères)</label>
+              <input id="suPass" type="password" required minlength="6" autocomplete="new-password">
+            </div>
+            <div>
+              <label for="suName">Nom / Pseudo</label>
+              <input id="suName" type="text" required>
+            </div>
+            <div class="row">
+              <div>
+                <label for="suAge">Âge</label>
+                <input id="suAge" type="number" min="18" max="99" required>
+              </div>
+              <div>
+                <label for="suCity">Ville</label>
+                <input id="suCity" type="text" required>
+              </div>
+            </div>
+            <div>
+              <label for="suGender">Genre</label>
+              <select id="suGender">
+                <option value="F">Femme</option><option value="M">Homme</option><option value="O">Autre</option>
+              </select>
+            </div>
+            <div class="auth-actions">
+              <button class="btn" type="submit">Créer mon compte</button>
+              <a class="btn ghost" href="/">Retour à l’accueil</a>
+            </div>
+          </form>
+        </div>
+
+        <p class="auth-footer">Besoin d’aide ? <strong>support@lovenow.app</strong></p>
+      </section>
+
+      <div class="auth-actions logout-wrap">
+        <button id="btnLogout" class="btn ghost" type="button">Se déconnecter</button>
+      </div>
     </div>
-  </div>
+  </main>
+
+  <footer>
+    <div class="wrap footer-card">
+      <small>© LoveNow — Espace membre</small>
+      <div class="footer-links">
+        <a href="/privacy.html">Confidentialité</a>
+        <a href="/cgu.html">CGU</a>
+      </div>
+    </div>
+  </footer>
 
   <!-- Firebase / AppCheck / Firestore (module) -->
   <script type="module">
