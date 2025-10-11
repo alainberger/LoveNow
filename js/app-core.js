@@ -9,6 +9,20 @@ const BASE = `https://www.gstatic.com/firebasejs/${FIREBASE_VERSION}/`;
 const DEV_BYPASS_KEY = 'dev:allowUnverified';
 const THEME_KEY = 'theme';
 
+const HTML_ESCAPE_REGEX = /[&<>"']+/g;
+const HTML_REPLACEMENTS = {
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  "'": '&#39;',
+};
+
+function escapeHtml(input = '') {
+  if (typeof input !== 'string') return '';
+  return input.replace(HTML_ESCAPE_REGEX, (match) => HTML_REPLACEMENTS[match] || match);
+}
+
 const appPromise = (async () => {
   if (!window.APP_CONFIG?.firebase) {
     throw new Error('Firebase config manquante (config.js)');
@@ -91,14 +105,16 @@ export function buildUserProfilePayload(user, overrides = {}) {
     uid: user.uid,
     email: user.email || '',
     emailVerified: !!user.emailVerified,
-    name: overrides.name ?? user.displayName ?? '',
-    displayName: overrides.name ?? user.displayName ?? '',
+    name: escapeHtml(overrides.name ?? user.displayName ?? ''),
+    displayName: escapeHtml(overrides.name ?? user.displayName ?? ''),
     age: typeof overrides.age === 'number' ? overrides.age : user.age ?? null,
-    city: overrides.city ?? user.city ?? '',
+    city: escapeHtml(overrides.city ?? user.city ?? ''),
     cityLower,
-    gender: overrides.gender ?? user.gender ?? '',
-    bio: overrides.bio ?? user.bio ?? '',
+    gender: escapeHtml(overrides.gender ?? user.gender ?? ''),
+    bio: escapeHtml(overrides.bio ?? user.bio ?? ''),
     photoURL: overrides.photoURL ?? user.photoURL ?? '',
+    isHidden: overrides.isHidden ?? user.isHidden ?? false,
+    filtersDefault: overrides.filtersDefault ?? user.filtersDefault ?? null,
     updatedAt: serverTimestamp ? serverTimestamp() : null,
   };
   if (serverTimestamp) {
@@ -117,9 +133,9 @@ export async function ensureUserDocuments(db, firestoreModule, user, extra = {})
   const payload = {
     uid: user.uid,
     email: user.email || '',
-    emailVerified: !!user.emailVerified,
-    name: user.displayName || user.email || '',
-    displayName: user.displayName || user.email || '',
+    emailVerified: extra.emailVerified ?? !!user.emailVerified,
+    name: escapeHtml(user.displayName || user.email || ''),
+    displayName: escapeHtml(user.displayName || user.email || ''),
     age: null,
     gender: '',
     city: '',
@@ -128,6 +144,8 @@ export async function ensureUserDocuments(db, firestoreModule, user, extra = {})
     photoURL: user.photoURL || '',
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
+    filtersDefault: null,
+    isHidden: false,
     ...extra,
   };
   if (!snap.exists()) {
@@ -154,7 +172,16 @@ export async function loadUserProfile(db, firestoreModule, uid) {
 
 export async function saveUserProfile(db, firestoreModule, uid, data) {
   const { doc, setDoc, serverTimestamp } = firestoreModule;
-  const payload = { ...data, updatedAt: serverTimestamp(), cityLower: data.city ? data.city.trim().toLowerCase() : '' };
+  const payload = {
+    ...data,
+    displayName: escapeHtml(data.displayName || data.name || ''),
+    name: escapeHtml(data.displayName || data.name || ''),
+    city: escapeHtml(data.city || ''),
+    gender: escapeHtml(data.gender || ''),
+    bio: escapeHtml(data.bio || ''),
+    cityLower: data.city ? data.city.trim().toLowerCase() : '',
+    updatedAt: serverTimestamp(),
+  };
   await Promise.all([
     setDoc(doc(db, 'users', uid), payload, { merge: true }),
     setDoc(doc(db, 'profiles', uid), payload, { merge: true }),

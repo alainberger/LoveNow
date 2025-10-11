@@ -160,10 +160,15 @@
       renderVerifyBanner,
       applySessionToHeader,
       safeSignOut,
-      ensureUserDocuments,
       getUserPreferences,
       isDevBypassEnabled,
     } from '/js/app-core.js';
+    import {
+      initAuth,
+      resendVerificationEmail,
+      refreshUser,
+      isEmailVerified,
+    } from '/js/auth.js';
 
     const state = {
       currentUser: null,
@@ -173,6 +178,7 @@
       loading: false,
       results: [],
       prefsApplied: false,
+      emailVerified: false,
     };
 
     const PAGE_SIZE = 20;
@@ -282,7 +288,7 @@
             window.location.href = '/login.html#log_in';
             return;
           }
-          if (!state.currentUser.emailVerified && !state.devBypass) {
+          if (!state.emailVerified && !state.devBypass) {
             verifyBanner.hidden = false;
             showToast('Vérifie ton e-mail pour démarrer une conversation.');
             return;
@@ -351,12 +357,7 @@
 
     (async () => {
       const { auth, db, authModule, firestoreModule } = await setupFirebase();
-      const {
-        onAuthStateChanged,
-        signOut,
-        sendEmailVerification,
-        reload,
-      } = authModule;
+      const { signOut } = authModule;
       const {
         collection,
         query,
@@ -417,55 +418,90 @@
         resendBtn: btnResend,
         refreshBtn: btnRefresh,
         onResend: async () => {
-          if (!auth.currentUser) return;
-          await sendEmailVerification(auth.currentUser);
-          showToast('Lien de vérification envoyé ✅');
+          try {
+            await resendVerificationEmail();
+            showToast('Lien de vérification envoyé ✅');
+          } catch (err) {
+            if (err?.code === 'cooldown') {
+              showToast(`Réessaie dans ${err.remaining}s.`);
+            } else if (err?.message === 'not-authenticated') {
+              showToast('Connecte-toi pour renvoyer le lien.');
+            } else {
+              showToast('Envoi impossible pour le moment.');
+            }
+            throw err;
+          }
         },
         onRefresh: async () => {
-          if (!auth.currentUser) return;
-          await reload(auth.currentUser);
-          if (auth.currentUser.emailVerified || state.devBypass) {
-            verifyBanner.hidden = true;
+          try {
+            const refreshed = await refreshUser();
+            state.emailVerified = refreshed?.emailVerified || isEmailVerified();
+            if (state.emailVerified || state.devBypass) {
+              verifyBanner.hidden = true;
+              showToast('Statut mis à jour ✅');
+            }
+          } catch (err) {
+            if (err?.message === 'not-authenticated') {
+              showToast('Connecte-toi pour rafraîchir.');
+            } else {
+              console.error('refresh failed', err);
+              showToast('Actualisation impossible pour le moment.');
+            }
+            throw err;
           }
         },
       });
 
-      onAuthStateChanged(auth, async (user) => {
-        state.currentUser = user;
-        if (user) {
-          applySessionToHeader(headerSlot, user, {
-            onSignOutClick: (event) => safeSignOut(auth, signOut, event?.currentTarget),
-          });
-          await ensureUserDocuments(db, firestoreModule, user);
-          if (user.emailVerified || state.devBypass) {
-            verifyBanner.hidden = true;
-          } else {
-            verifyBanner.hidden = false;
-          }
-
-          if (!state.prefsApplied && (!window.location.search || window.location.search.length <= 1)) {
-            try {
-              const prefs = await getUserPreferences(db, firestoreModule, user.uid);
-              const shouldRefetch = applyPreferenceFilters(prefs || {});
-              if (shouldRefetch) {
-                state.lastDoc = null;
-                state.loading = true;
-                renderSkeletons();
-                await fetchProfiles();
+      await initAuth({
+        onAuthenticated: async ({ user, emailVerified }) => {
+          state.currentUser = user;
+          state.emailVerified = emailVerified;
+          if (user) {
+            applySessionToHeader(headerSlot, user, {
+              onSignOutClick: (event) => safeSignOut(auth, signOut, event?.currentTarget),
+            });
+            if (emailVerified || state.devBypass) {
+              verifyBanner.hidden = true;
+            } else {
+              verifyBanner.hidden = false;
+            }
+            if (!state.prefsApplied && (!window.location.search || window.location.search.length <= 1)) {
+              try {
+                const prefs = await getUserPreferences(db, firestoreModule, user.uid);
+                const shouldRefetch = applyPreferenceFilters(prefs || {});
+                if (shouldRefetch) {
+                  state.lastDoc = null;
+                  state.loading = true;
+                  renderSkeletons();
+                  await fetchProfiles();
+                }
+              } catch (err) {
+                console.error('apply preferences failed', err);
+              } finally {
+                state.prefsApplied = true;
               }
-            } catch (err) {
-              console.error('apply preferences failed', err);
-            } finally {
+            } else {
               state.prefsApplied = true;
             }
           } else {
-            state.prefsApplied = true;
+            applySessionToHeader(headerSlot, null, { onSignOutClick: () => {} });
+            verifyBanner.hidden = true;
+            state.prefsApplied = false;
           }
-        } else {
+          updateDevBadge();
+        },
+        onUnauthenticated: () => {
           applySessionToHeader(headerSlot, null, { onSignOutClick: () => {} });
           verifyBanner.hidden = true;
           state.prefsApplied = false;
-        }
+          state.currentUser = null;
+          state.emailVerified = false;
+        },
+        onVerificationRequired: () => {
+          if (!state.devBypass) {
+            verifyBanner.hidden = false;
+          }
+        },
       });
 
       hydrateFiltersFromUrl();

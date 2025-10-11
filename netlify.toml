@@ -1,8 +1,7 @@
-# netlify.toml — LoveNow (redirects + headers sécurité)
+# netlify.toml — LoveNow production hardening
 [build]
   publish = "."
 
-# Routes propres
 [[redirects]]
   from = "/privacy"
   to = "/privacy.html"
@@ -23,25 +22,43 @@
   to = "/conversations.html"
   status = 200
 
-# Lien court pour profils publics : /u/UID -> user.html?uid=UID
+[[redirects]]
+  from = "/matchmaking"
+  to = "/matchmaking.html"
+  status = 200
+
+[[redirects]]
+  from = "/profile"
+  to = "/profile.html"
+  status = 200
+
+[[redirects]]
+  from = "/settings"
+  to = "/settings.html"
+  status = 200
+
+[[redirects]]
+  from = "/legal/cookies"
+  to = "/legal/cookies.html"
+  status = 200
+
 [[redirects]]
   from = "/u/:uid"
   to   = "/user.html?uid=:uid"
   status = 200
 
-# Catch-all SPA -> index.html
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
 
-# Headers sécurité
 [[headers]]
   for = "/*"
   [headers.values]
     Referrer-Policy = "strict-origin-when-cross-origin"
     X-Content-Type-Options = "nosniff"
-    Permissions-Policy = "geolocation=(), camera=(), microphone=()"
-    Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"
     X-Frame-Options = "DENY"
-    Content-Security-Policy = "default-src 'self'; img-src 'self' https: data: https://image.crisp.chat; style-src 'self' https: 'unsafe-inline'; script-src 'self' https: 'unsafe-inline' https://client.crisp.chat https://*.crisp.chat; font-src 'self' https: data:; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com https://www.gstatic.com https://firebasestorage.googleapis.com https://*.firebasestorage.app https://api.cloudinary.com https://client.crisp.chat https://*.crisp.chat wss://*.crisp.chat; frame-src https://www.google.com/recaptcha/ https://recaptcha.google.com/recaptcha/; child-src https://www.google.com/recaptcha/ https://recaptcha.google.com/recaptcha/; frame-ancestors 'none'"
+    Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"
+    Permissions-Policy = "geolocation=(), camera=(), microphone=(), payment=()"
+    Cache-Control = "public, max-age=600"
+    Content-Security-Policy = "default-src 'self'; base-uri 'self'; object-src 'none'; img-src 'self' data: https://res.cloudinary.com https://image.crisp.chat; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://www.google-analytics.com https://client.crisp.chat; style-src 'self' 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com https://www.gstatic.com https://firebasestorage.googleapis.com https://*.firebasestorage.app https://res.cloudinary.com https://api.cloudinary.com https://client.crisp.chat https://*.crisp.chat wss://*.crisp.chat; frame-src https://www.google.com/recaptcha/ https://recaptcha.google.com/recaptcha/; frame-ancestors 'none'"
